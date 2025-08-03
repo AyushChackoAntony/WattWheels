@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WattWheels - Electric Vehicle Rental Platform</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+    />
+  </head>
+  <body>
+    <header>
+      <nav class="navbar">
+        <div class="nav-left">
+          <div class="logo">
+            <i class="fas fa-bolt"></i>
+            <span>WattWheels</span>
+          </div>
+          <ul class="nav-links">
+            <li><a href="#about">About</a></li>
+            <li><a href="#how-it-works">How It Works</a></li>
+            <li><a href="#vehicles">Our EVs</a></li>
+            <li><a href="#contact">Contact</a></li>
+          </ul>
+        </div>
+        <div class="nav-right">
+          <ul class="nav-links">
+            <li>
+              <a href="pages/loginAndSignup/login.html" class="login-btn"
+                >Login</a
+              >
+            </li>
+            <li>
+              <a href="pages/loginAndSignup/signup.html" class="signup-btn"
+                >Sign Up</a
+              >
+            </li>
+          </ul>
+        </div>
+      </nav>
+    </header>
+
+    <main>
+      <!-- Hero Section -->
+      <section class="hero">
+        <div class="hero-content">
+          <div class="hero-left">
+            <div class="hero-badge">
+              <i class="fas fa-leaf"></i>
+              <span>Eco-Friendly Transportation</span>
+            </div>
+
+            <h1>
+              Drive the Future with
+              <span class="highlight">Electric Vehicles</span>
+            </h1>
+            <p class="hero-subtitle">
+              Rent premium electric cars and bikes for your daily commute. Zero
+              emissions, maximum convenience.
+            </p>
+
+            <div class="hero-stats">
+              <div class="stat">
+                <span class="stat-number">500+</span>
+                <span class="stat-label">EVs Available</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">50+</span>
+                <span class="stat-label">Cities</span>
+              </div>
+              <div class="stat">
+                <span class="stat-number">10k+</span>
+                <span class="stat-label">Happy Users</span>
+              </div>
+            </div>
+
+            <form class="booking-form">
+              <div class="form-container">
+                <div class="form-header">
+                  <h3>Find Your Perfect EV</h3>
+                  <p>Quick and easy booking process</p>
+                </div>
+
+                <div class="input-group">
+                  <div class="input-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                  <input type="text" placeholder="Pickup location" />
+                </div>
+
+                <div class="input-group">
+                  <div class="input-icon">
+                    <i class="fas fa-map-marker-alt"></i>
+                  </div>
+                  <input type="text" placeholder="Drop-off location" />
+                </div>
+
+                <div class="form-row">
+                  <div class="input-group">
+                    <div class="input-icon">
+                      <i class="fas fa-calendar"></i>
+                    </div>
+                    <input type="date" />
+                  </div>
+                  <div class="input-group">
+                    <div class="input-icon">
+                      <i class="fas fa-clock"></i>
+                    </div>
+                    <input type="time" />
+                  </div>
+                </div>
+
+                <div class="form-buttons">
+                  <button type="submit" class="primary-btn">
+                    <i class="fas fa-search"></i>
+                    Find EVs
+                  </button>
+                  <button type="button" class="secondary-btn">
+                    <i class="fas fa-calendar-plus"></i>
+                    Schedule Later
+                  </button>
+                </div>
+              </div>
+            </form>
+
+            <div class="hero-links">
+              <a href="#" class="link-btn">
+                <i class="fas fa-car"></i>
+                Become a Driver
+              </a>
+              <span class="separator">•</span>
+              <a href="#vehicles" class="link-btn">
+                <i class="fas fa-bolt"></i>
+                View All EVs
+              </a>
+            </div>
+          </div>
+
+          <div class="hero-right">
+            <div class="hero-image">
+              <img src="images/hero-car.svg" alt="Electric Vehicle" />
+              <div class="floating-card">
+                <div class="card-icon">
+                  <i class="fas fa-charging-station"></i>
+                </div>
+                <div class="card-content">
+                  <h4>Charging Network</h4>
+                  <p>Access to 1000+ charging stations</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Features Section -->
+      <section class="features" id="about">
+        <div class="container">
+          <div class="section-header">
+            <h2>Why Choose WattWheels?</h2>
+            <p>
+              Experience the future of transportation with our comprehensive EV
+              rental platform
+            </p>
+          </div>
+
+          <div class="features-grid">
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-leaf"></i>
+              </div>
+              <h3>Eco-Friendly</h3>
+              <p>
+                Zero emissions, reduced carbon footprint. Drive green, live
+                clean.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-wallet"></i>
+              </div>
+              <h3>Cost-Effective</h3>
+              <p>
+                Save money on fuel and maintenance. EVs are cheaper to operate.
+              </p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-mobile-alt"></i>
+              </div>
+              <h3>Easy Booking</h3>
+              <p>Book your EV in seconds with our user-friendly mobile app.</p>
+            </div>
+
+            <div class="feature-card">
+              <div class="feature-icon">
+                <i class="fas fa-shield-alt"></i>
+              </div>
+              <h3>Safe & Secure</h3>
+              <p>All vehicles are regularly maintained and fully insured.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- How It Works Section -->
+      <section class="how-it-works" id="how-it-works">
+        <div class="container">
+          <div class="section-header">
+            <h2>How It Works</h2>
+            <p>Get your electric vehicle in just 3 simple steps</p>
+          </div>
+
+          <div class="steps-container">
+            <div class="step">
+              <div class="step-number">1</div>
+              <div class="step-icon">
+                <i class="fas fa-search"></i>
+              </div>
+              <h3>Find Your EV</h3>
+              <p>
+                Browse our selection of electric cars and bikes. Filter by type,
+                range, and price.
+              </p>
+            </div>
+
+            <div class="step">
+              <div class="step-number">2</div>
+              <div class="step-icon">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <h3>Book & Pay</h3>
+              <p>
+                Select your dates, choose your payment method, and confirm your
+                booking.
+              </p>
+            </div>
+
+            <div class="step">
+              <div class="step-number">3</div>
+              <div class="step-icon">
+                <i class="fas fa-key"></i>
+              </div>
+              <h3>Drive Away</h3>
+              <p>
+                Pick up your EV at the designated location and enjoy your
+                eco-friendly ride.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Vehicles Section -->
+      <section class="featured-vehicles" id="vehicles">
+        <div class="container">
+          <div class="section-header">
+            <h2>Featured Electric Vehicles</h2>
+            <p>Choose from our premium selection of electric cars and bikes</p>
+          </div>
+
+          <div class="vehicles-grid">
+            <div class="vehicle-card">
+              <div class="vehicle-image">
+                <img
+                  src="images/ev-cars/tesla-model-3.svg"
+                  alt="Tesla Model 3"
+                />
+                <div class="vehicle-badge">Popular</div>
+              </div>
+              <div class="vehicle-info">
+                <h3>Tesla Model 3</h3>
+                <div class="vehicle-specs">
+                  <span
+                    ><i class="fas fa-battery-three-quarters"></i> 350km
+                    range</span
+                  >
+                  <span
+                    ><i class="fas fa-tachometer-alt"></i> 0-60 in 3.1s</span
+                  >
+                </div>
+                <div class="vehicle-price">
+                  <span class="price">₹2,500</span>
+                  <span class="period">/day</span>
+                </div>
+                <button class="book-btn">Book Now</button>
+              </div>
+            </div>
+
+            <div class="vehicle-card">
+              <div class="vehicle-image">
+                <img src="images/ev-cars/ola-s1.svg" alt="Ola S1 Pro" />
+                <div class="vehicle-badge">New</div>
+              </div>
+              <div class="vehicle-info">
+                <h3>Ola S1 Pro</h3>
+                <div class="vehicle-specs">
+                  <span
+                    ><i class="fas fa-battery-three-quarters"></i> 180km
+                    range</span
+                  >
+                  <span
+                    ><i class="fas fa-tachometer-alt"></i> 0-40 in 3.0s</span
+                  >
+                </div>
+                <div class="vehicle-price">
+                  <span class="price">₹800</span>
+                  <span class="period">/day</span>
+                </div>
+                <button class="book-btn">Book Now</button>
+              </div>
+            </div>
+
+            <div class="vehicle-card">
+              <div class="vehicle-image">
+                <img src="images/ev-cars/ather-450x.svg" alt="Ather 450X" />
+                <div class="vehicle-badge">Best Value</div>
+              </div>
+              <div class="vehicle-info">
+                <h3>Ather 450X</h3>
+                <div class="vehicle-specs">
+                  <span
+                    ><i class="fas fa-battery-three-quarters"></i> 150km
+                    range</span
+                  >
+                  <span
+                    ><i class="fas fa-tachometer-alt"></i> 0-40 in 3.9s</span
+                  >
+                </div>
+                <div class="vehicle-price">
+                  <span class="price">₹600</span>
+                  <span class="period">/day</span>
+                </div>
+                <button class="book-btn">Book Now</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="view-all-container">
+            <a href="pages/customer/browse-vehicles.html" class="view-all-btn">
+              View All Vehicles
+              <i class="fas fa-arrow-right"></i>
+            </a>
+          </div>
+        </div>
+      </section>
+
+      <!-- CTA Section -->
+      <section class="cta-section">
+        <div class="container">
+          <div class="cta-content">
+            <h2>Ready to Go Electric?</h2>
+            <p>
+              Join thousands of users who have already switched to sustainable
+              transportation
+            </p>
+            <div class="cta-buttons">
+              <a href="#" class="cta-primary">Get Started Today</a>
+              <a href="#" class="cta-secondary">Become a Driver</a>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <footer id="contact">
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <div class="footer-logo">
+              <i class="fas fa-bolt"></i>
+              <span>WattWheels</span>
+            </div>
+            <p>
+              Leading the electric vehicle revolution with sustainable
+              transportation solutions.
+            </p>
+            <div class="social-links">
+              <a href="#"><i class="fab fa-facebook"></i></a>
+              <a href="#"><i class="fab fa-twitter"></i></a>
+              <a href="#"><i class="fab fa-instagram"></i></a>
+              <a href="#"><i class="fab fa-linkedin"></i></a>
+            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Services</h4>
+            <ul>
+              <li><a href="#vehicles">EV Rentals</a></li>
+              <li><a href="#charging">Charging Network</a></li>
+              <li><a href="#insurance">Insurance</a></li>
+              <li><a href="#support">24/7 Support</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Company</h4>
+            <ul>
+              <li><a href="#about">About Us</a></li>
+              <li><a href="#careers">Careers</a></li>
+              <li><a href="#press">Press</a></li>
+              <li><a href="#contact">Contact</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Support</h4>
+            <ul>
+              <li><a href="#help">Help Center</a></li>
+              <li><a href="#safety">Safety</a></li>
+              <li><a href="#terms">Terms of Service</a></li>
+              <li><a href="#privacy">Privacy Policy</a></li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <p>
+            &copy; 2025 WattWheels. All rights reserved. | Driving the future,
+            sustainably.
+          </p>
+        </div>
+      </div>
+    </footer>
+
+    <script src="js/main.js"></script>
+  </body>
+</html>
