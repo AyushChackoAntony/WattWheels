@@ -3,6 +3,8 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 
+import NavbarLogSign from '@/components/NavbarLogSign';
+
 export default function CustomerSignup() {
   const router = useRouter();
   const [form, setForm] = useState({
@@ -51,24 +53,7 @@ export default function CustomerSignup() {
 
   return (
     <>
-      <nav className="navbar">
-        <div className="nav-left">
-          <div className="logo">
-            <i className="fas fa-bolt"></i>
-            <span>WattWheels</span>
-          </div>
-        </div>
-        <div className="nav-right">
-          <ul className="nav-links">
-            <li>
-              <Link href="/login" className="login-btn">Login</Link>
-            </li>
-            <li>
-              <Link href="/signup" className="signup-btn">Sign Up</Link>
-            </li>
-          </ul>
-        </div>
-      </nav>
+      <NavbarLogSign />
       <div className="auth-container">
         <div className="auth-content">
           <div className="auth-header">
