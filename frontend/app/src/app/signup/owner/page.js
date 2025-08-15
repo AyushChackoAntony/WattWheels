@@ -42,12 +42,46 @@ export default function OwnerSignup() {
       showMessage('Please agree to the Terms of Service and Privacy Policy', 'error');
       return;
     }
+
+    const formData = {
+      firstName: form.firstName, 
+      lastName: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      password: form.password,
+      address: form.address
+    };
+
     setLoading(true);
-    setTimeout(() => {
+
+    // Static data check
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   showMessage('Account created successfully!', 'success');
+    //   setTimeout(() => router.push('/owner/dashboard'), 1000);
+    // }, 1000);
+
+    // Dynamic data integration
+    try{
+      const res = await fetch("/api/ownerSignup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await res.json();
+
+      if(!res.ok){
+        throw new Error(result.error || "Signup failed");
+      }
+
+      showMessage("Account created successfully!", 'success');
+      router.push("/owner/dashboard");
+    } catch(e){
+      showMessage(e.message, 'error');
+    } finally{
       setLoading(false);
-      showMessage('Account created successfully!', 'success');
-      setTimeout(() => router.push('/owner/dashboard'), 1000);
-    }, 1000);
+    }
   };
 
   return (
