@@ -43,12 +43,43 @@ export default function CustomerSignup() {
       showMessage('Please agree to the Terms of Service and Privacy Policy', 'error');
       return;
     }
+
+    const custFormData = {
+      firstName: form.firstName,
+      lastName: form.lastName,
+      email: form.email,
+      phone: form.phone,
+      password: form.password,
+      address: form.address
+    };
+
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false);
-      showMessage('Account created successfully!', 'success');
-      setTimeout(() => router.push('/customer/dashboard'), 1000);
-    }, 1000);
+
+    try{
+      const res = await fetch("/api/customerSignup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(formData)
+      });
+
+      const result = await res.json();
+
+      if(!res.ok){
+        throw new Error(result.error || "Signup failed");
+      }
+
+      showMessage("Account created successfully!", 'success');
+      router.push("/customer/dashboard");
+    } catch(error){
+
+    }
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   showMessage('Account created successfully!', 'success');
+    //   setTimeout(() => router.push('/customer/dashboard'), 1000);
+    // }, 1000);
   };
 
   return (
