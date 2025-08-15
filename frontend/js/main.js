@@ -230,6 +230,51 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         });
     });
+    function createVehicleCard(vehicle) {
+  const card = document.createElement('div');
+  card.className = 'vehicle-card';
 
-    console.log('WattWheels - Electric Vehicle Rental Platform loaded successfully!');
+  card.innerHTML = `
+    <div class="vehicle-image">
+        <img src="images/ev-cars/default.svg" alt="${vehicle.name}" />
+    </div>
+    <div class="vehicle-info">
+        <h3>${vehicle.name}</h3>
+        <div class="vehicle-specs">
+            <span><i class="fas fa-car"></i> ${vehicle.brand}</span>
+            <span><i class="fas fa-battery-three-quarters"></i> ${vehicle.battery_capacity} kWh</span>
+        </div>
+        <button class="book-btn">Book Now</button>
+    </div>
+  `;
+
+  return card;
+}
+
+// Your fetch command would go right here...
+// Fetch data from your Flask backend
+fetch('http://127.0.0.1:5000/vehicles')
+    .then(response => response.json())
+    .then(vehicles => {
+        const container = document.getElementById('vehicle-list-container');
+        
+        // Clear the container in case there's anything in it
+        container.innerHTML = ''; 
+
+        if (vehicles.length === 0) {
+            container.innerHTML = '<p>No vehicles available at the moment.</p>';
+        } else {
+            vehicles.forEach(vehicle => {
+                const vehicleCard = createVehicleCard(vehicle);
+                container.appendChild(vehicleCard);
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Error fetching data:", error);
+        const container = document.getElementById('vehicle-list-container');
+        container.innerHTML = '<p>Could not load vehicles. Please try again later.</p>';
+    });
+    
 });
+
