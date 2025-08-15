@@ -24,17 +24,46 @@ export default function OwnerLogin() {
       showMessage('Please fill in all fields', 'error');
       return;
     }
+
+    const loginData = {
+      email: email,
+      password: password
+    }
+
     setLoading(true);
-    // Simulate login logic (replace with real API/authManager)
-    setTimeout(() => {
-      setLoading(false);
-      if (email === 'owner@example.com' && password === 'password') {
-        showMessage('Login successful!', 'success');
-        setTimeout(() => router.push('/dashboard/owner'), 1000);
+    try {
+      const res = await fetch("/api/ownerLogin", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(loginData)
+      });
+
+      const data = await res.json();
+      console.log("📤 Response from API route:", data);
+
+      if (res.ok) {
+        showMessage('Login request sent successfully!', 'success');
       } else {
-        showMessage('Invalid credentials', 'error');
+        showMessage(data.error || 'Login failed', 'error');
       }
-    }, 1000);
+    } catch (error) {
+      console.error("Error sending request:", err);
+      showMessage('Something went wrong', 'error');
+    } finally {
+      setLoading(false);
+    }
+    // Simulate login logic (replace with real API/authManager)
+    // setTimeout(() => {
+    //   setLoading(false);
+    //   if (email === 'owner@example.com' && password === 'password') {
+    //     showMessage('Login successful!', 'success');
+    //     setTimeout(() => router.push('/dashboard/owner'), 1000);
+    //   } else {
+    //     showMessage('Invalid credentials', 'error');
+    //   }
+    // }, 1000);
   };
 
   return (
