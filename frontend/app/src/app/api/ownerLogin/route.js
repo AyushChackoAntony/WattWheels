@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 export async function POST(request) {
   try {
     const data = await request.json(); // Get data from frontend
-    console.log("📥 Received from frontend:", data);
+    console.log("Received from frontend:", data);
 
     // return NextResponse.json( { message: "Data received successfully", receivedData: data }, { status: 200 } );
 
@@ -18,7 +18,7 @@ export async function POST(request) {
 
     // Get response from Flask
     const flaskData = await flaskRes.json();
-    console.log("📤 Response from Flask:", flaskData);
+    console.log("Response from Flask:", flaskData);
 
     // Send Flask's response back to frontend
     return NextResponse.json(flaskData, { status: flaskRes.status });
