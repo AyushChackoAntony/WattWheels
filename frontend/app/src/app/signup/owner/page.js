@@ -76,7 +76,7 @@ export default function OwnerSignup() {
       }
 
       showMessage("Account created successfully!", 'success');
-      router.push("/owner/dashboard");
+      router.push("/login/owner");
     } catch(e){
       showMessage(e.message, 'error');
     } finally{

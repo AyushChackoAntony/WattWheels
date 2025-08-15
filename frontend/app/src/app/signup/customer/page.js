@@ -61,7 +61,7 @@ export default function CustomerSignup() {
         headers: {
           "Content-Type": "application/json"
         },
-        body: JSON.stringify(formData)
+        body: JSON.stringify(custFormData)
       });
 
       const result = await res.json();
@@ -71,7 +71,7 @@ export default function CustomerSignup() {
       }
 
       showMessage("Account created successfully!", 'success');
-      router.push("/customer/dashboard");
+      router.push("/login/customer");
     } catch(error){
 
     }

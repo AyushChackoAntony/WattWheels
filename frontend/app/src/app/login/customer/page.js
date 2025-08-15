@@ -45,7 +45,10 @@ export default function CustomerLogin() {
       console.log("Response from API route:", data);
 
       if (res.ok) {
-        showMessage('Login request sent successfully!', 'success');
+        showMessage('Login successful!', 'success');
+        setTimeout(()=>{
+          router.push('/dashboard/customer');
+        }, 1000);
       } else {
         showMessage(data.error || 'Login failed', 'error');
       }

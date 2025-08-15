@@ -41,10 +41,13 @@ export default function OwnerLogin() {
       });
 
       const data = await res.json();
-      console.log("📤 Response from API route:", data);
+      console.log("Response from API route:", data);
 
       if (res.ok) {
-        showMessage('Login request sent successfully!', 'success');
+        showMessage('Login successful!', 'success');
+        setTimeout(() => {
+          router.push('/dashboard/owner')
+        }, 1000);
       } else {
         showMessage(data.error || 'Login failed', 'error');
       }
