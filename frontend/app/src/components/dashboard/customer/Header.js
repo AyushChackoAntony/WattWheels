@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import '../../styles/dashboard/custDash.css';
+import '../../../styles/dashboard/custDash.css';
 
 export default function Header({ user }) {
     return (

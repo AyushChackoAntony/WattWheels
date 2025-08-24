@@ -4,7 +4,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import "./custDash.css";
 
-import Header from '@/components/dashboard/Header';
+import Header from '@/components/dashboard/customer/Header';
+import Welcome from '@/components/dashboard/customer/Welcome';
 
 
 export default function CustomerDashboard() {
@@ -16,20 +17,7 @@ export default function CustomerDashboard() {
       <main className="dashboard-main">
         <div className="dashboard-container">
           {/* Welcome Section */}
-          <section className="welcome-section">
-            <div className="welcome-content">
-              <h1>Welcome back, {user.firstName}! 👋</h1>
-              <p>Ready for your next eco-friendly adventure?</p>
-            </div>
-            <div className="quick-actions">
-              <Link href="#" className="quick-action-btn">
-                <i className="fas fa-search"></i> Find EVs
-              </Link>
-              <Link href="#" className="quick-action-btn">
-                <i className="fas fa-calendar"></i> My Bookings
-              </Link>
-            </div>
-          </section>
+          <Welcome />
           {/* Stats Section */}
           <section className="stats-section">
             <div className="stats-grid">
