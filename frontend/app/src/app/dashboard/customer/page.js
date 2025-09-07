@@ -12,7 +12,30 @@ import QuickActions from '@/components/dashboard/customer/QuickActions';
 
 export default function CustomerDashboard() {
   // Demo user data
-  const user = { firstName: 'Vishnu', lastName: 'Jaswal', email: 'vishnu@example.com' };
+  // const user = { firstName: 'Vishnu', lastName: 'Jaswal', email: 'vishnu@example.com' };
+
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        // Replace this URL with your Flask API endpoint when ready
+        const response = await fetch('/api/user/profile');
+        const userData = await response.json();
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  if (loading) return <div>Loading user data...</div>;
+  if (!user) return <div>Error loading user data</div>;
   return (
     <>
       <Header user= {user} />
