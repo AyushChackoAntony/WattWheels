@@ -1,7 +1,6 @@
 'use client';
 import React from 'react';
-import Link from 'next/link';
-import Image from 'next/image';
+import { useAuth } from '@/context/AuthContext';
 
 import OwnerHeader from '@/components/dashboard/owner/OwnerHeader';
 import Welcome from '@/components/dashboard/owner/Welcome';
@@ -11,18 +10,48 @@ import CurrentBooking from '@/components/dashboard/owner/CurrentBooking';
 import VehicleManagement from '@/components/dashboard/owner/VehicleManagement';
 import QuickAction from '@/components/dashboard/owner/QuickAction';
 
-
-
 export default function OwnerDashboard() {
-  // Demo user data
-  const user = { firstName: 'Sarah', lastName: 'Johnson', email: 'sarah@example.com' };
+  const { user, loading, isAuthenticated } = useAuth();
+
+  // Loading state
+  if (loading) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px',
+        color: '#6b7280'
+      }}>
+        Loading user data...
+      </div>
+    );
+  }
+
+  // Not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <div style={{
+        display: 'flex',
+        justifyContent: 'center',
+        alignItems: 'center',
+        height: '100vh',
+        fontSize: '18px',
+        color: '#ef4444'
+      }}>
+        Please log in to access the dashboard
+      </div>
+    );
+  }
+
   return (
     <>
-      <OwnerHeader user = {user}/>
+      <OwnerHeader user={user} />
       <main className="dashboard-main">
         <div className="dashboard-container">
           {/* Welcome Section */}
-          <Welcome user = {user}/>
+          <Welcome user={user} />
           {/* Stats Section */}
           <Stats />
           {/* Earnings Overview Section */}

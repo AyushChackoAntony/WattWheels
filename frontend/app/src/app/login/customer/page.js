@@ -3,9 +3,11 @@ import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import NavbarLogSign from '@/components/NavbarLogSign';
+import { useAuth } from '@/context/AuthContext';
 
 export default function CustomerLogin() {
   const router = useRouter();
+  const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -45,30 +47,31 @@ export default function CustomerLogin() {
       console.log("Response from API route:", data);
 
       if (res.ok) {
+        // Extract user data from response
+        // Adjust this based on what your Flask API returns
+        const userData = {
+          firstName: data.user?.firstName || 'John', // Replace with actual API response
+          lastName: data.user?.lastName || 'Doe',
+          email: data.user?.email || email,
+          id: data.user?.id || '12345'
+        };
+
+        // Store user data in context and localStorage
+        login(userData, 'customer');
+        
         showMessage('Login successful!', 'success');
-        setTimeout(()=>{
+        setTimeout(() => {
           router.push('/dashboard/customer');
         }, 1000);
       } else {
         showMessage(data.error || 'Login failed', 'error');
       }
     } catch (error) {
-      console.error("Error sending request:", err);
+      console.error("Error sending request:", error);
       showMessage('Something went wrong', 'error');
     } finally {
       setLoading(false);
     }
-    
-    // Simulate login logic (replace with real API/authManager)
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   if (email === 'customer@example.com' && password === 'password') {
-    //     showMessage('Login successful!', 'success');
-    //     setTimeout(() => router.push('/dashboard/customer'), 1000);
-    //   } else {
-    //     showMessage('Invalid credentials', 'error');
-    //   }
-    // }, 1000);
   };
 
   return (
