@@ -9,22 +9,12 @@ export default function QuickBooking(){
             <form className="quick-booking-form" onSubmit={e => e.preventDefault()}>
               <div className="form-row">
                 <div className="form-group">
-                  <label htmlFor="pickup">Pickup Location</label>
-                  <input type="text" id="pickup" placeholder="Enter pickup location" />
+                  <label htmlFor="pickup">Pickup date</label>
+                  <input type="date" id="pickup" placeholder="Enter pickup date" />
                 </div>
                 <div className="form-group">
-                  <label htmlFor="dropoff">Drop-off Location</label>
-                  <input type="text" id="dropoff" placeholder="Enter drop-off location" />
-                </div>
-              </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label htmlFor="date">Date</label>
-                  <input type="date" id="date" />
-                </div>
-                <div className="form-group">
-                  <label htmlFor="time">Time</label>
-                  <input type="time" id="time" />
+                  <label htmlFor="dropoff">Drop-off Date</label>
+                  <input type="date" id="dropoff" placeholder="Enter drop-off date" />
                 </div>
               </div>
               <button type="submit" className="primary-btn">
