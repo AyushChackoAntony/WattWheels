@@ -2,12 +2,12 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import OwnerHeader from '@/components/dashboard/owner/OwnerHeader';
-import ProfileHeader from '@/components/dashboard/owner/ProfileHeader';
-import PersonalInfo from '@/components/dashboard/owner/PersonalInfo';
-import AboutMe from '@/components/dashboard/owner/AboutMe';
-import AccountStatus from '@/components/dashboard/owner/AccountStatus';
-import RecentActivity from '@/components/dashboard/owner/RecentActivity';
-import './profile.css';
+import ProfileHeader from '@/components/dashboard/owner/profile/ProfileHeader';
+import PersonalInfo from '@/components/dashboard/owner/profile/PersonalInfo';
+import AboutMe from '@/components/dashboard/owner/profile/AboutMe';
+import AccountStatus from '@/components/dashboard/owner/profile/AccountStatus';
+import RecentActivity from '@/components/dashboard/owner/profile/RecentActivity';
+import '@/styles/dashboard/owner/profile/profile.css';
 
 export default function OwnerProfile() {
   const { user, loading, isAuthenticated } = useAuth();
