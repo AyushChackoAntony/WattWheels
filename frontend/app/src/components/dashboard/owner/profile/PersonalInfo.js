@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../../../styles/dashboard/owner/profile/personalInfo.css';
 
 export default function PersonalInfo({ formData, isEditing, onChange }) {
   return (

@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../../../styles/dashboard/owner/profile/profileHeader.css';
 
 export default function ProfileHeader({ formData, isEditing, setIsEditing, onSave, onCancel }) {
   return (

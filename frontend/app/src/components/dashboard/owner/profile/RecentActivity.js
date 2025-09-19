@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../../../styles/dashboard/owner/profile/recentActivity.css';
 
 export default function RecentActivity() {
   const activities = [

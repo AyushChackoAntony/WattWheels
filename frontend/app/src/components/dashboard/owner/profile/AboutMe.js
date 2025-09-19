@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../../../styles/dashboard/owner/profile/aboutMe.css';
 
 export default function AboutMe({ formData, isEditing, onChange }) {
   return (

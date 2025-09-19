@@ -7,7 +7,6 @@ import PersonalInfo from '@/components/dashboard/owner/profile/PersonalInfo';
 import AboutMe from '@/components/dashboard/owner/profile/AboutMe';
 import AccountStatus from '@/components/dashboard/owner/profile/AccountStatus';
 import RecentActivity from '@/components/dashboard/owner/profile/RecentActivity';
-import '@/styles/dashboard/owner/profile/profile.css';
 
 export default function OwnerProfile() {
   const { user, loading, isAuthenticated } = useAuth();

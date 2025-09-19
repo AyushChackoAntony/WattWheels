@@ -1,4 +1,5 @@
 import React from 'react';
+import '../../../../styles/dashboard/owner/profile/accountStatus.css';
 
 export default function AccountStatus({ formData }) {
   return (
