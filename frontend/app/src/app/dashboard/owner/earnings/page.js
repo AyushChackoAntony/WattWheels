@@ -8,8 +8,6 @@ import EarningsChart from '@/components/dashboard/owner/earnings/EarningsChart';
 import EarningsFilters from '@/components/dashboard/owner/earnings/EarningsFilters';
 import TransactionHistory from '@/components/dashboard/owner/earnings/TransactionHistory';
 import PayoutSection from '@/components/dashboard/owner/earnings/PayoutSection';
-import '@/styles/dashboard/owner/ownerDash.css';
-import '@/styles/dashboard/owner/earnings/earnings-shared.css';
 
 export default function MyEarnings() {
   const { user, loading, isAuthenticated } = useAuth();

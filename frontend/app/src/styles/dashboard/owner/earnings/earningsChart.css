@@ -1,0 +1,294 @@
+/* Earnings Chart Styles */
+
+.earnings-chart-container {
+  padding: 24px 32px 32px;
+}
+
+.chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.chart-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.chart-legend {
+  display: flex;
+  gap: 20px;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+.legend-color {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+}
+
+.legend-color.earnings {
+  background: var(--primary-color);
+}
+
+.legend-color.trips {
+  background: #6366f1;
+}
+
+/* Chart Content */
+.chart-content {
+  position: relative;
+  height: 300px;
+  margin-bottom: 24px;
+}
+
+.chart-grid {
+  position: absolute;
+  top: 0;
+  left: 60px;
+  right: 0;
+  bottom: 40px;
+  pointer-events: none;
+}
+
+.grid-line {
+  position: absolute;
+  left: 0;
+  right: 0;
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+}
+
+.grid-label {
+  position: absolute;
+  left: -50px;
+  font-size: 12px;
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  padding: 0 4px;
+}
+
+/* Chart Bars */
+.chart-bars {
+  position: absolute;
+  bottom: 40px;
+  left: 60px;
+  right: 0;
+  height: 260px;
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  padding: 0 16px;
+}
+
+.bar-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 80px;
+}
+
+.bar-container {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  margin-bottom: 8px;
+}
+
+.bar {
+  border-radius: 4px 4px 0 0;
+  transition: all 0.3s ease;
+  position: relative;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  min-height: 8px;
+}
+
+.earnings-bar {
+  background: linear-gradient(180deg, var(--primary-color), var(--primary-dark));
+  width: 32px;
+}
+
+.trips-bar {
+  background: linear-gradient(180deg, #6366f1, #4f46e5);
+  width: 20px;
+  position: absolute;
+  right: 8px;
+}
+
+.bar:hover {
+  opacity: 0.8;
+  transform: scaleX(1.1);
+}
+
+.bar-value {
+  position: absolute;
+  top: -24px;
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: var(--bg-primary);
+  padding: 2px 4px;
+  border-radius: 4px;
+  white-space: nowrap;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.bar:hover .bar-value {
+  opacity: 1;
+}
+
+.trips-indicator {
+  position: absolute;
+  top: -20px;
+  font-size: 9px;
+  font-weight: 600;
+  color: #6366f1;
+  background: var(--bg-primary);
+  padding: 1px 3px;
+  border-radius: 2px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.bar:hover .trips-indicator {
+  opacity: 1;
+}
+
+.bar-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  text-align: center;
+  padding: 4px 0;
+}
+
+/* Chart Summary */
+.chart-summary {
+  background: var(--bg-secondary);
+  border-radius: 8px;
+  padding: 20px;
+  border: 1px solid var(--border-color);
+}
+
+.summary-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.summary-value {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .earnings-chart-container {
+    padding: 20px;
+  }
+  
+  .chart-header {
+    flex-direction: column;
+    gap: 16px;
+    text-align: center;
+  }
+  
+  .chart-content {
+    height: 250px;
+  }
+  
+  .chart-grid {
+    left: 40px;
+  }
+  
+  .grid-label {
+    left: -35px;
+    font-size: 10px;
+  }
+  
+  .chart-bars {
+    left: 40px;
+    height: 210px;
+    gap: 4px;
+    padding: 0 8px;
+  }
+  
+  .bar-group {
+    max-width: 60px;
+  }
+  
+  .earnings-bar {
+    width: 24px;
+  }
+  
+  .trips-bar {
+    width: 16px;
+    right: 6px;
+  }
+  
+  .summary-stats {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .chart-content {
+    height: 200px;
+  }
+  
+  .chart-bars {
+    height: 160px;
+    gap: 2px;
+    padding: 0 4px;
+  }
+  
+  .bar-group {
+    max-width: 40px;
+  }
+  
+  .earnings-bar {
+    width: 20px;
+  }
+  
+  .trips-bar {
+    width: 12px;
+    right: 4px;
+  }
+  
+  .bar-label {
+    font-size: 10px;
+  }
+}
