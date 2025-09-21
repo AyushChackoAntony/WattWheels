@@ -6,8 +6,8 @@ import VehiclesHeader from '@/components/dashboard/owner/vehicles/VehiclesHeader
 import VehicleFilters from '@/components/dashboard/owner/vehicles/VehicleFilters';
 import VehiclesList from '@/components/dashboard/owner/vehicles/VehiclesList';
 import AddVehicleForm from '@/components/dashboard/owner/vehicles/AddVehicleForm';
-import '@/styles/dashboard/owner/ownerDash.css';
-import '@/styles/dashboard/owner/vehicles/vehicles-shared.css';
+// import '@/styles/dashboard/owner/ownerDash.css';
+// import '@/styles/dashboard/owner/vehicles/vehicles-shared.css';
 
 export default function MyVehicles() {
   const { user, loading, isAuthenticated } = useAuth();
