@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import '@/styles/dashboard/owner/vehicles/AddVehicleForm.css';
+import '@/styles/dashboard/owner/vehicles/addVehicleForm.css';
 
 export default function AddVehicleForm({ onSubmit, onClose }) {
   const [formData, setFormData] = useState({

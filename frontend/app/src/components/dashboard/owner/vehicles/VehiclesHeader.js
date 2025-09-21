@@ -1,5 +1,5 @@
 import React from 'react';
-import '@/styles/dashboard/owner/vehicles/VehiclesHeader.css';
+import '@/styles/dashboard/owner/vehicles/vehiclesHeader.css';
 
 export default function VehiclesHeader({ 
   totalVehicles, 

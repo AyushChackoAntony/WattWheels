@@ -1,5 +1,5 @@
 import React from 'react';
-import '@/styles/dashboard/owner/vehicles/VehicleFilters.css';
+import '@/styles/dashboard/owner/vehicles/vehicleFilters.css';
 
 export default function VehicleFilters({ 
   selectedFilter, 

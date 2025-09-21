@@ -1,6 +1,6 @@
 import React from 'react';
 import VehicleCard from './VehicleCard';
-import '@/styles/dashboard/owner/vehicles/VehiclesList.css';
+import '@/styles/dashboard/owner/vehicles/vehiclesList.css';
 
 export default function VehiclesList({ vehicles, onDeleteVehicle, onToggleStatus }) {
   if (vehicles.length === 0) {

@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import Image from 'next/image';
-import '@/styles/dashboard/owner/vehicles/VehicleCard.css';
+import '@/styles/dashboard/owner/vehicles/vehicleCard.css';
 
 export default function VehicleCard({ vehicle, onDelete, onToggleStatus }) {
   const [showMenu, setShowMenu] = useState(false);
