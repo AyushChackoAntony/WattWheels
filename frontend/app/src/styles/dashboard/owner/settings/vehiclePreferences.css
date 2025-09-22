@@ -1,0 +1,305 @@
+/* ================================
+   Vehicle Preferences - Styles
+   ================================ */
+
+.vehicle-preferences-container {
+  padding: 2rem;
+  background: #f9fafb;
+  font-family: 'Inter', sans-serif;
+  color: #333;
+}
+
+.settings-section {
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.section-header {
+  margin-bottom: 2rem;
+  text-align: left;
+}
+
+.section-header h2 {
+  font-size: 1.75rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+  color: #111;
+}
+
+.section-header p {
+  font-size: 0.95rem;
+  color: #555;
+}
+
+/* --- Card Styling --- */
+.settings-card {
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  margin-bottom: 2rem;
+  overflow: hidden;
+  transition: box-shadow 0.3s ease;
+}
+
+.settings-card:hover {
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+}
+
+.card-header {
+  border-bottom: 1px solid #eee;
+  padding: 1.25rem 1.5rem;
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #222;
+}
+
+.card-header p {
+  margin-top: 0.25rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.card-content {
+  padding: 1.5rem;
+}
+
+/* --- Toggle Switch --- */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 46px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0;
+  right: 0; bottom: 0;
+  background-color: #ccc;
+  border-radius: 24px;
+  transition: 0.3s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 18px; width: 18px;
+  left: 3px; bottom: 3px;
+  background-color: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #4f46e5; /* Indigo */
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(22px);
+}
+
+/* --- Preference Settings --- */
+.preference-setting {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.25rem;
+}
+
+.setting-info h4 {
+  font-size: 1rem;
+  margin: 0;
+  font-weight: 500;
+  color: #222;
+}
+
+.setting-info p {
+  font-size: 0.85rem;
+  color: #666;
+  margin: 0.25rem 0 0;
+}
+
+/* --- Duration Select --- */
+.duration-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(240px,1fr));
+  gap: 1.5rem;
+}
+
+.duration-setting label {
+  font-weight: 500;
+  font-size: 0.95rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.duration-select {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+  background: #fff;
+}
+
+.setting-note {
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+/* --- Deposit Amount --- */
+.deposit-amount-setting {
+  margin-top: 1.25rem;
+}
+
+.amount-input {
+  display: flex;
+  align-items: center;
+  margin-top: 0.5rem;
+}
+
+.currency-symbol {
+  margin-right: 0.4rem;
+  font-weight: 600;
+}
+
+.amount-input input {
+  flex: 1;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+  font-size: 0.95rem;
+}
+
+/* --- Cancellation Policies --- */
+.cancellation-policies {
+  display: grid;
+  gap: 1rem;
+}
+
+.policy-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1rem;
+  cursor: pointer;
+  transition: border-color 0.2s ease;
+}
+
+.policy-option:hover {
+  border-color: #4f46e5;
+}
+
+.policy-option.selected {
+  border-color: #4f46e5;
+  background: #f5f7ff;
+}
+
+.policy-radio input {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.policy-info h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 500;
+}
+
+.policy-info p {
+  font-size: 0.85rem;
+  color: #555;
+  margin: 0.25rem 0 0;
+}
+
+/* --- Fees --- */
+.fee-settings {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(220px,1fr));
+  gap: 1.5rem;
+}
+
+.fee-input {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.4rem;
+}
+
+.fee-input input {
+  flex: 1;
+  padding: 0.4rem;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 0.9rem;
+}
+
+.fee-unit {
+  font-size: 0.85rem;
+  color: #444;
+}
+
+/* --- Booking Rules --- */
+.rule-item {
+  margin-bottom: 1.5rem;
+}
+
+.rule-header h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.rule-options {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.9rem;
+  cursor: pointer;
+}
+
+/* --- Preview --- */
+.settings-preview {
+  display: grid;
+  grid-template-columns: repeat(auto-fit,minmax(250px,1fr));
+  gap: 1.5rem;
+}
+
+.preview-section h4 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.preview-section ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.preview-section li {
+  font-size: 0.9rem;
+  margin: 0.3rem 0;
+  color: #444;
+}
