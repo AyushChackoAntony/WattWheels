@@ -9,8 +9,6 @@ import SecuritySettings from '@/components/dashboard/owner/settings/SecuritySett
 import PaymentSettings from '@/components/dashboard/owner/settings/PaymentSettings';
 import VehiclePreferences from '@/components/dashboard/owner/settings/VehiclePreferences';
 import DangerZone from '@/components/dashboard/owner/settings/DangerZone';
-import '@/styles/dashboard/owner/ownerDash.css';
-import '@/styles/dashboard/owner/settings/settings-shared.css';
 
 export default function OwnerSettings() {
   const { user, loading, isAuthenticated } = useAuth();
