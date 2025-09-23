@@ -55,9 +55,9 @@ export default function OwnerHeader({ user }) {
                 <Link href="/dashboard/owner/settings">
                   <i className="fas fa-cog"></i> Settings
                 </Link>
-                <button className="logout-btn" onClick={handleLogout}>
+                <a href="#" className="logout-btn" onClick={handleLogout}>
                   <i className="fas fa-sign-out-alt"></i> Logout
-                </button>
+                </a>
               </div>
             </div>
           </div>
