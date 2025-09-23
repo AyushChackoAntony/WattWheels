@@ -1,0 +1,116 @@
+/* ===============================
+   Availability Calendar Section
+================================= */
+
+.availability-calendar-section {
+  margin-top: 2rem;
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 2rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+}
+
+.availability-calendar-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+  border-bottom: 1px solid #e5e7eb;
+  padding-bottom: 0.5rem;
+}
+
+/* ===============================
+   Vehicle Calendar Card
+================================= */
+.calendar-vehicle-card {
+  background: #f9fafb;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: all 0.2s ease-in-out;
+}
+
+.calendar-vehicle-card:hover {
+  background: #f3f4f6;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.calendar-vehicle-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 1rem;
+  font-weight: 600;
+  color: #1f2937;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.calendar-vehicle-card h3 i {
+  color: #2563eb;
+  font-size: 1.2rem;
+}
+
+/* ===============================
+   Dates List
+================================= */
+.calendar-dates {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.calendar-dates p {
+  font-size: 0.9rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  color: #374151;
+}
+
+.calendar-dates ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.calendar-dates li {
+  font-size: 0.9rem;
+  padding: 0.5rem 0.75rem;
+  margin-bottom: 0.5rem;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  background: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.calendar-dates li strong {
+  color: #111827;
+}
+
+/* ===============================
+   Action Buttons
+================================= */
+.calendar-dates button {
+  padding: 0.3rem 0.75rem;
+  font-size: 0.8rem;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.calendar-dates button:hover {
+  opacity: 0.9;
+}
+
+.calendar-dates button:first-of-type {
+  background-color: #10b981; /* green */
+  color: #fff;
+}
+
+.calendar-dates button:last-of-type {
+  background-color: #ef4444; /* red */
+  color: #fff;
+}

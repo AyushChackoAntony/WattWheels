@@ -2,11 +2,11 @@
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import OwnerHeader from '@/components/dashboard/owner/OwnerHeader';
-import AvailabilityHeader from '@/components/dashboard/owner/availability/AvailabilityHeader';
-import AvailabilityCalendar from '@/components/dashboard/owner/availability/AvailabilityCalendar';
-import VehicleAvailabilityList from '@/components/dashboard/owner/availability/VehicleAvailabilityList';
-import BulkAvailabilityActions from '@/components/dashboard/owner/availability/BulkAvailabilityActions';
-import AvailabilitySettings from '@/components/dashboard/owner/availability/AvailabilitySettings';
+import AvailabilityHeader from '@/components/dashboard/owner/setAvailability/AvailabilityHeader';
+import AvailabilityCalendar from '@/components/dashboard/owner/setAvailability/AvailabilityCalendar';
+import VehicleAvailabilityList from '@/components/dashboard/owner/setAvailability/VehicleAvailabilityList';
+import BulkAvailabilityActions from '@/components/dashboard/owner/setAvailability/BulkAvailabilityActions';
+import AvailabilitySettings from '@/components/dashboard/owner/setAvailability/AvailabilitySettings';
 
 export default function SetAvailability() {
   const { user, loading, isAuthenticated } = useAuth();

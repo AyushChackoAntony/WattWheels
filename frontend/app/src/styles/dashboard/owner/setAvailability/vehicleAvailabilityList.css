@@ -1,0 +1,318 @@
+.vehicle-availability-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.vehicle-availability-card {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+}
+
+.vehicle-list-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 24px;
+  background: var(--bg-secondary);
+}
+
+.vehicle-basic-info {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.vehicle-image {
+  width: 60px;
+  height: 40px;
+  object-fit: contain;
+}
+
+.vehicle-details h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 4px;
+}
+
+.vehicle-details p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 6px;
+}
+
+.vehicle-status {
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.vehicle-status.active {
+  background: var(--bg-accent);
+  color: var(--primary-color);
+}
+
+.vehicle-status.maintenance {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.vehicle-availability-info {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.percentage-circle {
+  position: relative;
+  width: 60px;
+  height: 60px;
+}
+
+.circular-chart {
+  width: 100%;
+  height: 100%;
+}
+
+.circle-bg {
+  fill: none;
+  stroke: var(--border-color);
+  stroke-width: 2;
+}
+
+.circle {
+  fill: none;
+  stroke: var(--primary-color);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.percentage-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.availability-stats {
+  display: flex;
+  gap: 20px;
+}
+
+.availability-stats .stat {
+  text-align: center;
+}
+
+.stat-number {
+  display: block;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.vehicle-quick-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  border: none;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.quick-action-btn.available {
+  background: #16a34a;
+  color: white;
+}
+
+.quick-action-btn.block {
+  background: #dc2626;
+  color: white;
+}
+
+.quick-action-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.expand-btn {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.expand-btn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.vehicle-expanded-content {
+  padding: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.availability-section {
+  margin-bottom: 24px;
+}
+
+.availability-section h4 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.dates-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.date-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px;
+  border-radius: 8px;
+  border: 2px solid var(--border-color);
+}
+
+.date-item.available {
+  border-color: #16a34a;
+  background: #dcfce7;
+}
+
+.date-item.blocked {
+  border-color: #dc2626;
+  background: #fecaca;
+}
+
+.date-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.date-range {
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.block-reason {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.date-actions {
+  display: flex;
+  gap: 4px;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  padding: 6px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.action-btn.edit {
+  color: var(--primary-color);
+}
+
+.action-btn.remove {
+  color: #dc2626;
+}
+
+.action-btn:hover {
+  background: var(--bg-secondary);
+}
+
+.no-dates {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  text-align: center;
+  color: var(--text-light);
+  background: var(--bg-secondary);
+  border-radius: 8px;
+}
+
+.add-period-section h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 16px;
+}
+
+.add-period-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+.add-period-form input,
+.add-period-form select {
+  padding: 10px;
+  border: 2px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 14px;
+}
+
+.add-period-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.add-period-btn:hover {
+  background: var(--primary-dark);
+}

@@ -1,4 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
+import '@/styles/dashboard/owner/setAvailability/availabilityHeader.css';
+
 
 export default function AvailabilityHeader({ 
   totalVehicles, 
