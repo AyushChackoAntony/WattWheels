@@ -38,45 +38,21 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
       [name]: value
     }));
 
-    // Clear error when user starts typing
     if (errors[name]) {
-      setErrors(prev => ({
-        ...prev,
-        [name]: ''
-      }));
+      setErrors(prev => ({ ...prev, [name]: '' }));
     }
   };
 
   const validateForm = () => {
     const newErrors = {};
 
-    if (!formData.name.trim()) {
-      newErrors.name = 'Vehicle name is required';
-    }
-
-    if (!formData.color.trim()) {
-      newErrors.color = 'Color is required';
-    }
-
-    if (!formData.licensePlate.trim()) {
-      newErrors.licensePlate = 'License plate is required';
-    }
-
-    if (!formData.batteryRange.trim()) {
-      newErrors.batteryRange = 'Battery range is required';
-    }
-
-    if (!formData.acceleration.trim()) {
-      newErrors.acceleration = 'Acceleration info is required';
-    }
-
-    if (!formData.pricePerDay || formData.pricePerDay <= 0) {
-      newErrors.pricePerDay = 'Valid price per day is required';
-    }
-
-    if (!formData.location.trim()) {
-      newErrors.location = 'Location is required';
-    }
+    if (!formData.name.trim()) newErrors.name = 'Vehicle name is required';
+    if (!formData.color.trim()) newErrors.color = 'Color is required';
+    if (!formData.licensePlate.trim()) newErrors.licensePlate = 'License plate is required';
+    if (!formData.batteryRange.trim()) newErrors.batteryRange = 'Battery range is required';
+    if (!formData.acceleration.trim()) newErrors.acceleration = 'Acceleration info is required';
+    if (!formData.pricePerDay || formData.pricePerDay <= 0) newErrors.pricePerDay = 'Valid price per day is required';
+    if (!formData.location.trim()) newErrors.location = 'Location is required';
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -84,29 +60,38 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
-    }
+    if (!validateForm()) return;
 
     setLoading(true);
 
     try {
-      // Simulate API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
       // Set default image based on type
-      const vehicleData = {
+      const payload = {
         ...formData,
+        ownerId: 'owner123',
         pricePerDay: parseInt(formData.pricePerDay),
-        image: formData.type === 'car' 
-          ? '/images/ev-cars/tesla-model-3.svg' 
+        image: formData.type === 'car'
+          ? '/images/ev-cars/tesla-model-3.svg'
           : '/images/ev-cars/ola-s1.svg'
       };
-      
-      onSubmit(vehicleData);
+
+      const response = await fetch('/api/vehicles', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to add vehicle');
+      }
+
+      const data = await response.json();
+      onSubmit(data.vehicle); // update parent component
+      onClose();
     } catch (error) {
       console.error('Error adding vehicle:', error);
+      setErrors({ form: error.message });
     } finally {
       setLoading(false);
     }
@@ -123,12 +108,12 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="add-vehicle-form">
+          {errors.form && <div className="error-text">{errors.form}</div>}
+
           <div className="form-sections">
-            
             {/* Basic Information */}
             <div className="form-section">
               <h3>Basic Information</h3>
-              
               <div className="form-row">
                 <div className="form-group">
                   <label>Vehicle Type</label>
@@ -139,13 +124,10 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                     className="form-select"
                   >
                     {vehicleOptions.map(option => (
-                      <option key={option.value} value={option.value}>
-                        {option.label}
-                      </option>
+                      <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
                   </select>
                 </div>
-
                 <div className="form-group">
                   <label>Vehicle Name/Model</label>
                   <input
@@ -169,12 +151,9 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                     onChange={handleInputChange}
                     className="form-select"
                   >
-                    {years.map(year => (
-                      <option key={year} value={year}>{year}</option>
-                    ))}
+                    {years.map(year => <option key={year} value={year}>{year}</option>)}
                   </select>
                 </div>
-
                 <div className="form-group">
                   <label>Color</label>
                   <select
@@ -184,9 +163,7 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                     className={`form-select ${errors.color ? 'error' : ''}`}
                   >
                     <option value="">Select Color</option>
-                    {colors.map(color => (
-                      <option key={color} value={color}>{color}</option>
-                    ))}
+                    {colors.map(color => <option key={color} value={color}>{color}</option>)}
                   </select>
                   {errors.color && <span className="error-text">{errors.color}</span>}
                 </div>
@@ -209,7 +186,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
             {/* Specifications */}
             <div className="form-section">
               <h3>Specifications</h3>
-              
               <div className="form-row">
                 <div className="form-group">
                   <label>Battery Range</label>
@@ -223,7 +199,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                   />
                   {errors.batteryRange && <span className="error-text">{errors.batteryRange}</span>}
                 </div>
-
                 <div className="form-group">
                   <label>Acceleration</label>
                   <input
@@ -242,7 +217,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
             {/* Pricing and Location */}
             <div className="form-section">
               <h3>Pricing & Location</h3>
-              
               <div className="form-row">
                 <div className="form-group">
                   <label>Price Per Day (₹)</label>
@@ -257,7 +231,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                   />
                   {errors.pricePerDay && <span className="error-text">{errors.pricePerDay}</span>}
                 </div>
-
                 <div className="form-group">
                   <label>Location</label>
                   <input
@@ -276,7 +249,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
             {/* Description */}
             <div className="form-section">
               <h3>Additional Details</h3>
-              
               <div className="form-group">
                 <label>Description (Optional)</label>
                 <textarea
@@ -289,24 +261,14 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                 />
               </div>
             </div>
-
           </div>
 
           {/* Form Actions */}
           <div className="form-actions">
-            <button
-              type="button"
-              className="btn-cancel"
-              onClick={onClose}
-              disabled={loading}
-            >
+            <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
               Cancel
             </button>
-            <button
-              type="submit"
-              className="btn-submit"
-              disabled={loading}
-            >
+            <button type="submit" className="btn-submit" disabled={loading}>
               {loading ? (
                 <>
                   <i className="fas fa-spinner fa-spin"></i>
