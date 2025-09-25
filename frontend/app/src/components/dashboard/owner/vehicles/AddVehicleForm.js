@@ -33,15 +33,11 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-<<<<<<< HEAD
-    setFormData(prev => ({ ...prev, [name]: value }));
-=======
     setFormData(prev => ({
       ...prev,
       [name]: value
     }));
 
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
     }
@@ -49,10 +45,7 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
   const validateForm = () => {
     const newErrors = {};
-<<<<<<< HEAD
-=======
 
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
     if (!formData.name.trim()) newErrors.name = 'Vehicle name is required';
     if (!formData.color.trim()) newErrors.color = 'Color is required';
     if (!formData.licensePlate.trim()) newErrors.licensePlate = 'License plate is required';
@@ -60,43 +53,25 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
     if (!formData.acceleration.trim()) newErrors.acceleration = 'Acceleration info is required';
     if (!formData.pricePerDay || formData.pricePerDay <= 0) newErrors.pricePerDay = 'Valid price per day is required';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
-<<<<<<< HEAD
-=======
 
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-<<<<<<< HEAD
-    
-    if (!validateForm()) {
-        return;
-    }
-
-    setLoading(true);
-
-    const vehicleData = {
-=======
     if (!validateForm()) return;
 
     setLoading(true);
 
-    try {
-      // Set default image based on type
-      const payload = {
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
+    const vehicleData = {
         ...formData,
-        ownerId: 'owner123',
+        // In a real app, you would get this from your AuthContext
+        owner_id: 1, // Using a placeholder owner_id for now
         pricePerDay: parseInt(formData.pricePerDay),
-<<<<<<< HEAD
-        // IMPORTANT: In a real app, you would get this from your AuthContext
-        owner_id: 1, // Using '1' for now, assuming the first user is the owner
         // Set a default image based on type
-        image: formData.type === 'car' 
-          ? '/images/ev-cars/tesla-model-3.svg' 
+        image: formData.type === 'car'
+          ? '/images/ev-cars/tesla-model-3.svg'
           : '/images/ev-cars/ola-s1.svg'
     };
 
@@ -108,40 +83,17 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
         });
 
         if (!res.ok) {
-            throw new Error("Failed to add vehicle");
+            const errorData = await res.json();
+            throw new Error(errorData.message || "Failed to add vehicle");
         }
-        
-        // This calls the function from the parent page to close the form
-        // and update the list.
-        onSubmit(vehicleData);
+
+        const newVehicle = await res.json();
+        onSubmit(newVehicle.vehicle); 
+        onClose(); 
 
     } catch (error) {
         console.error('Error adding vehicle:', error);
-        // You can add a user-facing error message here
-=======
-        image: formData.type === 'car'
-          ? '/images/ev-cars/tesla-model-3.svg'
-          : '/images/ev-cars/ola-s1.svg'
-      };
-
-      const response = await fetch('/api/vehicles', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload)
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Failed to add vehicle');
-      }
-
-      const data = await response.json();
-      onSubmit(data.vehicle); // update parent component
-      onClose();
-    } catch (error) {
-      console.error('Error adding vehicle:', error);
-      setErrors({ form: error.message });
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
+        setErrors({ form: error.message });
     } finally {
         setLoading(false);
     }
@@ -161,20 +113,12 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
           {errors.form && <div className="error-text">{errors.form}</div>}
 
           <div className="form-sections">
-<<<<<<< HEAD
-            {/* Form sections remain the same */}
-=======
             {/* Basic Information */}
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
             <div className="form-section">
               <h3>Basic Information</h3>
               <div className="form-row">
                 <div className="form-group">
                   <label>Vehicle Type</label>
-<<<<<<< HEAD
-                  <select name="type" value={formData.type} onChange={handleInputChange} className="form-select">
-                    {vehicleOptions.map(option => (<option key={option.value} value={option.value}>{option.label}</option>))}
-=======
                   <select
                     name="type"
                     value={formData.type}
@@ -184,7 +128,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                     {vehicleOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
                   </select>
                 </div>
                 <div className="form-group">
@@ -196,10 +139,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
               <div className="form-row">
                 <div className="form-group">
                   <label>Year</label>
-<<<<<<< HEAD
-                  <select name="year" value={formData.year} onChange={handleInputChange} className="form-select">
-                    {years.map(year => (<option key={year} value={year}>{year}</option>))}
-=======
                   <select
                     name="year"
                     value={formData.year}
@@ -207,18 +146,13 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                     className="form-select"
                   >
                     {years.map(year => <option key={year} value={year}>{year}</option>)}
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
                   </select>
                 </div>
                 <div className="form-group">
                   <label>Color</label>
                   <select name="color" value={formData.color} onChange={handleInputChange} className={`form-select ${errors.color ? 'error' : ''}`}>
                     <option value="">Select Color</option>
-<<<<<<< HEAD
-                    {colors.map(color => (<option key={color} value={color}>{color}</option>))}
-=======
                     {colors.map(color => <option key={color} value={color}>{color}</option>)}
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
                   </select>
                   {errors.color && <span className="error-text">{errors.color}</span>}
                 </div>
@@ -268,11 +202,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
             </div>
           </div>
           <div className="form-actions">
-<<<<<<< HEAD
-            <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>Cancel</button>
-            <button type="submit" className="btn-submit" disabled={loading}>
-              {loading ? (<><i className="fas fa-spinner fa-spin"></i> Adding Vehicle...</>) : (<><i className="fas fa-plus"></i> Add Vehicle</>)}
-=======
             <button type="button" className="btn-cancel" onClick={onClose} disabled={loading}>
               Cancel
             </button>
@@ -288,7 +217,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                   Add Vehicle
                 </>
               )}
->>>>>>> 982e32c50d61cdb97e69b2505c7efae7fce71725
             </button>
           </div>
         </form>
