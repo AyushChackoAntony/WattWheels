@@ -9,10 +9,10 @@ export default function Welcome({user}){
                 <p>Your EVs are helping people go green!</p>
                 </div>
                 <div className="quick-actions">
-                <Link href="#" className="quick-action-btn">
+                <Link href="/dashboard/owner/vehicles" className="quick-action-btn">
                     <i className="fas fa-car"></i> Manage Vehicles
                 </Link>
-                <Link href="#" className="quick-action-btn">
+                <Link href="/dashboard/owner/earnings" className="quick-action-btn">
                     <i className="fas fa-wallet"></i> View Earnings
                 </Link>
                 </div>

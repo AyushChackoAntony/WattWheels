@@ -1,0 +1,361 @@
+/* -------------------------
+   Container & Sections
+------------------------- */
+.notification-settings-container {
+  padding: 2rem;
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: "Inter", sans-serif;
+}
+
+.settings-section {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* -------------------------
+   Card Styles
+------------------------- */
+.settings-card {
+  background: var(--bg-secondary, #fff);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm, 0 2px 6px rgba(0,0,0,0.08));
+  margin-bottom: 1.5rem;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.settings-card:hover {
+  transform: translateY(-2px);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid var(--border-color, #e5e7eb);
+}
+
+.card-header h3 {
+  margin: 0;
+  font-size: 1.15rem;
+  font-weight: 600;
+}
+
+.card-header p {
+  margin: 0.25rem 0 0;
+  font-size: 0.9rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.card-content {
+  padding: 1.25rem 1.5rem;
+}
+
+/* -------------------------
+   Test Notification Buttons
+------------------------- */
+.test-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.test-btn {
+  flex: 1;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  font-weight: 500;
+  color: #fff;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.test-btn.email {
+  background: #2563eb;
+}
+.test-btn.email:hover {
+  background: #1e40af;
+}
+
+.test-btn.sms {
+  background: #16a34a;
+}
+.test-btn.sms:hover {
+  background: #15803d;
+}
+
+.test-btn.push {
+  background: #f59e0b;
+}
+.test-btn.push:hover {
+  background: #b45309;
+}
+
+/* -------------------------
+   Group Controls
+------------------------- */
+.group-info h3 {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.group-info p {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #6b7280);
+  margin: 0.25rem 0 0;
+}
+
+.group-controls {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.active-count {
+  font-size: 0.85rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.group-toggle-buttons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.group-toggle-btn {
+  background: var(--bg-tertiary, #f3f4f6);
+  border: none;
+  padding: 0.4rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.group-toggle-btn:hover {
+  background: #e5e7eb;
+}
+
+/* -------------------------
+   Notification List
+------------------------- */
+.notification-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.notification-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.notification-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.notification-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: var(--bg-tertiary, #f3f4f6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  color: var(--accent-color, #2563eb);
+}
+
+.notification-details h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.notification-details p {
+  margin: 0.25rem 0 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.important-badge {
+  background: #fee2e2;
+  color: #b91c1c;
+  font-size: 0.7rem;
+  padding: 0.1rem 0.4rem;
+  border-radius: 6px;
+  margin-left: 0.5rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+/* -------------------------
+   Toggle Switch
+------------------------- */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 42px;
+  height: 22px;
+}
+
+.toggle-switch input {
+  display: none;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: #d1d5db;
+  border-radius: 22px;
+  transition: 0.3s;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px; width: 16px;
+  left: 3px; bottom: 3px;
+  background: white;
+  border-radius: 50%;
+  transition: 0.3s;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background: #2563eb;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(20px);
+}
+
+/* -------------------------
+   Schedule Section
+------------------------- */
+.schedule-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.schedule-item label {
+  font-weight: 500;
+  font-size: 0.9rem;
+}
+
+.time-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0.5rem 0;
+}
+
+.time-range input {
+  padding: 0.4rem;
+  border: 1px solid var(--border-color, #d1d5db);
+  border-radius: 6px;
+}
+
+.schedule-item select {
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid var(--border-color, #d1d5db);
+}
+
+.schedule-note {
+  font-size: 0.75rem;
+  color: var(--text-secondary, #6b7280);
+  margin-top: 0.3rem;
+}
+
+/* -------------------------
+   History Section
+------------------------- */
+.notification-history {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.history-item {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.history-icon {
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+}
+
+.history-icon.email {
+  background: #2563eb;
+}
+
+.history-icon.sms {
+  background: #16a34a;
+}
+
+.history-icon.push {
+  background: #f59e0b;
+}
+
+.history-details h4 {
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+}
+
+.history-details p {
+  margin: 0.25rem 0;
+  font-size: 0.8rem;
+  color: var(--text-secondary, #6b7280);
+}
+
+.history-time {
+  font-size: 0.75rem;
+  color: #9ca3af;
+}
+
+.clear-history-btn {
+  background: transparent;
+  border: none;
+  color: #ef4444;
+  font-size: 0.85rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.view-all-history-btn {
+  width: 100%;
+  margin-top: 1rem;
+  padding: 0.75rem;
+  border: none;
+  border-radius: 8px;
+  background: var(--bg-tertiary, #f3f4f6);
+  cursor: pointer;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+
+.view-all-history-btn:hover {
+  background: #e5e7eb;
+}
