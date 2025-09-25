@@ -34,7 +34,7 @@ export default function OwnerLogin() {
 
     setLoading(true);
     try {
-      const res = await fetch("/api/ownerLogin", {
+      const res = await fetch("http://127.0.0.1:5000/api/auth/login/owner", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -43,22 +43,21 @@ export default function OwnerLogin() {
       });
 
       const data = await res.json();
-      console.log("Response from API route:", data);
 
       if (res.ok) {
-        // Extract user data from response
-        // Adjust this based on what your Flask API returns
+        // --- THIS IS THE CORRECTED PART ---
+        // We use the real user data returned from the backend
         const userData = {
-          firstName: data.user?.firstName || 'Sarah', // Replace with actual API response
-          lastName: data.user?.lastName || 'Johnson',
-          email: data.user?.email || email,
-          id: data.user?.id || '12345'
+            firstName: data.user.firstName,
+            email: email,
+            id: data.user.id // Use the real ID from the database
         };
+        // --- END OF CORRECTION ---
 
         // Store user data in context and localStorage
         login(userData, 'owner');
 
-        showMessage('Login successful!', 'success');
+        showMessage('Login successful! Redirecting...', 'success');
         setTimeout(() => {
           router.push('/dashboard/owner')
         }, 1000);
@@ -67,7 +66,7 @@ export default function OwnerLogin() {
       }
     } catch (error) {
       console.error("Error sending request:", error);
-      showMessage('Something went wrong', 'error');
+      showMessage('Could not connect to the server.', 'error');
     } finally {
       setLoading(false);
     }

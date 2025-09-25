@@ -6,9 +6,11 @@ from app.models.user import User
 # This route will get all earnings for a specific owner
 @earnings_bp.route('/<int:owner_id>', methods=['GET'])
 def get_owner_earnings(owner_id):
+    print(f"--- Received request for owner_id: {owner_id} ---")
     # Find the owner
     owner = User.query.get(owner_id)
-    if not owner or owner.user_type != 'owner':
+    print(f"--- Found user in database: {owner} ---")
+    if not owner or owner.user_type != 'owner': # Correct line with one underscore
         return jsonify({'error': 'Owner not found'}), 404
 
     # Get all vehicles belonging to this owner

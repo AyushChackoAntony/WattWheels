@@ -1,5 +1,5 @@
 'use client';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/context/AuthContext';
 import OwnerHeader from '@/components/dashboard/owner/OwnerHeader';
 import EarningsHeader from '@/components/dashboard/owner/earnings/EarningsHeader';
@@ -15,165 +15,92 @@ export default function MyEarnings() {
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showPayoutModal, setShowPayoutModal] = useState(false);
 
-  // Sample earnings data - replace with API call
-  const [earningsData] = useState({
-    totalEarnings: 125800,
-    availableBalance: 23500,
-    pendingPayouts: 8200,
-    thisMonthEarnings: 18750,
-    lastMonthEarnings: 15400,
-    thisWeekEarnings: 4200,
-    totalTrips: 342,
-    averagePerTrip: 368,
-    commissionRate: 15,
-    nextPayoutDate: '2025-01-15',
-    
-    // Monthly chart data
-    monthlyData: [
-      { month: 'Jul', earnings: 12800, trips: 28 },
-      { month: 'Aug', earnings: 15600, trips: 34 },
-      { month: 'Sep', earnings: 18200, trips: 41 },
-      { month: 'Oct', earnings: 16800, trips: 38 },
-      { month: 'Nov', earnings: 21400, trips: 47 },
-      { month: 'Dec', earnings: 18750, trips: 42 }
-    ],
+  // --- State to hold data from the API ---
+  const [earningsData, setEarningsData] = useState(null);
+  const [transactions, setTransactions] = useState([]);
 
-    // Weekly chart data
-    weeklyData: [
-      { week: 'Week 1', earnings: 3800, trips: 8 },
-      { week: 'Week 2', earnings: 4200, trips: 12 },
-      { week: 'Week 3', earnings: 5100, trips: 14 },
-      { week: 'Week 4', earnings: 4650, trips: 11 },
-      { week: 'Week 5', earnings: 1000, trips: 3 }
-    ],
+  // --- Fetch earnings data from the backend ---
+  useEffect(() => {
+    if (user && user.id) {
+      const fetchEarnings = async () => {
+        try {
+          const res = await fetch(`http://127.0.0.1:5000/api/earnings/${user.id}`);
+          const data = await res.json();
 
-    // Yearly data
-    yearlyData: [
-      { year: '2023', earnings: 145800, trips: 312 },
-      { year: '2024', earnings: 186400, trips: 398 },
-      { year: '2025', earnings: 125800, trips: 342 }
-    ]
-  });
+          if (res.ok) {
+            // Set the fetched data into state
+            setEarningsData({
+              totalEarnings: data.total_earnings,
+              totalTrips: data.transaction_count,
+              availableBalance: data.total_earnings, // Placeholder
+              thisMonthEarnings: data.total_earnings, // Placeholder
+              // Add other placeholder values until backend provides them
+              pendingPayouts: 0,
+              lastMonthEarnings: 0,
+              thisWeekEarnings: 0,
+              averagePerTrip: data.transaction_count > 0 ? data.total_earnings / data.transaction_count : 0,
+              commissionRate: 15,
+              nextPayoutDate: '2025-01-15',
+              monthlyData: [], 
+              weeklyData: [], 
+              yearlyData: [] 
+            });
 
-  // Sample transaction data
-  const [transactions] = useState([
-    {
-      id: 1,
-      type: 'earning',
-      description: 'Tesla Model 3 rental - John Doe',
-      amount: 2125,
-      commission: 375,
-      netAmount: 1750,
-      date: '2025-01-10T14:30:00',
-      status: 'completed',
-      vehicle: 'Tesla Model 3',
-      customer: 'John Doe',
-      duration: '2 days'
-    },
-    {
-      id: 2,
-      type: 'payout',
-      description: 'Payout to bank account',
-      amount: 15000,
-      date: '2025-01-08T09:00:00',
-      status: 'completed',
-      payoutMethod: 'Bank Transfer'
-    },
-    {
-      id: 3,
-      type: 'earning',
-      description: 'Ola S1 Pro rental - Alice Smith',
-      amount: 640,
-      commission: 160,
-      netAmount: 480,
-      date: '2025-01-07T16:45:00',
-      status: 'completed',
-      vehicle: 'Ola S1 Pro',
-      customer: 'Alice Smith',
-      duration: '1 day'
-    },
-    {
-      id: 4,
-      type: 'earning',
-      description: 'Tesla Model 3 rental - Mike Johnson',
-      amount: 5000,
-      commission: 750,
-      netAmount: 4250,
-      date: '2025-01-05T11:20:00',
-      status: 'pending',
-      vehicle: 'Tesla Model 3',
-      customer: 'Mike Johnson',
-      duration: '3 days'
-    },
-    {
-      id: 5,
-      type: 'commission',
-      description: 'Platform commission adjustment',
-      amount: 125,
-      date: '2025-01-03T12:00:00',
-      status: 'completed'
+            // Map the backend transactions to the format our component expects
+            const formattedTransactions = data.transactions.map(t => ({
+                id: t.booking_id,
+                description: `Booking #${t.booking_id} - ${t.vehicle_name}`,
+                amount: t.earning,
+                date: t.date,
+                type: 'earning', 
+                status: 'completed',
+                vehicle: t.vehicle_name,
+                customer: `ID: ${t.customer_id}`,
+                commission: t.total_price * 0.15,
+                netAmount: t.earning
+            }));
+            setTransactions(formattedTransactions);
+
+          } else {
+            console.error("Failed to fetch earnings:", data.error);
+          }
+        } catch (error) {
+          console.error("Error fetching earnings:", error);
+        }
+      };
+      fetchEarnings();
     }
-  ]);
+  }, [user]); // Re-run when the user object is available
 
-  // Loading state
-  if (loading) {
+  // Loading state for user and earnings data
+  if (loading || !earningsData) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '18px',
-        color: '#6b7280'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         Loading earnings...
       </div>
     );
   }
 
-  // Not authenticated
   if (!isAuthenticated || !user) {
     return (
-      <div style={{
-        display: 'flex',
-        justifyContent: 'center',
-        alignItems: 'center',
-        height: '100vh',
-        fontSize: '18px',
-        color: '#ef4444'
-      }}>
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
         Please log in to access your earnings
       </div>
     );
   }
 
-  // Filter transactions based on selected filter
   const filteredTransactions = transactions.filter(transaction => {
     if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'earnings') return transaction.type === 'earning';
-    if (selectedFilter === 'payouts') return transaction.type === 'payout';
-    if (selectedFilter === 'pending') return transaction.status === 'pending';
-    return true;
+    return transaction.type === selectedFilter;
   });
 
-  // Get chart data based on timeframe
   const getChartData = () => {
-    switch (selectedTimeframe) {
-      case 'week':
-        return earningsData.weeklyData;
-      case 'year':
-        return earningsData.yearlyData;
-      default:
-        return earningsData.monthlyData;
-    }
+    return earningsData.monthlyData;
   };
 
   const handleRequestPayout = (amount) => {
-    // Handle payout request - integrate with API
     console.log('Requesting payout:', amount);
     setShowPayoutModal(false);
-    // Add new payout transaction to the list
-    // Update available balance
   };
 
   return (
@@ -181,52 +108,40 @@ export default function MyEarnings() {
       <OwnerHeader user={user} />
       <main className="dashboard-main">
         <div className="dashboard-container">
-          
-          {/* Earnings Header */}
-          <EarningsHeader 
+          <EarningsHeader
             totalEarnings={earningsData.totalEarnings}
             availableBalance={earningsData.availableBalance}
             thisMonthEarnings={earningsData.thisMonthEarnings}
             onRequestPayout={() => setShowPayoutModal(true)}
           />
-
-          {/* Earnings Overview Cards */}
-          <EarningsOverview 
+          <EarningsOverview
             data={earningsData}
             selectedTimeframe={selectedTimeframe}
           />
-
-          {/* Chart Section with Filters */}
           <div className="earnings-chart-section">
-            <EarningsFilters 
+            <EarningsFilters
               selectedTimeframe={selectedTimeframe}
               onTimeframeChange={setSelectedTimeframe}
               selectedFilter={selectedFilter}
               onFilterChange={setSelectedFilter}
             />
-            
-            <EarningsChart 
+            <EarningsChart
               data={getChartData()}
               timeframe={selectedTimeframe}
             />
           </div>
-
-          {/* Transaction History */}
-          <TransactionHistory 
+          <TransactionHistory
             transactions={filteredTransactions}
             selectedFilter={selectedFilter}
           />
-
-          {/* Payout Section Modal */}
           {showPayoutModal && (
-            <PayoutSection 
+            <PayoutSection
               availableBalance={earningsData.availableBalance}
               nextPayoutDate={earningsData.nextPayoutDate}
               onRequestPayout={handleRequestPayout}
               onClose={() => setShowPayoutModal(false)}
             />
           )}
-
         </div>
       </main>
     </>

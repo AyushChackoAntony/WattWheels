@@ -25,8 +25,11 @@ export default function CustomerSignup() {
     setForm(f => ({ ...f, [name]: type === 'checkbox' ? checked : value }));
   };
 
-  const handleSubmit = async e => {
+  // In frontend/app/src/app/signup/customer/page.js
+
+const handleSubmit = async e => {
     e.preventDefault();
+    // --- Form validation (keep this part as is) ---
     if (!form.firstName || !form.lastName || !form.email || !form.phone || !form.password || !form.address) {
       showMessage('Please fill in all required fields', 'error');
       return;
@@ -43,6 +46,7 @@ export default function CustomerSignup() {
       showMessage('Please agree to the Terms of Service and Privacy Policy', 'error');
       return;
     }
+    // --- End of validation ---
 
     const custFormData = {
       firstName: form.firstName,
@@ -55,8 +59,9 @@ export default function CustomerSignup() {
 
     setLoading(true);
 
-    try{
-      const res = await fetch("/api/customerSignup", {
+    // --- START: API Call to Your Backend ---
+    try {
+      const res = await fetch("http://127.0.0.1:5000/api/auth/signup/customer", {
         method: "POST",
         headers: {
           "Content-Type": "application/json"
@@ -66,21 +71,23 @@ export default function CustomerSignup() {
 
       const result = await res.json();
 
-      if(!res.ok){
+      if (!res.ok) {
+        // This will show errors from the backend, like "Email already in use"
         throw new Error(result.error || "Signup failed");
       }
 
-      showMessage("Account created successfully!", 'success');
-      router.push("/login/customer");
-    } catch(error){
+      showMessage("Account created successfully! Redirecting to login...", 'success');
+      setTimeout(() => {
+          router.push("/login/customer");
+      }, 2000); // Wait 2 seconds before redirecting
 
+    } catch (error) {
+        showMessage(error.message, 'error');
+    } finally {
+        setLoading(false);
     }
-    // setTimeout(() => {
-    //   setLoading(false);
-    //   showMessage('Account created successfully!', 'success');
-    //   setTimeout(() => router.push('/customer/dashboard'), 1000);
-    // }, 1000);
-  };
+    // --- END: API Call to Your Backend ---
+};
 
   return (
     <>
