@@ -12,7 +12,7 @@ export async function POST(request){
     // );
 
     // Sending data to flask 
-    const flaskRes = await fetch("http://127.0.0.1:5000/api/auth/signup/customer", {
+    const flaskRes = await fetch("http://127.0.0.1:5000/api/auth/signup/owner", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

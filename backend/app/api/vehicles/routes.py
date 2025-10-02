@@ -44,6 +44,11 @@ def get_all_vehicles():
             'type': v.type,
             'pricePerDay': v.price_per_day,
             'location': v.location,
-            'imageUrl': v.image_url
+            'imageUrl': v.image_url,
+            # Adding placeholder data for expanded vehicle information
+            'monthlyEarnings': 5000,  # Placeholder
+            'monthlyBookings': 10,       # Placeholder
+            'rating': 4.5,               # Placeholder
+            'availability': 80           # Placeholder
         })
     return jsonify(vehicle_list)

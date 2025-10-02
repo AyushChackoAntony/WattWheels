@@ -5,15 +5,26 @@ from app.models.vehicle import Vehicle
 from app import db
 from datetime import datetime
 
+# In a real app, you would have a way to get the current user,
+# for example, using a decorator like @jwt_required and get_jwt_identity
+# from flask_jwt_extended. For now, we'll simulate it.
+def get_current_user_id():
+    # Placeholder: In a real app, you'd get this from a session or JWT token
+    # For demonstration, we'll expect it in the request data,
+    # but this is NOT secure for a production application.
+    return request.get_json().get('customer_id')
+
 @bookings_bp.route('/', methods=['POST'])
 def create_booking():
     data = request.get_json()
 
-    # --- In a real app, you'd get customer_id from a logged-in session/token ---
-    customer_id = data.get('customer_id')
+    # --- Get customer_id from a secure source (e.g., JWT token) ---
+    # customer_id = get_jwt_identity() 
+    customer_id = get_current_user_id() # Using placeholder for now
+
     vehicle_id = data.get('vehicle_id')
-    start_date_str = data.get('start_date') # Expected format from frontend: 'YYYY-MM-DD'
-    end_date_str = data.get('end_date')   # Expected format from frontend: 'YYYY-MM-DD'
+    start_date_str = data.get('start_date') # Expected format: 'YYYY-MM-DD'
+    end_date_str = data.get('end_date')   # Expected format: 'YYYY-MM-DD'
 
     # --- Data Validation ---
     if not all([customer_id, vehicle_id, start_date_str, end_date_str]):
