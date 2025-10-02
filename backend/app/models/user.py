@@ -12,6 +12,7 @@ class User(db.Model):
     user_type = db.Column(db.String(20), nullable=False)  # 'customer' or 'owner'
 
     def set_password(self, password):
+        # Explicitly define the hashing method to ensure consistency
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
 
     def check_password(self, password):
