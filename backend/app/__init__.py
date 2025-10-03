@@ -20,12 +20,14 @@ def create_app(config_class=Config):
     from .api.vehicles.routes import vehicles_bp
     from .api.bookings.routes import bookings_bp
     from .api.earnings.routes import earnings_bp
-    from .api.availability.routes import availability_bp # <-- Add this import
+    from .api.availability.routes import availability_bp
+    from . api.settings.routes import settings_bp # <-- Add this import
 
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(vehicles_bp, url_prefix='/api/vehicles')
     app.register_blueprint(bookings_bp, url_prefix='/api/bookings')
     app.register_blueprint(earnings_bp, url_prefix='/api/earnings')
     app.register_blueprint(availability_bp, url_prefix='/api/availability')
+    app.register_blueprint(settings_bp, url_prefix='/api/settings')
     
     return app

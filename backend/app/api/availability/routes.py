@@ -1,6 +1,6 @@
 from flask import request, jsonify
 from . import availability_bp
-from app.models import db
+from app import db
 from app.models.user import User
 from app.models.vehicle import Vehicle
 from app.models.availability import Availability

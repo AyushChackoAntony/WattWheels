@@ -11,6 +11,8 @@ class User(db.Model):
     address = db.Column(db.Text, nullable=False)
     user_type = db.Column(db.String(20), nullable=False)  # 'customer' or 'owner'
 
+    settings = db.relationship('OwnerSettings', back_populates='owner', uselist=False, cascade="all, delete-orphan")
+
     def set_password(self, password):
         # Explicitly define the hashing method to ensure consistency
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
