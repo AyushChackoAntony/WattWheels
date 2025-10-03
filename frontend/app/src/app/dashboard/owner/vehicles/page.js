@@ -12,54 +12,49 @@ export default function MyVehicles() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [vehicles, setVehicles] = useState([]); // Start with an empty array
+  const [vehicles, setVehicles] = useState([]);
 
-  // --- Fetch vehicles from the backend when the page loads ---
   useEffect(() => {
     const fetchVehicles = async () => {
-      try {
-        const response = await fetch('http://127.0.0.1:5000/api/vehicles/');
-        const data = await response.json();
-        if (response.ok) {
-          // The backend API for GET /vehicles doesn't return all stats, so we add placeholders
-          const vehiclesWithStats = data.map(vehicle => ({
-            ...vehicle,
-            monthlyEarnings: 0,
-            monthlyBookings: 0,
-            rating: 0,
-            availability: 100,
-            status: 'active' // Assuming default status
-          }));
-          setVehicles(vehiclesWithStats);
+      if (user && user.id) {
+        try {
+          const response = await fetch(`http://127.0.0.1:5000/api/vehicles/`);
+          const data = await response.json();
+          if (response.ok) {
+            const vehiclesWithStats = data.map(vehicle => ({
+              ...vehicle,
+              // These will be replaced with real data in a later step
+              monthlyEarnings: vehicle.monthlyEarnings || 0,
+              monthlyBookings: vehicle.monthlyBookings || 0,
+              rating: vehicle.rating || 0,
+              availability: vehicle.availability || 100,
+              status: vehicle.status || 'active'
+            }));
+            setVehicles(vehiclesWithStats);
+          } else {
+            console.error("Failed to fetch vehicles:", data.error);
+          }
+        } catch (error) {
+          console.error("Failed to fetch vehicles:", error);
         }
-      } catch (error) {
-        console.error("Failed to fetch vehicles:", error);
       }
     };
-    fetchVehicles();
-  }, []); // The empty array ensures this runs only once when the component mounts
 
-  // Loading state
+    if (isAuthenticated) {
+      fetchVehicles();
+    }
+  }, [user, isAuthenticated]); // Corrected dependency array
+
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        Loading vehicles...
-      </div>
-    );
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading vehicles...</div>;
   }
 
-  // Not authenticated
   if (!isAuthenticated || !user) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        Please log in to access your vehicles
-      </div>
-    );
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Please log in to access your vehicles</div>;
   }
 
-  // Filter vehicles based on selected filter and search term
   const filteredVehicles = vehicles.filter(vehicle => {
-    const matchesFilter = selectedFilter === 'all' || 
+    const matchesFilter = selectedFilter === 'all' ||
                          (selectedFilter === 'active' && vehicle.status === 'active') ||
                          (selectedFilter === 'maintenance' && vehicle.status === 'maintenance') ||
                          (selectedFilter === 'inactive' && vehicle.status === 'inactive') ||
@@ -73,10 +68,9 @@ export default function MyVehicles() {
   });
 
   const handleAddVehicle = (newlyAddedVehicle) => {
-    // Add the new vehicle to the state to update the UI instantly
     const vehicleWithStats = {
       ...newlyAddedVehicle,
-      id: vehicles.length + 1, // Use a temporary ID for the key
+      id: vehicles.length + 1,
       monthlyEarnings: 0,
       monthlyBookings: 0,
       rating: 0,
@@ -87,23 +81,51 @@ export default function MyVehicles() {
     setShowAddForm(false);
   };
 
-  const handleDeleteVehicle = (vehicleId) => {
-    // This would also involve an API call in a real app
-    setVehicles(vehicles.filter(vehicle => vehicle.id !== vehicleId));
+  const handleDeleteVehicle = async (vehicleId) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/vehicles/${vehicleId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner_id: user.id }),
+      });
+
+      if (response.ok) {
+        setVehicles(vehicles.filter(vehicle => vehicle.id !== vehicleId));
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to delete vehicle: ${errorData.error}`);
+      }
+    } catch (error) {
+      alert('An error occurred while deleting the vehicle.');
+    }
   };
 
-  const handleToggleStatus = (vehicleId, newStatus) => {
-    // This would also involve an API call in a real app
-    setVehicles(vehicles.map(vehicle =>
-      vehicle.id === vehicleId ? { ...vehicle, status: newStatus } : vehicle
-    ));
+  const handleToggleStatus = async (vehicleId, newStatus) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/vehicles/${vehicleId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, owner_id: user.id }),
+      });
+
+      if (response.ok) {
+        const updatedVehicle = await response.json();
+        setVehicles(vehicles.map(vehicle =>
+          vehicle.id === vehicleId ? { ...vehicle, ...updatedVehicle.vehicle } : vehicle
+        ));
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to update status: ${errorData.error}`);
+      }
+    } catch (error) {
+      alert('An error occurred while updating the vehicle status.');
+    }
   };
 
-  // Calculate summary stats
   const totalVehicles = vehicles.length;
   const activeVehicles = vehicles.filter(v => v.status === 'active').length;
-  const totalMonthlyEarnings = vehicles.reduce((sum, v) => sum + v.monthlyEarnings, 0);
-  const totalMonthlyBookings = vehicles.reduce((sum, v) => sum + v.monthlyBookings, 0);
+  const totalMonthlyEarnings = vehicles.reduce((sum, v) => sum + (v.monthlyEarnings || 0), 0);
+  const totalMonthlyBookings = vehicles.reduce((sum, v) => sum + (v.monthlyBookings || 0), 0);
 
   return (
     <>

@@ -74,3 +74,34 @@ def owner_login():
         'message': 'Owner logged in successfully',
         'user': { 'id': user.id, 'firstName': user.first_name }
         })
+    # --- NEW ROUTE FOR UPDATING USER PROFILE ---
+@auth_bp.route('/user/<int:user_id>', methods=['PUT'])
+def update_user_profile(user_id):
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
+    data = request.get_json()
+
+    # Update user fields
+    user.first_name = data.get('firstName', user.first_name)
+    user.last_name = data.get('lastName', user.last_name)
+    user.email = data.get('email', user.email)
+    user.phone = data.get('phone', user.phone)
+    user.address = data.get('address', user.address)
+    # Note: For security, password changes should have a separate, more secure endpoint.
+    # We are not handling password changes here.
+
+    db.session.commit()
+
+    return jsonify({
+        'message': 'Profile updated successfully',
+        'user': {
+            'id': user.id,
+            'firstName': user.first_name,
+            'lastName': user.last_name,
+            'email': user.email,
+            'phone': user.phone,
+            'address': user.address
+        }
+    }), 200

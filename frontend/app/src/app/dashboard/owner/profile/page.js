@@ -74,14 +74,22 @@ export default function OwnerProfile() {
     e.preventDefault();
     try {
       // Here you would typically make an API call to update the profile
-      // const response = await fetch('/api/updateProfile', {
-      //   method: 'PUT',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
-      showMessage('Profile updated successfully!', 'success');
-      setIsEditing(false);
+      const response = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(formData)
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        // Update user context with new data from backend
+        updateUser(result.user);
+        showMessage('Profile updated successfully!', 'success');
+        setIsEditing(false);
+      } else {
+        throw new Error(result.error || 'Failed to update profile.');
+      }
     } catch (error) {
       showMessage('Failed to update profile. Please try again.', 'error');
     }
@@ -91,17 +99,17 @@ export default function OwnerProfile() {
     setIsEditing(false);
     // Reset form data to original values
     setFormData({
-      firstName: user?.firstName || 'Sarah',
-      lastName: user?.lastName || 'Johnson',
-      email: user?.email || 'sarah.johnson@email.com',
-      phone: '+1 234 567 8900',
-      address: '123 Main Street, Anytown, AT 12345',
-      bio: 'Passionate about sustainable transportation and electric vehicles. I own and rent out premium EVs to help build a greener future.',
-      joinDate: 'January 15, 2023',
-      verified: true
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        phone: user.phone,
+        address: user.address,
+        bio: user.bio,
+        joinDate: user.joinDate,
+        verified: user.verified
     });
   };
-
+  
   return (
     <>
       <OwnerHeader user={user} />
