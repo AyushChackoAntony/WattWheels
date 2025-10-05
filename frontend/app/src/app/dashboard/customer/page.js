@@ -2,7 +2,7 @@
 import React from 'react';
 import { useAuth } from '@/context/AuthContext';
 
-import Header from '@/components/dashboard/customer/Header';
+import Header from '@/components/dashboard/customer/CustomerHeader';
 import Welcome from '@/components/dashboard/customer/Welcome';
 import Stats from '@/components/dashboard/customer/Stats';
 import QuickBooking from '@/components/dashboard/customer/QuickBooking';
