@@ -2,7 +2,7 @@
 'use client';
 import React, { useState } from 'react';
 import { useAuth } from '@/context/AuthContext';
-import Header from '@/components/dashboard/customer/Header';
+import Header from '@/components/dashboard/customer/CustomerHeader';
 import ProfileHeader from '@/components/dashboard/customer/profile/ProfileHeader';
 import PersonalInfo from '@/components/dashboard/customer/profile/PersonalInfo';
 import AboutMe from '@/components/dashboard/customer/profile/AboutMe';

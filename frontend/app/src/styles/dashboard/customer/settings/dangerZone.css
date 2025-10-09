@@ -1,0 +1,281 @@
+.settings-section {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.section-header.danger h2 {
+  color: #e63946;
+}
+
+.section-header.danger p {
+  color: #555;
+  margin-top: 4px;
+}
+
+.form-group-container {
+  margin-bottom: 32px;
+}
+
+.status-info-box {
+  display: flex;
+  align-items: center;
+  background: #f9f9f9;
+  padding: 16px;
+  border-radius: 8px;
+  border: 1px solid #eee;
+}
+
+.status-icon {
+  font-size: 28px;
+  margin-right: 16px;
+}
+
+.status-icon.active {
+  color: #2a9d8f;
+}
+
+.status-icon.inactive {
+  color: #e9c46a;
+}
+
+.danger-zone-section {
+  margin-top: 16px;
+}
+
+.danger-action-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #fff5f5;
+  padding: 20px;
+  border: 1px solid #f5c2c2;
+  border-radius: 10px;
+}
+
+.danger-action-card.critical {
+  background: #fff0f0;
+  border: 1px solid #f08080;
+}
+
+.danger-info h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #b71c1c;
+}
+
+.danger-info p {
+  margin: 4px 0;
+  color: #444;
+  font-size: 14px;
+}
+
+.danger-list {
+  margin-top: 10px;
+  padding-left: 20px;
+  color: #444;
+  font-size: 14px;
+}
+
+.danger-btn {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: none;
+  transition: background 0.2s;
+}
+
+.danger-btn.secondary {
+  background: #fff;
+  border: 1px solid #e63946;
+  color: #e63946;
+}
+
+.danger-btn.secondary:hover {
+  background: #ffeaea;
+}
+
+.danger-btn.primary {
+  background: #e63946;
+  color: #fff;
+}
+
+.danger-btn.primary:hover {
+  background: #cc2f3f;
+}
+
+.export-card {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px;
+  background: #f9fafc;
+  border: 1px solid #e1e5ee;
+  border-radius: 10px;
+}
+
+.export-info {
+  display: flex;
+  align-items: center;
+}
+
+.export-info i {
+  font-size: 22px;
+  margin-right: 12px;
+  color: #1976d2;
+}
+
+.export-info h4 {
+  margin: 0;
+  font-size: 16px;
+}
+
+.export-info p {
+  margin: 4px 0;
+  font-size: 14px;
+  color: #555;
+}
+
+.export-btn {
+  background: #1976d2;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 10px 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.export-btn:hover {
+  background: #145ea8;
+}
+
+.danger-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+
+.danger-modal {
+  background: #fff;
+  border-radius: 12px;
+  padding: 24px;
+  width: 450px;
+  max-width: 90%;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.danger-modal.critical {
+  border: 2px solid #e63946;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.modal-header h3 {
+  margin: 0 0 0 12px;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+.warning-icon {
+  color: #e9c46a;
+  font-size: 24px;
+}
+
+.critical-icon {
+  color: #e63946;
+  font-size: 24px;
+}
+
+.modal-body p {
+  margin-bottom: 12px;
+  color: #444;
+  font-size: 14px;
+}
+
+.modal-body ul {
+  padding-left: 20px;
+  color: #444;
+  font-size: 14px;
+}
+
+.critical-warning {
+  color: #b71c1c;
+  font-weight: 600;
+}
+
+.confirmation-input {
+  margin-top: 12px;
+}
+
+.confirmation-input label {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.confirmation-input input {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+  gap: 12px;
+}
+
+.btn-cancel {
+  padding: 10px 16px;
+  border-radius: 6px;
+  border: 1px solid #999;
+  background: #fff;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #f2f2f2;
+}
+
+.btn-danger {
+  padding: 10px 18px;
+  border-radius: 6px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-danger {
+  background: #e63946;
+  color: #fff;
+}
+
+.btn-danger:hover {
+  background: #cc2f3f;
+}
+
+.btn-danger.critical:disabled {
+  background: #f5a6ad;
+  cursor: not-allowed;
+}

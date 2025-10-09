@@ -1,0 +1,110 @@
+/* Wallet Header Section */
+.wallet-header-section {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+/* Flex container */
+.wallet-header-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Balance Card */
+.wallet-balance-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.balance-icon {
+  width: 60px;
+  height: 60px;
+  border-radius: 16px;
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  font-size: 28px;
+  box-shadow: var(--shadow-sm);
+}
+
+.balance-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.balance-label {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.balance-amount {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+/* Wallet Actions */
+.wallet-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.add-money-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  padding: 12px 20px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.add-money-btn:hover {
+  background: var(--primary-hover);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .wallet-header-content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .wallet-balance-card {
+    width: 100%;
+  }
+
+  .balance-icon {
+    width: 50px;
+    height: 50px;
+    font-size: 22px;
+  }
+
+  .balance-amount {
+    font-size: 24px;
+  }
+
+  .add-money-btn {
+    width: 100%;
+    justify-content: center;
+  }
+}

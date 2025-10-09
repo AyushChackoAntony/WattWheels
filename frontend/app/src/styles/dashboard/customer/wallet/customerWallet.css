@@ -1,0 +1,85 @@
+/* Main Wallet Container */
+.wallet-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Common Status Badge Colors */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.completed {
+  background: var(--bg-accent);
+  color: var(--primary-color);
+}
+
+.status-badge.pending {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.failed {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+/* Empty State */
+.transactions-empty-state {
+  background: var(--bg-primary);
+  border-radius: 16px;
+  padding: 80px 40px;
+  text-align: center;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  margin-top: 24px;
+}
+
+.empty-icon {
+  width: 80px;
+  height: 80px;
+  background: var(--bg-secondary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 24px;
+  color: var(--text-light);
+  font-size: 32px;
+}
+
+.transactions-empty-state h3 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 12px;
+}
+
+.transactions-empty-state p {
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .wallet-container {
+    padding: 0 16px;
+  }
+
+  .transactions-empty-state {
+    padding: 60px 20px;
+  }
+
+  .empty-icon {
+    width: 60px;
+    height: 60px;
+    font-size: 24px;
+  }
+}

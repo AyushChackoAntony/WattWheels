@@ -1,0 +1,73 @@
+/* Main Bookings Container */
+.bookings-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Common Status Badge Colors */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.upcoming {
+  background: #fef3c7;
+  color: #d97706;
+}
+
+.status-badge.completed {
+  background: var(--bg-accent);
+  color: var(--primary-color);
+}
+
+.status-badge.cancelled {
+  background: #fef2f2;
+  color: #ef4444;
+}
+
+.status-badge.active {
+  background: #dbeafe;
+  color: #2563eb;
+}
+
+/* Common Button Styles */
+.primary-btn {
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.primary-btn:hover {
+  background: var(--primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .bookings-container {
+    padding: 0 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .status-badge {
+    font-size: 10px;
+    padding: 4px 8px;
+  }
+}

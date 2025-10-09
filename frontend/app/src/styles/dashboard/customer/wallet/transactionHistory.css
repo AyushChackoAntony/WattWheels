@@ -1,0 +1,290 @@
+.transaction-history-section {
+  margin-top: 20px;
+}
+
+.transactions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.transaction-item {
+  background: #ffffff;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  overflow: hidden;
+}
+
+.transaction-item:hover {
+  border-color: #d0d0d0;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08);
+}
+
+.transaction-item.expanded {
+  border-color: #3498db;
+}
+
+
+.transaction-main {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.transaction-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  flex-shrink: 0;
+}
+
+.transaction-icon.credit {
+  background: #e6f4ea;
+  color: #16a34a;
+}
+
+.transaction-icon.debit {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+.transaction-info {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.transaction-primary {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.transaction-primary h4 {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 600;
+  color: #2c3e50;
+}
+
+.transaction-amount {
+  font-weight: 700;
+  font-size: 15px;
+}
+
+.transaction-amount.credit {
+  color: #16a34a;
+}
+
+.transaction-amount.debit {
+  color: #dc2626;
+}
+
+.transaction-secondary {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #6b7280;
+  margin-top: 6px;
+}
+
+.transaction-status {
+  text-transform: capitalize;
+  font-weight: 600;
+}
+
+.transaction-status.completed {
+  color: #16a34a;
+}
+
+.transaction-status.pending {
+  color: #d97706;
+}
+
+.transaction-status.failed {
+  color: #dc2626;
+}
+
+/* Expand Button */
+.expand-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+  margin-left: 10px;
+  transition: transform 0.2s ease;
+}
+
+.transaction-item.expanded .expand-btn {
+  transform: rotate(180deg);
+}
+
+
+.transaction-details {
+  background: #f9fafb;
+  border-top: 1px solid #e5e7eb;
+  padding: 16px;
+}
+
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 14px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+}
+
+.detail-label {
+  font-size: 12px;
+  color: #6b7280;
+  margin-bottom: 4px;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 14px;
+  color: #111827;
+  font-weight: 600;
+}
+
+.detail-value.balance {
+  color: #2563eb;
+}
+
+/* Status Badge (inside details) */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.status-badge.completed {
+  background: #dcfce7;
+  color: #16a34a;
+}
+
+.status-badge.pending {
+  background: #fef9c3;
+  color: #d97706;
+}
+
+.status-badge.failed {
+  background: #fee2e2;
+  color: #dc2626;
+}
+
+
+.transaction-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.action-btn i {
+  font-size: 14px;
+}
+
+.action-btn.primary {
+  background: #3498db;
+  color: #ffffff;
+  border: none;
+}
+
+.action-btn.primary:hover {
+  background: #2980b9;
+}
+
+.action-btn.secondary {
+  background: #f3f4f6;
+  color: #374151;
+  border: 1px solid #e5e7eb;
+}
+
+.action-btn.secondary:hover {
+  background: #e5e7eb;
+}
+
+
+.transactions-empty-state {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 60px 24px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border: 1px solid #e5e7eb;
+}
+
+.empty-icon {
+  width: 70px;
+  height: 70px;
+  background: #f3f4f6;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+  color: #9ca3af;
+  font-size: 28px;
+}
+
+.transactions-empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #111827;
+  margin-bottom: 8px;
+}
+
+.transactions-empty-state p {
+  color: #6b7280;
+  font-size: 14px;
+}
+
+
+@media (max-width: 768px) {
+  .transaction-main {
+    flex-wrap: wrap;
+  }
+
+  .transaction-primary h4 {
+    font-size: 14px;
+  }
+
+  .transaction-amount {
+    font-size: 14px;
+  }
+
+  .details-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .transaction-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
