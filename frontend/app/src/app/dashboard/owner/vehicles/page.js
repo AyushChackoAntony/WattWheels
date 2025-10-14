@@ -12,98 +12,110 @@ export default function MyVehicles() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
-  const [vehicles, setVehicles] = useState([]); // Start with an empty array
+  const [vehicles, setVehicles] = useState([]);
 
-  // --- Fetch vehicles from the backend when the page loads ---
-  useEffect(() => {
-    const fetchVehicles = async () => {
+  // This function fetches the vehicles specifically for the logged-in owner.
+  const fetchVehicles = async () => {
+    if (user?.id) {
       try {
-        const response = await fetch('http://127.0.0.1:5000/api/vehicles/');
-        const data = await response.json();
+        const response = await fetch(`http://127.0.0.1:5000/api/vehicles/?ownerId=${user.id}`);
         if (response.ok) {
-          // The backend API for GET /vehicles doesn't return all stats, so we add placeholders
-          const vehiclesWithStats = data.map(vehicle => ({
-            ...vehicle,
-            monthlyEarnings: 0,
-            monthlyBookings: 0,
-            rating: 0,
-            availability: 100,
-            status: 'active' // Assuming default status
-          }));
-          setVehicles(vehiclesWithStats);
+          const data = await response.json();
+          setVehicles(data.vehicles || []);
+        } else {
+          console.error("Failed to fetch vehicles");
         }
       } catch (error) {
-        console.error("Failed to fetch vehicles:", error);
+        console.error("Error fetching vehicles:", error);
       }
-    };
-    fetchVehicles();
-  }, []); // The empty array ensures this runs only once when the component mounts
+    }
+  };
 
-  // Loading state
+  // This hook calls `fetchVehicles` as soon as the user is authenticated.
+  useEffect(() => {
+    if (isAuthenticated) {
+      fetchVehicles();
+    }
+  }, [user, isAuthenticated]);
+
+
   if (loading) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        Loading vehicles...
-      </div>
-    );
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading vehicles...</div>;
   }
 
-  // Not authenticated
   if (!isAuthenticated || !user) {
-    return (
-      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
-        Please log in to access your vehicles
-      </div>
-    );
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Please log in to access your vehicles</div>;
   }
 
-  // Filter vehicles based on selected filter and search term
   const filteredVehicles = vehicles.filter(vehicle => {
-    const matchesFilter = selectedFilter === 'all' || 
-                         (selectedFilter === 'active' && vehicle.status === 'active') ||
-                         (selectedFilter === 'maintenance' && vehicle.status === 'maintenance') ||
-                         (selectedFilter === 'inactive' && vehicle.status === 'inactive') ||
-                         (selectedFilter === 'cars' && vehicle.type === 'car') ||
-                         (selectedFilter === 'bikes' && vehicle.type === 'bike');
+    const filterValue = selectedFilter.toLowerCase();
+    const matchesFilter = filterValue === 'all' ||
+                         vehicle.status === filterValue ||
+                         vehicle.type === filterValue.slice(0, -1);
 
-    const matchesSearch = vehicle.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (vehicle.license_plate && vehicle.license_plate.toLowerCase().includes(searchTerm.toLowerCase()));
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = vehicle.name.toLowerCase().includes(searchLower) ||
+                         (vehicle.license_plate && vehicle.license_plate.toLowerCase().includes(searchLower));
 
     return matchesFilter && matchesSearch;
   });
 
-  const handleAddVehicle = (newlyAddedVehicle) => {
-    // Add the new vehicle to the state to update the UI instantly
-    const vehicleWithStats = {
-      ...newlyAddedVehicle,
-      id: vehicles.length + 1, // Use a temporary ID for the key
-      monthlyEarnings: 0,
-      monthlyBookings: 0,
-      rating: 0,
-      availability: 100,
-      status: 'active'
-    };
-    setVehicles(prevVehicles => [...prevVehicles, vehicleWithStats]);
+  // This function adds the newly created vehicle to the list without needing a page refresh.
+  const handleAddVehicle = (newVehicleResponse) => {
+    setVehicles(prevVehicles => [...prevVehicles, newVehicleResponse.vehicle]);
     setShowAddForm(false);
   };
 
-  const handleDeleteVehicle = (vehicleId) => {
-    // This would also involve an API call in a real app
-    setVehicles(vehicles.filter(vehicle => vehicle.id !== vehicleId));
+  // This function sends a DELETE request to the backend to permanently remove a vehicle.
+  const handleDeleteVehicle = async (vehicleId) => {
+    if (!window.confirm("Are you sure you want to delete this vehicle? This action cannot be undone.")) {
+        return;
+    }
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/vehicles/${vehicleId}`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ owner_id: user.id }),
+      });
+
+      if (response.ok) {
+        setVehicles(vehicles.filter(vehicle => vehicle.id !== vehicleId));
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to delete vehicle: ${errorData.error}`);
+      }
+    } catch (error) {
+      alert('An error occurred while deleting the vehicle.');
+    }
   };
 
-  const handleToggleStatus = (vehicleId, newStatus) => {
-    // This would also involve an API call in a real app
-    setVehicles(vehicles.map(vehicle =>
-      vehicle.id === vehicleId ? { ...vehicle, status: newStatus } : vehicle
-    ));
+  // This function sends a PATCH request to the backend to update the vehicle's status.
+  const handleToggleStatus = async (vehicleId, newStatus) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:5000/api/vehicles/${vehicleId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: newStatus, owner_id: user.id }),
+      });
+
+      if (response.ok) {
+        const updatedData = await response.json();
+        setVehicles(vehicles.map(vehicle =>
+          vehicle.id === vehicleId ? updatedData.vehicle : vehicle
+        ));
+      } else {
+        const errorData = await response.json();
+        alert(`Failed to update status: ${errorData.error}`);
+      }
+    } catch (error) {
+      alert('An error occurred while updating the vehicle status.');
+    }
   };
 
-  // Calculate summary stats
   const totalVehicles = vehicles.length;
   const activeVehicles = vehicles.filter(v => v.status === 'active').length;
-  const totalMonthlyEarnings = vehicles.reduce((sum, v) => sum + v.monthlyEarnings, 0);
-  const totalMonthlyBookings = vehicles.reduce((sum, v) => sum + v.monthlyBookings, 0);
+  const totalMonthlyEarnings = vehicles.reduce((sum, v) => sum + (v.monthlyEarnings || 0), 0);
+  const totalMonthlyBookings = vehicles.reduce((sum, v) => sum + (v.monthlyBookings || 0), 0);
 
   return (
     <>

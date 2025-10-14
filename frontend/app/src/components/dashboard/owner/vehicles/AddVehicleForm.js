@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
 import '@/styles/dashboard/owner/vehicles/addVehicleForm.css';
+import { useAuth } from '@/context/AuthContext';
 
 export default function AddVehicleForm({ onSubmit, onClose }) {
+  const { user } = useAuth(); // Get the logged-in user
   const [formData, setFormData] = useState({
     name: '',
     type: 'car',
@@ -45,15 +47,10 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
   const validateForm = () => {
     const newErrors = {};
-
     if (!formData.name.trim()) newErrors.name = 'Vehicle name is required';
-    if (!formData.color.trim()) newErrors.color = 'Color is required';
     if (!formData.licensePlate.trim()) newErrors.licensePlate = 'License plate is required';
-    if (!formData.batteryRange.trim()) newErrors.batteryRange = 'Battery range is required';
-    if (!formData.acceleration.trim()) newErrors.acceleration = 'Acceleration info is required';
     if (!formData.pricePerDay || formData.pricePerDay <= 0) newErrors.pricePerDay = 'Valid price per day is required';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
-
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -61,15 +58,17 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!validateForm()) return;
+    if (!user) {
+        setErrors({ form: "You must be logged in to add a vehicle." });
+        return;
+    }
 
     setLoading(true);
 
     const vehicleData = {
         ...formData,
-        // In a real app, you would get this from your AuthContext
-        owner_id: 1, // Using a placeholder owner_id for now
+        owner_id: user.id, // Use the actual logged-in user's ID
         pricePerDay: parseInt(formData.pricePerDay),
-        // Set a default image based on type
         image: formData.type === 'car'
           ? '/images/ev-cars/tesla-model-3.svg'
           : '/images/ev-cars/ola-s1.svg'
@@ -84,11 +83,11 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
         if (!res.ok) {
             const errorData = await res.json();
-            throw new Error(errorData.message || "Failed to add vehicle");
+            throw new Error(errorData.error || "Failed to add vehicle");
         }
 
         const newVehicle = await res.json();
-        onSubmit(newVehicle.vehicle); 
+        onSubmit(newVehicle); // Pass the entire response object
         onClose(); 
 
     } catch (error) {
@@ -110,7 +109,7 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
         </div>
 
         <form onSubmit={handleSubmit} className="add-vehicle-form">
-          {errors.form && <div className="error-text">{errors.form}</div>}
+          {errors.form && <div className="error-text" style={{textAlign: 'center', marginBottom: '1rem'}}>{errors.form}</div>}
 
           <div className="form-sections">
             {/* Basic Information */}
@@ -119,12 +118,7 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
               <div className="form-row">
                 <div className="form-group">
                   <label>Vehicle Type</label>
-                  <select
-                    name="type"
-                    value={formData.type}
-                    onChange={handleInputChange}
-                    className="form-select"
-                  >
+                  <select name="type" value={formData.type} onChange={handleInputChange} className="form-select">
                     {vehicleOptions.map(option => (
                       <option key={option.value} value={option.value}>{option.label}</option>
                     ))}
@@ -139,12 +133,7 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
               <div className="form-row">
                 <div className="form-group">
                   <label>Year</label>
-                  <select
-                    name="year"
-                    value={formData.year}
-                    onChange={handleInputChange}
-                    className="form-select"
-                  >
+                  <select name="year" value={formData.year} onChange={handleInputChange} className="form-select">
                     {years.map(year => <option key={year} value={year}>{year}</option>)}
                   </select>
                 </div>
@@ -154,7 +143,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
                     <option value="">Select Color</option>
                     {colors.map(color => <option key={color} value={color}>{color}</option>)}
                   </select>
-                  {errors.color && <span className="error-text">{errors.color}</span>}
                 </div>
               </div>
               <div className="form-group">
@@ -168,13 +156,11 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
               <div className="form-row">
                 <div className="form-group">
                   <label>Battery Range</label>
-                  <input type="text" name="batteryRange" value={formData.batteryRange} onChange={handleInputChange} placeholder="e.g. 350km" className={errors.batteryRange ? 'error' : ''} />
-                  {errors.batteryRange && <span className="error-text">{errors.batteryRange}</span>}
+                  <input type="text" name="batteryRange" value={formData.batteryRange} onChange={handleInputChange} placeholder="e.g. 350km" />
                 </div>
                 <div className="form-group">
                   <label>Acceleration</label>
-                  <input type="text" name="acceleration" value={formData.acceleration} onChange={handleInputChange} placeholder="e.g. 0-60 in 3.1s" className={errors.acceleration ? 'error' : ''} />
-                  {errors.acceleration && <span className="error-text">{errors.acceleration}</span>}
+                  <input type="text" name="acceleration" value={formData.acceleration} onChange={handleInputChange} placeholder="e.g. 0-60 in 3.1s" />
                 </div>
               </div>
             </div>
