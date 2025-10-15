@@ -6,7 +6,6 @@ import AvailabilityHeader from '@/components/dashboard/owner/setAvailability/Ava
 import AvailabilityCalendar from '@/components/dashboard/owner/setAvailability/AvailabilityCalendar';
 import VehicleAvailabilityList from '@/components/dashboard/owner/setAvailability/VehicleAvailabilityList';
 import BulkAvailabilityActions from '@/components/dashboard/owner/setAvailability/BulkAvailabilityActions';
-import AvailabilitySettings from '@/components/dashboard/owner/setAvailability/AvailabilitySettings';
 
 export default function SetAvailability() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -16,31 +15,29 @@ export default function SetAvailability() {
   const [availability, setAvailability] = useState([]);
   const [selectedDateRange, setSelectedDateRange] = useState({
     startDate: new Date(),
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
   });
 
-  // --- Fetch Vehicles & Availability Data ---
+  // This effect fetches all necessary data from the backend when the user is authenticated.
   useEffect(() => {
     const fetchData = async () => {
-      if (user && user.id) {
+      if (user?.id) {
         try {
-            // Fetch vehicles
-            const vehiclesRes = await fetch(`http://127.0.0.1:5000/api/vehicles/`);
-            if (vehiclesRes.ok) {
-                const vehiclesData = await vehiclesRes.json();
-                // Filter vehicles by owner_id on the frontend
-                const ownerVehicles = vehiclesData.filter(v => v.owner_id === user.id);
-                setVehicles(ownerVehicles);
-            }
+          // Fetch all vehicles that belong to the currently logged-in owner.
+          const vehiclesRes = await fetch(`http://127.0.0.1:5000/api/vehicles/?ownerId=${user.id}`);
+          if (vehiclesRes.ok) {
+            const vehiclesData = await vehiclesRes.json();
+            setVehicles(vehiclesData.vehicles || []);
+          }
 
-            // Fetch availability
-            const availabilityRes = await fetch(`http://127.0.0.1:5000/api/availability/${user.id}`);
-            if (availabilityRes.ok) {
-                const availabilityData = await availabilityRes.json();
-                setAvailability(availabilityData);
-            }
+          // Fetch all availability records associated with that owner.
+          const availabilityRes = await fetch(`http://127.0.0.1:5000/api/availability/${user.id}`);
+          if (availabilityRes.ok) {
+            const availabilityData = await availabilityRes.json();
+            setAvailability(availabilityData);
+          }
         } catch (error) {
-            console.error("Error fetching data:", error);
+          console.error("Error fetching data:", error);
         }
       }
     };
@@ -53,65 +50,72 @@ export default function SetAvailability() {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Loading availability settings...</div>;
   }
 
-
   if (!isAuthenticated || !user) {
     return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>Please log in to manage vehicle availability</div>;
   }
 
+  // This function handles the "Make Available" and "Block Dates" buttons.
   const handleBulkUpdate = async (action, vehicleIds, dateRange, reason = '') => {
     const isAvailable = action === 'make_available';
-    
-    for (const vehicleId of vehicleIds) {
-        const payload = {
-            vehicle_id: vehicleId,
-            start_date: dateRange.start,
-            end_date: dateRange.end,
-            is_available: isAvailable,
-            reason: isAvailable ? null : reason
-        };
+    const targetVehicleIds = Array.isArray(vehicleIds) ? vehicleIds : [vehicleIds];
 
-        try {
-            const res = await fetch('http://127.0.0.1:5000/api/availability/', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            if (res.ok) {
-                const newAvailability = await res.json();
-                setAvailability(prev => [...prev, newAvailability]);
-            } else {
-                console.error(`Failed to update availability for vehicle ${vehicleId}`);
-            }
-        } catch (error) {
-            console.error('Error in bulk update:', error);
+    for (const vehicleId of targetVehicleIds) {
+      if (vehicleId === 'all') continue;
+
+      const payload = {
+        vehicle_id: parseInt(vehicleId),
+        start_date: dateRange.start,
+        end_date: dateRange.end,
+        is_available: isAvailable,
+        reason: isAvailable ? null : reason,
+      };
+
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/availability/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+
+        if (res.ok) {
+          const newAvailability = await res.json();
+          setAvailability(prev => [...prev, newAvailability]);
+        } else {
+          const errorData = await res.json();
+          alert(`Error for vehicle ${vehicleId}: ${errorData.error}`);
         }
+      } catch (error) {
+        console.error('Error during bulk update:', error);
+      }
     }
   };
 
+  // This function removes an existing availability or blocked period.
   const handleAvailabilityToggle = async (availabilityId) => {
     try {
-        const res = await fetch(`http://127.0.0.1:5000/api/availability/${availabilityId}`, {
-            method: 'DELETE'
-        });
-        if (res.ok) {
-            setAvailability(prev => prev.filter(a => a.id !== availabilityId));
-        } else {
-            console.error(`Failed to delete availability record ${availabilityId}`);
-        }
+      const res = await fetch(`http://127.0.0.1:5000/api/availability/${availabilityId}`, {
+        method: 'DELETE',
+      });
+
+      if (res.ok) {
+        setAvailability(prev => prev.filter(a => a.id !== availabilityId));
+      } else {
+        alert('Failed to delete the availability period.');
+      }
     } catch (error) {
-        console.error('Error toggling availability:', error);
+      console.error('Error deleting availability:', error);
     }
   };
 
-
+  // This processes the raw vehicle and availability data into a structured format for the components.
   const vehiclesWithAvailability = vehicles.map(vehicle => {
     const vehicleAvailability = availability.filter(a => a.vehicle_id === vehicle.id);
     return {
       ...vehicle,
-      availableDates: vehicleAvailability.filter(a => a.is_available).map(a => ({...a, start: a.start_date, end: a.end_date })),
-      blockedDates: vehicleAvailability.filter(a => !a.is_available).map(a => ({...a, start: a.start_date, end: a.end_date })),
-      currentAvailability: 85, 
-      upcomingBookings: 0,
+      availableDates: vehicleAvailability.filter(a => a.is_available).map(a => ({ ...a, start: a.start_date, end: a.end_date })),
+      blockedDates: vehicleAvailability.filter(a => !a.is_available).map(a => ({ ...a, start: a.start_date, end: a.end_date })),
+      // NOTE: `upcomingBookings` will require fetching from a bookings endpoint to be fully dynamic.
+      upcomingBookings: vehicle.monthlyBookings || 0,
     };
   });
 
@@ -119,11 +123,9 @@ export default function SetAvailability() {
     ? vehiclesWithAvailability
     : vehiclesWithAvailability.filter(v => v.id === parseInt(selectedVehicle));
 
-
-
-    const totalVehicles = vehicles.length;
+  // Calculates the summary statistics for the header.
+  const totalVehicles = vehicles.length;
   const availableNowCount = vehicles.filter(v => v.status === 'active').length;
-  const avgAvailability = totalVehicles > 0 ? Math.round(vehiclesWithAvailability.reduce((sum, v) => sum + v.currentAvailability, 0) / totalVehicles) : 0;
   const totalUpcomingBookings = vehiclesWithAvailability.reduce((sum, v) => sum + v.upcomingBookings, 0);
 
   return (
@@ -131,19 +133,16 @@ export default function SetAvailability() {
       <OwnerHeader user={user} />
       <main className="dashboard-main">
         <div className="dashboard-container">
-
-
-          <AvailabilityHeader 
+          <AvailabilityHeader
             totalVehicles={totalVehicles}
             availableVehicles={availableNowCount}
-            avgAvailability={avgAvailability}
+            avgAvailability={85} // NOTE: This needs a dynamic calculation based on future dates.
             totalUpcomingBookings={totalUpcomingBookings}
             viewMode={viewMode}
             onViewModeChange={setViewMode}
           />
 
-
-          <BulkAvailabilityActions 
+          <BulkAvailabilityActions
             vehicles={vehicles}
             selectedVehicle={selectedVehicle}
             onVehicleSelect={setSelectedVehicle}
@@ -151,20 +150,20 @@ export default function SetAvailability() {
             onDateRangeChange={setSelectedDateRange}
             onBulkUpdate={handleBulkUpdate}
           />
-          
-           <div className="availability-content">
+
+          <div className="availability-content">
             {viewMode === 'calendar' ? (
-              <AvailabilityCalendar 
-              vehicles={filteredVehicles}
-              onAvailabilityToggle={handleAvailabilityToggle}
+              <AvailabilityCalendar
+                vehicles={filteredVehicles}
+                onAvailabilityToggle={handleAvailabilityToggle}
               />
             ) : (
-              <VehicleAvailabilityList 
+              <VehicleAvailabilityList
                 vehicles={filteredVehicles}
                 onAvailabilityToggle={handleAvailabilityToggle}
               />
             )}
-           </div>
+          </div>
         </div>
       </main>
     </>
