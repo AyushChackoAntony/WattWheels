@@ -3,6 +3,8 @@ from . import earnings_bp
 from app.models.booking import Booking
 from app.models.user import User
 from datetime import datetime, timedelta
+from sqlalchemy import func, extract
+from app import db
 
 # This route will get all earnings for a specific owner
 @earnings_bp.route('/<int:owner_id>', methods=['GET'])
@@ -63,6 +65,46 @@ def get_owner_earnings(owner_id):
             'earning': round(earning, 2),
             'date': booking.created_at.strftime('%Y-%m-%d')
         })
+        
+    # --- DYNAMIC CHART DATA ---
+    # Monthly Data (last 6 months)
+    monthly_data = db.session.query(
+        extract('year', Booking.created_at).label('year'),
+        extract('month', Booking.created_at).label('month'),
+        func.sum(Booking.total_price * (1 - platform_commission)).label('earnings'),
+        func.count(Booking.id).label('trips')
+    ).filter(
+        Booking.vehicle_id.in_(vehicle_ids),
+        Booking.created_at >= (now - timedelta(days=180))
+    ).group_by('year', 'month').order_by('year', 'month').all()
+
+    monthlyData = [{'month': datetime(r.year, r.month, 1).strftime('%b'), 'earnings': round(r.earnings, 2), 'trips': r.trips} for r in monthly_data]
+
+    # Weekly Data (last 8 weeks)
+    weekly_data = db.session.query(
+        extract('year', Booking.created_at).label('year'),
+        extract('week', Booking.created_at).label('week'),
+        func.sum(Booking.total_price * (1 - platform_commission)).label('earnings'),
+        func.count(Booking.id).label('trips')
+    ).filter(
+        Booking.vehicle_id.in_(vehicle_ids),
+        Booking.created_at >= (now - timedelta(weeks=8))
+    ).group_by('year', 'week').order_by('year', 'week').all()
+
+    weeklyData = [{'week': f"W{r.week}", 'earnings': round(r.earnings, 2), 'trips': r.trips} for r in weekly_data]
+
+    # Yearly Data
+    yearly_data = db.session.query(
+        extract('year', Booking.created_at).label('year'),
+        func.sum(Booking.total_price * (1 - platform_commission)).label('earnings'),
+        func.count(Booking.id).label('trips')
+    ).filter(
+        Booking.vehicle_id.in_(vehicle_ids)
+    ).group_by('year').order_by('year').all()
+
+    yearlyData = [{'year': r.year, 'earnings': round(r.earnings, 2), 'trips': r.trips} for r in yearly_data]
+
+
 
     return jsonify({
         'total_earnings': round(total_earnings, 2),
@@ -76,19 +118,7 @@ def get_owner_earnings(owner_id):
         'commissionRate': 15,
         'nextPayoutDate': (now + timedelta(days=7)).strftime('%Y-%m-%d'),  # Placeholder
         'transactions': transactions,
-        # Placeholder data for charts
-        'monthlyData': [
-            {"month": "Jan", "earnings": 12000, "trips": 15},
-            {"month": "Feb", "earnings": 18000, "trips": 20},
-            {"month": "Mar", "earnings": 15000, "trips": 18},
-        ],
-        'weeklyData': [
-            {"week": "W1", "earnings": 3000, "trips": 5},
-            {"week": "W2", "earnings": 4000, "trips": 7},
-            {"week": "W3", "earnings": 3500, "trips": 6},
-        ],
-        'yearlyData': [
-            {"year": "2023", "earnings": 150000, "trips": 200},
-            {"year": "2024", "earnings": 200000, "trips": 250},
-        ]
+        'monthlyData': monthlyData,
+        'weeklyData': weeklyData,
+        'yearlyData': yearlyData
     })

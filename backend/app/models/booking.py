@@ -13,3 +13,27 @@ class Booking(db.Model):
 
     customer = db.relationship('User', backref=db.backref('bookings', lazy=True))
     vehicle = db.relationship('Vehicle', backref=db.backref('bookings', lazy=True))
+    
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'customerId': self.customer_id,
+            'vehicleId': self.vehicle_id,
+            'startDate': self.start_date.strftime('%Y-%m-%d'),
+            'endDate': self.end_date.strftime('%Y-%m-%d'),
+            'totalPrice': self.total_price,
+            'status': self.status,
+            'createdAt': self.created_at.strftime('%Y-%m-%d %H:%M:%S'),
+            'customer': {
+                'id': self.customer.id,
+                'firstName': self.customer.first_name,
+                'lastName': self.customer.last_name,
+                'phone': self.customer.phone
+            },
+            'vehicle': {
+                'id': self.vehicle.id,
+                'name': self.vehicle.name,
+                'image': self.vehicle.image_url,
+                'location': self.vehicle.location
+            }
+        }

@@ -4,6 +4,7 @@ from app.models.booking import Booking
 from app.models.vehicle import Vehicle
 from app import db
 from datetime import datetime
+from flask_jwt_extended import jwt_required, get_jwt_identity
 
 # In a real app, you would have a way to get the current user,
 # for example, using a decorator like @jwt_required and get_jwt_identity
@@ -15,8 +16,10 @@ def get_current_user_id():
     return request.get_json().get('customer_id')
 
 @bookings_bp.route('/', methods=['POST'])
+@jwt_required()
 def create_booking():
     data = request.get_json()
+    current_user = get_jwt_identity()
 
     # --- Get customer_id from a secure source (e.g., JWT token) ---
     # customer_id = get_jwt_identity() 
@@ -69,3 +72,21 @@ def create_booking():
         'message': 'Booking created successfully!',
         'booking_id': new_booking.id
     }), 201
+    
+@bookings_bp.route('/', methods=['GET'])
+@jwt_required()
+def get_bookings():
+    current_user = get_jwt_identity()
+    user_id = current_user['id']
+    user_type = current_user['type']
+    
+    if user_type == 'customer':
+        bookings = Booking.query.filter_by(customer_id=user_id).all()
+    elif user_type == 'owner':
+        owner_vehicles = Vehicle.query.filter_by(owner_id=user_id).all()
+        vehicle_ids = [v.id for v in owner_vehicles]
+        bookings = Booking.query.filter(Booking.vehicle_id.in_(vehicle_ids)).all()
+    else:
+        return jsonify({"error": "Invalid user type"}), 400
+
+    return jsonify({"bookings": [b.to_dict() for b in bookings]}), 200
