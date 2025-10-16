@@ -47,6 +47,7 @@ export default function CustomerLogin() {
       console.log("Response from API route:", data);
 
       if (res.ok) {
+        localStorage.setItem('wattwheels_token', data.access_token);
         // Extract user data from response
         // Adjust this based on what your Flask API returns
         const userData = {

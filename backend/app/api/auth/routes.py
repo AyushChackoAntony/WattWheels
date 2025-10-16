@@ -82,7 +82,7 @@ def customer_login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
 
-    access_token = create_access_token(identity={'id': user.id, 'type': 'customer'})
+    access_token = create_access_token(identity=user.id)
     return jsonify({
         'message': 'Customer logged in successfully',
         'access_token': access_token,
@@ -98,7 +98,7 @@ def owner_login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
 
-    access_token = create_access_token(identity={'id': user.id, 'type': 'owner'})
+    access_token = create_access_token(identity=user.id)
     return jsonify({
         'message': 'Owner logged in successfully',
         'access_token': access_token,

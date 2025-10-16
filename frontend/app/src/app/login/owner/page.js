@@ -45,6 +45,7 @@ export default function OwnerLogin() {
       const data = await res.json();
 
       if (res.ok) {
+        localStorage.setItem('wattwheels_token', data.access_token);
         // --- THIS IS THE CORRECTED PART ---
         // We use the real user data returned from the backend
         const userData = {
