@@ -45,16 +45,12 @@ export default function OwnerLogin() {
       const data = await res.json();
 
       if (res.ok) {
-        // --- THIS IS THE CORRECTED PART ---
-        // We use the real user data returned from the backend
         const userData = {
             firstName: data.user.firstName,
             email: email,
-            id: data.user.id // Use the real ID from the database
+            id: data.user.id 
         };
-        // --- END OF CORRECTION ---
 
-        // Store user data in context and localStorage
         login(userData, 'owner');
 
         showMessage('Login successful! Redirecting...', 'success');

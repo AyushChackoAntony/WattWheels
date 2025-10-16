@@ -47,13 +47,11 @@ export default function CustomerLogin() {
       console.log("Response from API route:", data);
 
       if (res.ok) {
-        // Extract user data from response
-        // Adjust this based on what your Flask API returns
         const userData = {
-          firstName: data.user?.firstName || 'John', // Replace with actual API response
-          lastName: data.user?.lastName || 'Doe',
-          email: data.user?.email || email,
-          id: data.user?.id || '12345'
+          firstName: data.user.firstName,
+          lastName: data.user.lastName,
+          email: data.user.email,
+          id: data.user.id
         };
 
         // Store user data in context and localStorage
