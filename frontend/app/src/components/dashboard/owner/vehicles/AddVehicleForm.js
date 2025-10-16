@@ -3,7 +3,7 @@ import '@/styles/dashboard/owner/vehicles/addVehicleForm.css';
 import { useAuth } from '@/context/AuthContext';
 
 export default function AddVehicleForm({ onSubmit, onClose }) {
-  const { user } = useAuth();
+  const { user } = useAuth(); // Get the logged-in user
   const [formData, setFormData] = useState({
     name: '',
     type: 'car',
@@ -15,12 +15,12 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
     pricePerDay: '',
     location: '',
     description: '',
+    image: ''
   });
-  const [imageFile, setImageFile] = useState(null);
+
   const [errors, setErrors] = useState({});
   const [loading, setLoading] = useState(false);
 
-  // --- FIX: Re-adding the missing variable definitions ---
   const vehicleOptions = [
     { value: 'car', label: 'Electric Car' },
     { value: 'bike', label: 'Electric Bike/Scooter' }
@@ -35,18 +35,13 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: '' }));
-    }
-  };
-
-  const handleFileChange = (e) => {
-    if (e.target.files[0]) {
-      setImageFile(e.target.files[0]);
-      if (errors.image) {
-        setErrors(prev => ({ ...prev, image: '' }));
-      }
     }
   };
 
@@ -56,7 +51,6 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
     if (!formData.licensePlate.trim()) newErrors.licensePlate = 'License plate is required';
     if (!formData.pricePerDay || formData.pricePerDay <= 0) newErrors.pricePerDay = 'Valid price per day is required';
     if (!formData.location.trim()) newErrors.location = 'Location is required';
-    if (!imageFile) newErrors.image = 'Vehicle image is required';
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -71,32 +65,29 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
     setLoading(true);
 
-    const vehicleData = new FormData();
-    Object.keys(formData).forEach(key => {
-        vehicleData.append(key, formData[key]);
-    });
-    vehicleData.append('image', imageFile);
+    const vehicleData = {
+        ...formData,
+        owner_id: user.id, // Use the actual logged-in user's ID
+        pricePerDay: parseInt(formData.pricePerDay),
+        image: formData.type === 'car'
+          ? '/images/ev-cars/tesla-model-3.svg'
+          : '/images/ev-cars/ola-s1.svg'
+    };
 
     try {
-        const token = localStorage.getItem('wattwheels_token');
-        if (!token) {
-            throw new Error("Authentication token not found. Please log out and log in again.");
-        }
-
         const res = await fetch("http://127.0.0.1:5000/api/vehicles/", {
             method: "POST",
-            body: vehicleData,
-            headers: {
-              'Authorization': `Bearer ${token}`
-            }
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(vehicleData)
         });
 
-        const result = await res.json();
         if (!res.ok) {
-            throw new Error(result.error || `Request failed with status: ${res.status}`);
+            const errorData = await res.json();
+            throw new Error(errorData.error || "Failed to add vehicle");
         }
 
-        onSubmit(result); 
+        const newVehicle = await res.json();
+        onSubmit(newVehicle); // Pass the entire response object
         onClose(); 
 
     } catch (error) {
@@ -119,15 +110,9 @@ export default function AddVehicleForm({ onSubmit, onClose }) {
 
         <form onSubmit={handleSubmit} className="add-vehicle-form">
           {errors.form && <div className="error-text" style={{textAlign: 'center', marginBottom: '1rem'}}>{errors.form}</div>}
+
           <div className="form-sections">
-            <div className="form-section">
-              <h3>Vehicle Image</h3>
-              <div className="form-group">
-                <label>Upload a photo of your vehicle</label>
-                <input type="file" name="image" onChange={handleFileChange} accept="image/png, image/jpeg, image/jpg" className={errors.image ? 'error' : ''} />
-                {errors.image && <span className="error-text">{errors.image}</span>}
-              </div>
-            </div>
+            {/* Basic Information */}
             <div className="form-section">
               <h3>Basic Information</h3>
               <div className="form-row">

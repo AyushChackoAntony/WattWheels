@@ -14,7 +14,7 @@ export default function MyVehicles() {
   const [searchTerm, setSearchTerm] = useState('');
   const [vehicles, setVehicles] = useState([]);
 
-  // This function fetches vehicles specifically for the logged-in owner.
+  // This function fetches the vehicles specifically for the logged-in owner.
   const fetchVehicles = async () => {
     if (user?.id) {
       try {
@@ -51,7 +51,7 @@ export default function MyVehicles() {
     const filterValue = selectedFilter.toLowerCase();
     const matchesFilter = filterValue === 'all' ||
                          vehicle.status === filterValue ||
-                         vehicle.type === filterValue.slice(0, -1); // Handles 'cars' -> 'car'
+                         vehicle.type === filterValue.slice(0, -1);
 
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = vehicle.name.toLowerCase().includes(searchLower) ||

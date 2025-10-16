@@ -18,7 +18,7 @@ export default function SetAvailability() {
     endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
   });
 
-  // This effect fetches all necessary data from the backend when the user is authenticated.
+  // This effect runs when the user is authenticated to fetch all necessary data from the backend.
   useEffect(() => {
     const fetchData = async () => {
       if (user?.id) {

@@ -1,4 +1,3 @@
-'use client';
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
@@ -7,10 +6,9 @@ import '@/styles/dashboard/ownerDash.css';
 export default function OwnerHeader({ user }) {
   const { logout } = useAuth();
 
-  // This function now calls the logout method from the AuthContext to clear the user's session.
   const handleLogout = () => {
     logout();
-    // Redirecting to home is handled by the AuthProvider, but we can also do it here for immediate effect.
+    // Redirect will be handled by AuthContext
     window.location.href = '/';
   };
 
