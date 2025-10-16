@@ -14,11 +14,12 @@ export default function MyEarnings() {
   const [selectedTimeframe, setSelectedTimeframe] = useState('month');
   const [selectedFilter, setSelectedFilter] = useState('all');
   const [showPayoutModal, setShowPayoutModal] = useState(false);
+
+  // --- State to hold data from the API ---
   const [earningsData, setEarningsData] = useState(null);
   const [transactions, setTransactions] = useState([]);
-  const [chartData, setChartData] = useState([]);
 
-  // This hook fetches the owner's earnings data from the backend when the user is logged in.
+  // --- Fetch earnings data from the backend ---
   useEffect(() => {
     if (user && user.id) {
       const fetchEarnings = async () => {
@@ -27,7 +28,25 @@ export default function MyEarnings() {
           const data = await res.json();
 
           if (res.ok) {
-            setEarningsData(data);
+            // Set the fetched data into state
+            setEarningsData({
+              totalEarnings: data.total_earnings,
+              totalTrips: data.transaction_count,
+              availableBalance: data.total_earnings, // Placeholder
+              thisMonthEarnings: data.total_earnings, // Placeholder
+              // Add other placeholder values until backend provides them
+              pendingPayouts: 0,
+              lastMonthEarnings: 0,
+              thisWeekEarnings: 0,
+              averagePerTrip: data.transaction_count > 0 ? data.total_earnings / data.transaction_count : 0,
+              commissionRate: 15,
+              nextPayoutDate: '2025-01-15',
+              monthlyData: [], 
+              weeklyData: [], 
+              yearlyData: [] 
+            });
+
+            // Map the backend transactions to the format our component expects
             const formattedTransactions = data.transactions.map(t => ({
                 id: t.booking_id,
                 description: `Booking #${t.booking_id} - ${t.vehicle_name}`,
@@ -41,8 +60,7 @@ export default function MyEarnings() {
                 netAmount: t.earning
             }));
             setTransactions(formattedTransactions);
-            // We'll initially show the monthly data in the chart.
-            setChartData(data.monthlyData || []);
+
           } else {
             console.error("Failed to fetch earnings:", data.error);
           }
@@ -52,9 +70,9 @@ export default function MyEarnings() {
       };
       fetchEarnings();
     }
-  }, [user, isAuthenticated]);
+  }, [user]); // Re-run when the user object is available
 
-  // Display a loading message while the data is being fetched.
+  // Loading state for user and earnings data
   if (loading || !earningsData) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
@@ -73,27 +91,16 @@ export default function MyEarnings() {
 
   const filteredTransactions = transactions.filter(transaction => {
     if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'earnings') return transaction.type === 'earning';
-    if (selectedFilter === 'payouts') return transaction.type === 'payout';
-    if (selectedFilter === 'pending') return transaction.status === 'pending';
-    return true;
+    return transaction.type === selectedFilter;
   });
-  
-  // This function updates the chart data when the user selects a different time frame.
-  const handleTimeframeChange = (timeframe) => {
-    setSelectedTimeframe(timeframe);
-    if (earningsData) {
-      if (timeframe === 'week') setChartData(earningsData.weeklyData || []);
-      else if (timeframe === 'month') setChartData(earningsData.monthlyData || []);
-      else if (timeframe === 'year') setChartData(earningsData.yearlyData || []);
-    }
+
+  const getChartData = () => {
+    return earningsData.monthlyData;
   };
-  
-  const handleRequestPayout = (payoutDetails) => {
-    console.log('Requesting payout:', payoutDetails);
-    // The API call to the backend to process the payout would be added here.
+
+  const handleRequestPayout = (amount) => {
+    console.log('Requesting payout:', amount);
     setShowPayoutModal(false);
-    alert(`Payout of ₹${payoutDetails.amount} requested via ${payoutDetails.method}!`);
   };
 
   return (
@@ -102,9 +109,9 @@ export default function MyEarnings() {
       <main className="dashboard-main">
         <div className="dashboard-container">
           <EarningsHeader
-            totalEarnings={earningsData.total_earnings || 0}
-            availableBalance={earningsData.availableBalance || 0}
-            thisMonthEarnings={earningsData.thisMonthEarnings || 0}
+            totalEarnings={earningsData.totalEarnings}
+            availableBalance={earningsData.availableBalance}
+            thisMonthEarnings={earningsData.thisMonthEarnings}
             onRequestPayout={() => setShowPayoutModal(true)}
           />
           <EarningsOverview
@@ -114,12 +121,12 @@ export default function MyEarnings() {
           <div className="earnings-chart-section">
             <EarningsFilters
               selectedTimeframe={selectedTimeframe}
-              onTimeframeChange={handleTimeframeChange}
+              onTimeframeChange={setSelectedTimeframe}
               selectedFilter={selectedFilter}
               onFilterChange={setSelectedFilter}
             />
             <EarningsChart
-              data={chartData}
+              data={getChartData()}
               timeframe={selectedTimeframe}
             />
           </div>
@@ -129,8 +136,8 @@ export default function MyEarnings() {
           />
           {showPayoutModal && (
             <PayoutSection
-              availableBalance={earningsData.availableBalance || 0}
-              nextPayoutDate={earningsData.nextPayoutDate || ''}
+              availableBalance={earningsData.availableBalance}
+              nextPayoutDate={earningsData.nextPayoutDate}
               onRequestPayout={handleRequestPayout}
               onClose={() => setShowPayoutModal(false)}
             />

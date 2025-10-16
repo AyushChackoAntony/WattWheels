@@ -1,28 +1,7 @@
-'use client';
 import Link from "next/link";
-import { useState } from "react";
-import { useRouter } from "next/navigation";
 import "../styles/Hero.css";
 
 export default function Hero() {
-    const router = useRouter();
-    const [location, setLocation] = useState('');
-    const [startDate, setStartDate] = useState('');
-
-    const handleBookNowClick = () => {
-        if (!location && !startDate) {
-            router.push('/search');
-            return;
-        }
-        
-        const query = new URLSearchParams({
-            location,
-            startDate,
-        }).toString();
-        
-        router.push(`/search?${query}`);
-    };
-
     return(
         <section className="hero">
           <div className="hero-content">
@@ -59,26 +38,28 @@ export default function Hero() {
                   </div>
                   <div className="input-group">
                     <div className="input-icon"><i className="fas fa-map-marker-alt"></i></div>
-                    <input 
-                        type="text" 
-                        placeholder="Pickup location" 
-                        value={location}
-                        onChange={(e) => setLocation(e.target.value)}
-                    />
+                    <input type="text" placeholder="Pickup location" />
+                  </div>
+                  <div className="input-group">
+                    <div className="input-icon"><i className="fas fa-map-marker-alt"></i></div>
+                    <input type="text" placeholder="Drop-off location" />
                   </div>
                   <div className="form-row">
                     <div className="input-group">
                       <div className="input-icon"><i className="fas fa-calendar"></i></div>
-                      <input 
-                        type="date"
-                        value={startDate}
-                        onChange={(e) => setStartDate(e.target.value)}
-                      />
+                      <input type="date" />
+                    </div>
+                    <div className="input-group">
+                      <div className="input-icon"><i className="fas fa-clock"></i></div>
+                      <input type="time" />
                     </div>
                   </div>
                   <div className="form-buttons">
-                    <button type="button" className="primary-btn" onClick={handleBookNowClick}>
+                    <button type="button" className="primary-btn" onClick={() => handleBookNowClick()}>
                       <i className="fas fa-search"></i> Find EVs
+                    </button>
+                    <button type="button" className="secondary-btn">
+                      <i className="fas fa-calendar-plus"></i> Schedule Later
                     </button>
                   </div>
                 </div>
@@ -90,11 +71,12 @@ export default function Hero() {
                 <span className="separator">•</span>
                 <a href="#vehicles" className="link-btn">
                   <i className="fas fa-bolt"></i> View All EVs
-                </a>
-              </div>
+          </a>
+        </div>
             </div>
             <div className="hero-right">
               <div className="hero-image">
+                {/* <Image src="/images/hero-car.svg" alt="Electric Vehicle" width={400} height={300} /> */}
                 <div className="floating-card">
                   <div className="card-icon"><i className="fas fa-charging-station"></i></div>
                   <div className="card-content">
@@ -106,5 +88,5 @@ export default function Hero() {
             </div>
           </div>
         </section>
-    );
+    )
 }
