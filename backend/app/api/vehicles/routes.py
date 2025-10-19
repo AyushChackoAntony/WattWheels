@@ -15,31 +15,24 @@ def allowed_file(filename):
 # Route for an owner to add a new vehicle
 @vehicles_bp.route('/', methods=['POST'])
 def add_vehicle():
-    data = request.form
-    owner_id = data.get('owner_id') # Insecure: trusts the frontend to send the correct owner_id
+    # Use request.get_json() to correctly parse the incoming JSON data
+    data = request.get_json()
+    if not data:
+        return jsonify({'error': 'Request must be JSON'}), 400
+
+    # Get owner_id from the JSON payload
+    owner_id = data.get('owner_id')
     if not owner_id:
         return jsonify({'error': 'owner_id is required'}), 400
-
-    if 'image' not in request.files:
-        return jsonify({'error': 'Image file is required.'}), 422
-    file = request.files['image']
-    if file.filename == '':
-        return jsonify({'error': 'No image file selected.'}), 422
 
     required_fields = ['name', 'type', 'year', 'color', 'licensePlate', 'pricePerDay', 'location']
     missing = [field for field in required_fields if field not in data]
     if missing:
         return jsonify({'error': f'Missing required fields: {", ".join(missing)}'}), 422
 
-    if not allowed_file(file.filename):
-        return jsonify({'error': 'Invalid image file type.'}), 422
-
     try:
-        filename = secure_filename(file.filename)
-        upload_folder = os.path.join(current_app.root_path, current_app.config['UPLOAD_FOLDER'])
-        os.makedirs(upload_folder, exist_ok=True)
-        file.save(os.path.join(upload_folder, filename))
-        image_url = f"/{current_app.config['UPLOAD_FOLDER']}/{filename}"
+        # Use the image URL sent from the frontend
+        image_url = data.get('image')
 
         new_vehicle = Vehicle(
             owner_id=owner_id,
@@ -52,7 +45,7 @@ def add_vehicle():
             location=data['location'],
             battery_range=data.get('batteryRange'),
             acceleration=data.get('acceleration'),
-            image_url=image_url
+            image_url=image_url  # Use the image URL from the form
         )
 
         db.session.add(new_vehicle)

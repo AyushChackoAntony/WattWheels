@@ -47,11 +47,12 @@ export default function OwnerLogin() {
       if (res.ok) {
         const userData = {
             firstName: data.user.firstName,
-            email: email,
-            id: data.user.id 
+            lastName: data.user.lastName, 
+            email: email, 
+            id: data.user.id
         };
 
-        login(userData, 'owner');
+        login(userData, 'owner', data.access_token); 
 
         showMessage('Login successful! Redirecting...', 'success');
         setTimeout(() => {
