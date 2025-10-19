@@ -20,62 +20,56 @@ export default function CustomerLogin() {
     setTimeout(() => setMessage(null), 5000);
   };
 
-  
-
-const handleSubmit = async (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!email || !password) {
-        showMessage('Please fill in all fields', 'error');
-        return;
+      showMessage('Please fill in all fields', 'error');
+      return;
     }
 
     const loginData = {
-        email: email,
-        password: password
-    };
+      email: email,
+      password: password
+    }
 
     setLoading(true);
 
-    // --- START: API Call to Your Backend ---
     try {
-        const res = await fetch("http://127.0.0.1:5000/api/auth/login/customer", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify(loginData)
-        });
+      const res = await fetch("http://127.0.0.1:5000/api/auth/login/customer", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(loginData)
+      });
 
-        const data = await res.json();
+      const data = await res.json();
 
-<<<<<<< HEAD
       if (res.ok) {
         const userData = {
           firstName: data.user.firstName,
-          lastName: data.user.lastName,
-          email: data.user.email,
+          lastName: data.user.lastName, // Assuming backend sends lastName too
+          email: email, // Use email from state as it's verified
           id: data.user.id
         };
 
-            // Store user data in context and localStorage
-            login(userData, 'customer');
-
-            showMessage('Login successful! Redirecting...', 'success');
-            setTimeout(() => {
-                router.push('/dashboard/customer');
-            }, 1000);
-        } else {
-            // Display the specific error message from the backend
-            showMessage(data.error || 'Login failed', 'error');
-        }
+        // Pass user data, type, AND token to the context's login function
+        login(userData, 'customer', data.access_token);
+        
+        showMessage('Login successful!', 'success');
+        setTimeout(() => {
+          router.push('/dashboard/customer');
+        }, 1000);
+      } else {
+        showMessage(data.error || 'Login failed', 'error');
+      }
     } catch (error) {
-        console.error("Error sending request:", error);
-        showMessage('Could not connect to the server.', 'error');
+      console.error("Error sending request:", error);
+      showMessage('Could not connect to the server.', 'error');
     } finally {
-        setLoading(false);
+      setLoading(false);
     }
-    // --- END: API Call to Your Backend ---
-};
+  };
 
   return (
     <>

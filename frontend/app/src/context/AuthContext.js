@@ -5,18 +5,18 @@ const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
-  const [userType, setUserType] = useState(null); // 'customer' or 'owner'
+  const [userType, setUserType] = useState(null);
   const [loading, setLoading] = useState(true);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
 
-  // Load user data from localStorage on app start
   useEffect(() => {
     const loadUserSession = () => {
       try {
         const storedUser = localStorage.getItem('wattwheels_user');
         const storedUserType = localStorage.getItem('wattwheels_user_type');
+        const storedToken = localStorage.getItem('wattwheels_token');
         
-        if (storedUser && storedUserType) {
+        if (storedUser && storedUserType && storedToken) {
           const userData = JSON.parse(storedUser);
           setUser(userData);
           setUserType(storedUserType);
@@ -24,9 +24,7 @@ export function AuthProvider({ children }) {
         }
       } catch (error) {
         console.error('Error loading user session:', error);
-        // Clear corrupted data
-        localStorage.removeItem('wattwheels_user');
-        localStorage.removeItem('wattwheels_user_type');
+        localStorage.clear();
       } finally {
         setLoading(false);
       }
@@ -35,33 +33,30 @@ export function AuthProvider({ children }) {
     loadUserSession();
   }, []);
 
-  // Login function
-  const login = (userData, type) => {
+  const login = (userData, type, token) => {
     try {
       setUser(userData);
       setUserType(type);
       setIsAuthenticated(true);
       
-      // Store in localStorage
       localStorage.setItem('wattwheels_user', JSON.stringify(userData));
       localStorage.setItem('wattwheels_user_type', type);
+      localStorage.setItem('wattwheels_token', token);
     } catch (error) {
       console.error('Error storing user session:', error);
     }
   };
 
-  // Logout function
   const logout = () => {
     setUser(null);
     setUserType(null);
     setIsAuthenticated(false);
     
-    // Clear localStorage
     localStorage.removeItem('wattwheels_user');
     localStorage.removeItem('wattwheels_user_type');
+    localStorage.removeItem('wattwheels_token');
   };
 
-  // Update user data
   const updateUser = (userData) => {
     try {
       setUser(userData);
@@ -88,25 +83,10 @@ export function AuthProvider({ children }) {
   );
 }
 
-// Custom hook to use auth context
 export function useAuth() {
   const context = useContext(AuthContext);
   if (!context) {
     throw new Error('useAuth must be used within an AuthProvider');
   }
   return context;
-}
-
-// Helper hook for protected routes
-export function useRequireAuth(redirectTo = '/login') {
-  const { isAuthenticated, loading } = useAuth();
-  const router = useRouter();
-
-  useEffect(() => {
-    if (!loading && !isAuthenticated) {
-      router.push(redirectTo);
-    }
-  }, [isAuthenticated, loading, redirectTo, router]);
-
-  return { isAuthenticated, loading };
 }

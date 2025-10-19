@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
-import '../../../styles/dashboard/custDash.css';
+import '@/app/dashboard/customer/custDash.css'; 
 
 export default function CustomerHeader({ user }) {
   const { logout } = useAuth();
@@ -30,12 +30,12 @@ export default function CustomerHeader({ user }) {
           <div className="header-right">
             <div className="user-menu">
               <div className="user-info">
-                <Image 
-                  src="/images/avatar.png" 
-                  alt="Customer Avatar" 
-                  className="user-avatar" 
-                  width={40} 
-                  height={40} 
+                <Image
+                  src="/images/avatar.png"
+                  alt="Customer Avatar"
+                  className="user-avatar"
+                  width={40}
+                  height={40}
                 />
                 <div className="user-details">
                   <span className="user-name">{user.firstName} {user.lastName}</span>
