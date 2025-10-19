@@ -54,7 +54,7 @@ export default function CustomerLogin() {
         };
 
         // Pass user data, type, AND token to the context's login function
-        login(userData, 'customer', data.access_token);
+        login(userData, 'customer', data.access_token); // Use the login function that handles the token
         
         showMessage('Login successful!', 'success');
         setTimeout(() => {
@@ -65,7 +65,7 @@ export default function CustomerLogin() {
       }
     } catch (error) {
       console.error("Error sending request:", error);
-      showMessage('Could not connect to the server.', 'error');
+      showMessage('Could not connect to the server.', 'error'); // Keep the more specific error
     } finally {
       setLoading(false);
     }
