@@ -3,6 +3,7 @@ from . import auth_bp
 from app.models.user import User
 from app import db
 import re
+from flask_jwt_extended import create_access_token 
 
 def is_valid_email(email):
     return re.match(r'[^@]+@[^@]+\.[^@]+', email)
@@ -75,8 +76,11 @@ def customer_login():
     user = User.query.filter_by(email=data['email'], user_type='customer').first()
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
+    # Generate JWT token upon successful login
+    access_token = create_access_token(identity={'id': user.id, 'email': user.email, 'type': user.user_type})
     return jsonify({
         'message': 'Customer logged in successfully',
+        'access_token': access_token, # Send token to frontend
         'user': {
             'id': user.id,
             'firstName': user.first_name,
@@ -92,8 +96,11 @@ def owner_login():
     user = User.query.filter_by(email=data['email'], user_type='owner').first()
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
+    # Generate JWT token upon successful login
+    access_token = create_access_token(identity={'id': user.id, 'email': user.email, 'type': user.user_type})
     return jsonify({
         'message': 'Owner logged in successfully',
+        'access_token': access_token, # Send token to frontend
         'user': {
             'id': user.id,
             'firstName': user.first_name,
@@ -101,33 +108,74 @@ def owner_login():
         }
     })
 
-@auth_bp.route('/user/<int:user_id>', methods=['PUT'])
-def update_user_profile(user_id):
+
+@auth_bp.route('/user/<int:user_id>', methods=['GET'])
+#@jwt_required() # Optional: Protect this route
+def get_user_profile(user_id):
+    # current_user_identity = get_jwt_identity() # Optional: if using jwt_required
+    # if current_user_identity['id'] != user_id:
+    #     return jsonify({'error': 'Unauthorized access'}), 403
+
     user = User.query.get(user_id)
     if not user:
         return jsonify({'error': 'User not found'}), 404
+
+    # Return the full user profile data needed by the frontend form
+    return jsonify({
+        'id': user.id,
+        'firstName': user.first_name,
+        'lastName': user.last_name,
+        'email': user.email,
+        'phone': user.phone,
+        'address': user.address,
+        'bio': getattr(user, 'bio', ''), 
+        'joinDate': getattr(user, 'join_date', 'N/A'), 
+        'verified': getattr(user, 'verified', True) 
+    }), 200
+
+@auth_bp.route('/user/<int:user_id>', methods=['PUT'])
+#@jwt_required()
+def update_user_profile(user_id):
+    # current_user_identity = get_jwt_identity() # Optional: if using jwt_required
+    # if current_user_identity['id'] != user_id:
+    #     return jsonify({'error': 'Unauthorized access'}), 403
+
+    user = User.query.get(user_id)
+    if not user:
+        return jsonify({'error': 'User not found'}), 404
+
     data = request.get_json()
     if not data:
          return jsonify({'error': 'Request must be JSON'}), 400
+
     try:
+        # Update only fields present in the request
         user.first_name = data.get('firstName', user.first_name)
         user.last_name = data.get('lastName', user.last_name)
-        user.email = data.get('email', user.email)
+        user.email = data.get('email', user.email) # Consider email uniqueness validation if changed
         user.phone = data.get('phone', user.phone)
         user.address = data.get('address', user.address)
+        # Add updates for bio, etc. if they exist in your model
+        if 'bio' in data and hasattr(user, 'bio'):
+             user.bio = data.get('bio')
+
         db.session.commit()
+
         return jsonify({
             'message': 'Profile updated successfully',
-            'user': {
+            'user': { 
                 'id': user.id,
                 'firstName': user.first_name,
                 'lastName': user.last_name,
                 'email': user.email,
                 'phone': user.phone,
-                'address': user.address
+                'address': user.address,
+                'bio': getattr(user, 'bio', ''),
+                'joinDate': getattr(user, 'join_date', 'N/A'),
+                'verified': getattr(user, 'verified', True)
             }
         }), 200
     except Exception as e:
         db.session.rollback()
-        print(f"Error updating profile: {e}")
-        return jsonify({'error': 'An internal error occurred'}), 500
+        print(f"Error updating profile for user {user_id}: {e}")
+        return jsonify({'error': 'An internal error occurred during profile update'}), 500
