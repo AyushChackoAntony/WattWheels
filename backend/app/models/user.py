@@ -9,12 +9,12 @@ class User(db.Model):
     phone = db.Column(db.String(20), nullable=False)
     password_hash = db.Column(db.String(256), nullable=False)
     address = db.Column(db.Text, nullable=False)
-    user_type = db.Column(db.String(20), nullable=False)  # 'customer' or 'owner'
+    user_type = db.Column(db.String(20), nullable=False)
+    owner_rating = db.Column(db.Float, nullable=True)
 
     settings = db.relationship('OwnerSettings', back_populates='owner', uselist=False, cascade="all, delete-orphan")
 
     def set_password(self, password):
-        # Explicitly define the hashing method to ensure consistency
         self.password_hash = generate_password_hash(password, method='pbkdf2:sha256')
 
     def check_password(self, password):

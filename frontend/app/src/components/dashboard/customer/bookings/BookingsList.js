@@ -32,38 +32,54 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
   };
 
   const formatDate = (dateString) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('en-IN', { 
-      day: '2-digit', 
-      month: 'short',
-      year: 'numeric'
-    });
+    if (!dateString) return 'N/A';
+    try {
+        const date = new Date(dateString);
+        return date.toLocaleDateString('en-IN', {
+        day: '2-digit',
+        month: 'short',
+        year: 'numeric'
+        });
+    } catch (e) {
+        return 'Invalid Date';
+    }
   };
+
 
   return (
     <div className="bookings-list-section">
       <div className="bookings-grid">
         {bookings.map((booking) => {
           const statusBadge = getStatusBadge(booking.status);
-          
+          const vehicleImage = booking.vehicleImage || '/images/ev-cars/default.svg';
+          const vehicleName = booking.vehicleName || 'Unknown Vehicle';
+          const licensePlate = booking.licensePlate || 'N/A';
+          const location = booking.location || 'Unknown Location';
+          const destination = booking.destination || 'Not Specified';
+          const pickupDate = booking.pickupDate;
+          const dropoffDate = booking.dropoffDate;
+          const pickupTime = booking.pickupTime;
+          const dropoffTime = booking.dropoffTime;
+          const totalPrice = booking.totalPrice || 0;
+
           return (
             <div key={booking.id} className="booking-card">
-              {/* Booking Header */}
               <div className="booking-card-header">
                 <div className="booking-vehicle-info">
                   <div className="vehicle-image-container">
-                    <Image 
-                      src={booking.vehicleImage} 
-                      alt={booking.vehicleName}
+                    <Image
+                      src={vehicleImage}
+                      alt={vehicleName}
                       width={80}
                       height={50}
+                      onError={(e) => e.target.src = '/images/ev-cars/default.svg'}
                     />
                   </div>
                   <div className="vehicle-details">
-                    <h3>{booking.vehicleName}</h3>
+                    <h3>{vehicleName}</h3>
                     <p>
                       <i className="fas fa-id-card"></i>
-                      {booking.licensePlate}
+                      {licensePlate}
                     </p>
                   </div>
                 </div>
@@ -73,7 +89,6 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
                 </div>
               </div>
 
-              {/* Booking Details */}
               <div className="booking-card-body">
                 <div className="booking-info-row">
                   <div className="info-item">
@@ -81,7 +96,7 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
                     <div className="info-content">
                       <span className="info-label">Pickup</span>
                       <span className="info-value">
-                        {formatDate(booking.pickupDate)} • {booking.pickupTime}
+                        {formatDate(pickupDate)} • {pickupTime}
                       </span>
                     </div>
                   </div>
@@ -90,7 +105,7 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
                     <div className="info-content">
                       <span className="info-label">Dropoff</span>
                       <span className="info-value">
-                        {formatDate(booking.dropoffDate)} • {booking.dropoffTime}
+                        {formatDate(dropoffDate)} • {dropoffTime}
                       </span>
                     </div>
                   </div>
@@ -102,7 +117,7 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
                     <div className="info-content">
                       <span className="info-label">Route</span>
                       <span className="info-value">
-                        {booking.location} → {booking.destination}
+                        {location} → {destination}
                       </span>
                     </div>
                   </div>
@@ -111,31 +126,30 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
                 <div className="booking-price-row">
                   <div className="price-info">
                     <span className="price-label">Total Price</span>
-                    <span className="price-value">₹{booking.totalPrice.toLocaleString()}</span>
+                    <span className="price-value">₹{totalPrice.toLocaleString()}</span>
                   </div>
                 </div>
               </div>
 
-              {/* Booking Actions */}
               <div className="booking-card-footer">
-                <button 
+                <button
                   className="action-btn secondary"
                   onClick={() => onViewDetails(booking)}
                 >
                   <i className="fas fa-eye"></i>
                   View Details
                 </button>
-                
+
                 {booking.status === 'upcoming' && (
                   <>
-                    <button 
+                    <button
                       className="action-btn primary"
                       onClick={() => onModifyBooking(booking.id)}
                     >
                       <i className="fas fa-edit"></i>
                       Modify
                     </button>
-                    <button 
+                    <button
                       className="action-btn danger"
                       onClick={() => onCancelBooking(booking.id)}
                     >
@@ -144,7 +158,7 @@ export default function BookingsList({ bookings, onViewDetails, onCancelBooking,
                     </button>
                   </>
                 )}
-                
+
                 {booking.status === 'completed' && (
                   <button className="action-btn primary">
                     <i className="fas fa-redo"></i>
