@@ -146,8 +146,7 @@ def update_user_profile(user_id):
         user.phone = data.get('phone', user.phone)
         user.address = data.get('address', user.address)
         # Add updates for bio, etc. if they exist in your model
-        if 'bio' in data and hasattr(user, 'bio'):
-             user.bio = data.get('bio')
+        user.bio = data.get('bio', user.bio)
 
         db.session.commit()
 
