@@ -9,7 +9,7 @@ import AboutMe from '@/components/dashboard/owner/profile/AboutMe';
 import AccountStatus from '@/components/dashboard/owner/profile/AccountStatus';
 import RecentActivity from '@/components/dashboard/owner/profile/RecentActivity';
 // Import CSS if not global
-import '@/styles/dashboard/owner/profile/ownerProfile.css'; // Make sure styles are imported
+//import '@/styles/dashboard/owner/profile/ownerProfile.css'; // Make sure styles are imported
 
 export default function OwnerProfile() {
   // Keep useAuth hook
