@@ -6,14 +6,27 @@ from app.models.vehicle import Vehicle
 from app.models.booking import Booking
 from app import db
 from datetime import datetime, timedelta
-from flask_jwt_extended import jwt_required, get_jwt_identity
+from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 @owner_bp.route('/<int:owner_id>/dashboard', methods=['GET'])
 @jwt_required()
 def get_owner_dashboard(owner_id):
-    current_user = get_jwt_identity()
-    # Verify the token belongs to the requested owner_id and is an owner type
-    if current_user.get('id') != owner_id or current_user.get('type') != 'owner':
+    # get_jwt_identity() now returns the ID (as a string from the token)
+    # We need to convert it back to an integer for comparison if owner_id is an int
+    try:
+        current_user_id_str = get_jwt_identity()
+        current_user_id = int(current_user_id_str)
+    except (ValueError, TypeError):
+         # Handle cases where identity might not be a valid integer string
+         return jsonify({'error': 'Invalid user identity in token'}), 401
+
+    # Get user_type from the additional claims
+    jwt_claims = get_jwt()
+    current_user_type = jwt_claims.get("user_type")
+
+    # Compare the integer ID from the token with the integer owner_id from the URL
+    # Also check the user_type from claims
+    if current_user_id != owner_id or current_user_type != 'owner':
         return jsonify({'error': 'Unauthorized access'}), 403
 
     owner = User.query.get(owner_id)

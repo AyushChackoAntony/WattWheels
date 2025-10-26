@@ -77,7 +77,9 @@ def customer_login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
     # Generate JWT token upon successful login
-    access_token = create_access_token(identity={'id': user.id, 'email': user.email, 'type': user.user_type})
+    print(f"--- Creating CUSTOMER token with identity: {user.id} (type: {type(user.id)}) ---")
+    additional_claims = {"user_type": user.user_type}
+    access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims) 
     return jsonify({
         'message': 'Customer logged in successfully',
         'access_token': access_token, # Send token to frontend
@@ -97,7 +99,9 @@ def owner_login():
     if not user or not user.check_password(data['password']):
         return jsonify({'error': 'Invalid email or password'}), 401
     # Generate JWT token upon successful login
-    access_token = create_access_token(identity={'id': user.id, 'email': user.email, 'type': user.user_type})
+    print(f"--- Creating OWNER token with identity: {user.id} (type: {type(user.id)}) ---")
+    additional_claims = {"user_type": user.user_type}
+    access_token = create_access_token(identity=str(user.id), additional_claims=additional_claims)
     return jsonify({
         'message': 'Owner logged in successfully',
         'access_token': access_token, # Send token to frontend
