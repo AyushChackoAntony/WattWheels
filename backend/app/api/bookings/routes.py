@@ -1,80 +1,112 @@
 # backend/app/api/bookings/routes.py
-from flask import request, jsonify, current_app # Keep current_app if using logger elsewhere
+from flask import request, jsonify, current_app
 from . import bookings_bp
 from app.models.booking import Booking
 from app.models.vehicle import Vehicle
 from app.models.user import User
+from app.models.availability import Availability # <<< Import Availability
 from app import db
 from datetime import datetime
 from flask_jwt_extended import jwt_required, get_jwt_identity
 
-# --- create_booking and other routes remain the same ---
-# ...
-
-@bookings_bp.route('/', methods=['GET'])
+@bookings_bp.route('/', methods=['POST'])
 @jwt_required()
-def get_bookings():
-    print("--- ENTERING get_bookings ---") # <<< ADD PRINT
-    # Outer try...except block removed for debugging
+def create_booking():
     current_user = get_jwt_identity()
     user_id = current_user.get('id')
     user_type = current_user.get('type')
-    print(f"--- User ID: {user_id}, User Type: {user_type} ---") # <<< ADD PRINT
 
-    if not user_id or not user_type:
-        print("--- ERROR: Invalid token identity ---") # <<< ADD PRINT
-        # current_app.logger.error("Invalid token identity received in get_bookings") # Keep logger if you want
-        return jsonify({"error": "Invalid token identity"}), 401
+    if user_type != 'customer':
+        return jsonify({"error": "Only customers can create bookings"}), 403
 
-    bookings_query = None
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request must be JSON"}), 400
 
-    if user_type == 'customer':
-        print(f"--- Fetching bookings for customer {user_id} ---") # <<< ADD PRINT
-        bookings_query = Booking.query.filter_by(customer_id=user_id)
-    elif user_type == 'owner':
-        print(f"--- Fetching vehicles for owner {user_id} ---") # <<< ADD PRINT
-        owner_vehicles = Vehicle.query.filter_by(owner_id=user_id).options(db.load_only(Vehicle.id)).all()
-        if not owner_vehicles:
-             print(f"--- Owner {user_id} has no vehicles. Returning empty list. ---") # <<< ADD PRINT
-             # current_app.logger.info(f"Owner {user_id} has no vehicles. Returning empty list.")
-             return jsonify({"bookings": []}), 200
-        vehicle_ids = [v.id for v in owner_vehicles]
-        print(f"--- Owner {user_id} Vehicle IDs: {vehicle_ids} ---") # <<< ADD PRINT
-        # current_app.logger.info(f"Owner {user_id} - Vehicle IDs: {vehicle_ids}")
-        bookings_query = Booking.query.filter(Booking.vehicle_id.in_(vehicle_ids))
-    else:
-        print(f"--- ERROR: Invalid user type '{user_type}' ---") # <<< ADD PRINT
-        # current_app.logger.warning(f"Unauthorized user type '{user_type}' for user_id {user_id} attempting to get bookings.")
-        return jsonify({"error": "Invalid user type specified in token"}), 403
+    vehicle_id = data.get('vehicle_id')
+    start_date_str = data.get('start_date') # Expecting 'YYYY-MM-DD HH:MM:SS' or similar
+    end_date_str = data.get('end_date')
+    # total_price = data.get('total_price') # Price calculation should ideally happen backend
+    destination = data.get('destination')
 
-    print("--- Executing database query... ---") # <<< ADD PRINT
-    bookings = bookings_query.order_by(Booking.created_at.desc()).all()
-    print(f"--- Found {len(bookings)} booking record(s) ---") # <<< ADD PRINT
-    # current_app.logger.info(f"Found {len(bookings)} booking record(s) for user_id {user_id}.")
+    if not all([vehicle_id, start_date_str, end_date_str]):
+        return jsonify({"error": "Missing required fields: vehicle_id, start_date, end_date"}), 400
 
-    bookings_data = []
-    serialization_errors = 0
-    print("--- Starting serialization loop... ---") # <<< ADD PRINT
-    for i, b in enumerate(bookings): # Add index for easier identification
-        print(f"--- Attempting to serialize booking index {i}, ID {b.id} ---") # <<< ADD PRINT
-        try:
-            booking_dict = b.to_dict()
-            bookings_data.append(booking_dict)
-            print(f"--- Successfully serialized booking ID {b.id} ---") # <<< ADD PRINT
-        except Exception as e:
-            serialization_errors += 1
-            print(f"---!!! EXCEPTION serializing booking ID {b.id}: {e} ---") # <<< ADD PRINT (More visible)
-            # Log full traceback using logger if it works, otherwise rely on print
-            current_app.logger.error(f"Error serializing booking ID {b.id}: {e}", exc_info=True)
-            raise e # Re-raise exception for Flask debugger
+    try:
+        # Use a format that includes time, adjust if frontend sends differently
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%dT%H:%M:%S.%fZ') # Example ISO format
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%dT%H:%M:%S.%fZ')
+        if start_date >= end_date:
+            return jsonify({"error": "End date must be after start date"}), 400
+        if start_date < datetime.utcnow():
+            return jsonify({"error": "Booking start date cannot be in the past"}), 400
 
-    if serialization_errors > 0:
-         print(f"--- WARNING: Encountered {serialization_errors} serialization error(s). ---") # <<< ADD PRINT
-         # current_app.logger.warning(f"Finished serializing bookings for user {user_id}, but encountered {serialization_errors} error(s).")
+    except ValueError:
+        return jsonify({"error": "Invalid date format. Use ISO format like YYYY-MM-DDTHH:MM:SS.sssZ"}), 400
 
-    print(f"--- Successfully processed {len(bookings_data)} bookings. Returning response. ---") # <<< ADD PRINT
-    # current_app.logger.info(f"Successfully serialized {len(bookings_data)} bookings for user {user_id}.")
-    return jsonify({"bookings": bookings_data}), 200
+    # --- Availability & Conflict Checks ---
+    vehicle = Vehicle.query.get(vehicle_id)
+    if not vehicle:
+        return jsonify({"error": "Vehicle not found"}), 404
+    if vehicle.status != 'active':
+        return jsonify({"error": f"Vehicle is currently not active ({vehicle.status})"}), 400
 
-# --- get_single_booking and cancel_booking routes remain the same ---
-# ...
+    # 1. Check against Owner's explicit unavailability
+    is_unavailable = Availability.query.filter(
+        Availability.vehicle_id == vehicle_id,
+        Availability.is_available == False,
+        Availability.start_date < end_date,
+        Availability.end_date > start_date
+    ).first()
+    if is_unavailable:
+        reason = f"due to {is_unavailable.reason}" if is_unavailable.reason else ""
+        return jsonify({"error": f"Vehicle is marked unavailable by the owner {reason} during the selected period."}), 409 # 409 Conflict
+
+    # 2. Check against existing bookings for the same vehicle
+    conflicting_booking = Booking.query.filter(
+        Booking.vehicle_id == vehicle_id,
+        # Add relevant statuses to check against (e.g., ignore 'cancelled')
+        Booking.status.in_(['upcoming', 'active', 'confirmed']),
+        Booking.start_date < end_date,
+        Booking.end_date > start_date
+    ).first()
+    if conflicting_booking:
+        return jsonify({"error": "Vehicle is already booked during the selected period."}), 409 # 409 Conflict
+
+    # --- Price Calculation (Example) ---
+    # Duration in hours (or days)
+    duration_delta = end_date - start_date
+    duration_days = duration_delta.days + (duration_delta.seconds / 86400) # Simple days calculation
+    # Ensure minimum duration if needed
+    if duration_days <= 0: duration_days = 1 # Example: Minimum 1 day charge
+    calculated_price = round(duration_days * vehicle.price_per_day, 2)
+    # Compare calculated_price with price sent from frontend if needed, or just use backend price
+
+    # --- Create Booking ---
+    try:
+        new_booking = Booking(
+            customer_id=user_id,
+            vehicle_id=vehicle_id,
+            start_date=start_date,
+            end_date=end_date,
+            total_price=calculated_price, # Use backend calculated price
+            status='upcoming', # Or 'pending_approval' if owner needs to approve
+            destination=destination
+        )
+        db.session.add(new_booking)
+        db.session.commit()
+
+        # --- TODO: Notification Logic ---
+        # You would add code here to trigger a notification (e.g., email, push)
+        # to the vehicle owner (vehicle.owner_id) about the new booking (new_booking.id).
+        current_app.logger.info(f"New booking created (ID: {new_booking.id}) for vehicle {vehicle_id} by customer {user_id}. Owner {vehicle.owner_id} should be notified.")
+        # Example: send_booking_notification(vehicle.owner_id, new_booking.id)
+
+        return jsonify({"message": "Booking created successfully!", "booking": new_booking.to_dict()}), 201
+
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error creating booking: {e}")
+        return jsonify({"error": "An internal error occurred while creating the booking."}), 500
+
+# ... (get_bookings, get_single_booking, cancel_booking functions) ...

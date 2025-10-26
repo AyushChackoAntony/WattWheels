@@ -11,9 +11,9 @@ import VehicleManagement from '@/components/dashboard/owner/VehicleManagement';
 import QuickAction from '@/components/dashboard/owner/QuickAction';
 import '@/styles/dashboard/ownerDash.css';
 export default function OwnerDashboard() {
-  const { user, loading, isAuthenticated } = useAuth();
+  const { user, loading: authLoading, isAuthenticated } = useAuth();
   const [dashboardData, setDashboardData] = useState(null);
-  const [Pageloading, setPageLoading] = useState(true);
+  const [pageLoading, setPageLoading] = useState(true);
   const [error, setError] = useState(null);
 
  // Fetch dashboard data when user is authenticated
@@ -74,7 +74,7 @@ export default function OwnerDashboard() {
   }, [isAuthenticated, user, authLoading]);
 
   // Combined loading state (show loading if auth OR dashboard data is loading)
-  if (authLoading || Pageloading) {
+  if (authLoading || pageLoading) {
     return (
       <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#6b7280' }}>
         Loading dashboard...

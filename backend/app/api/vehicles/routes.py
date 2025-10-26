@@ -2,9 +2,11 @@ from flask import request, jsonify, current_app
 from . import vehicles_bp
 from app.models.vehicle import Vehicle
 from app.models.user import User
+from app.models.availability import Availability
 from app import db
 import os
 from werkzeug.utils import secure_filename
+from datetime import datetime
 
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 
@@ -60,12 +62,78 @@ def add_vehicle():
 # Route for anyone to view all vehicles OR for an owner to view their vehicles
 @vehicles_bp.route('/', methods=['GET'])
 def get_all_vehicles():
-    owner_id = request.args.get('ownerId')
+    owner_id = request.args.get('ownerId') # Check if request is owner-specific
+    search_start_date_str = request.args.get('startDate') # For customer search
+    search_end_date_str = request.args.get('endDate') # For customer search
+
+    query = Vehicle.query
+
     if owner_id:
-        vehicles = Vehicle.query.filter_by(owner_id=owner_id).all()
+        # --- Owner View ---
+        # Owner sees all their vehicles regardless of status/availability set by them
+        query = query.filter_by(owner_id=owner_id)
+        vehicles = query.all()
+        current_app.logger.info(f"Returning {len(vehicles)} vehicles for owner {owner_id}")
     else:
-        vehicles = Vehicle.query.all()
-    return jsonify({"vehicles": [v.to_dict() for v in vehicles]})
+        # --- Customer/Public View ---
+        # Filter by vehicle status set by owner
+        query = query.filter_by(status='active')
+
+        # Further filter by Availability table for the requested dates (if provided)
+        # If no dates provided, we might show all 'active' ones, or filter based on 'today'
+        # For simplicity now, let's assume if dates are given, we filter precisely.
+        # If no dates are given, we just show 'active' status vehicles.
+
+        if search_start_date_str and search_end_date_str:
+            try:
+                search_start = datetime.strptime(search_start_date_str, '%Y-%m-%d')
+                search_end = datetime.strptime(search_end_date_str, '%Y-%m-%d')
+
+                # Find vehicles that are explicitly marked as UNAVAILABLE during ANY part of the search period
+                unavailable_vehicle_ids = db.session.query(Availability.vehicle_id)\
+                    .filter(
+                        Availability.is_available == False,
+                        Availability.start_date < search_end, # Unavailability starts before search ends
+                        Availability.end_date > search_start  # Unavailability ends after search starts
+                    ).distinct().all()
+                unavailable_ids = [v_id[0] for v_id in unavailable_vehicle_ids]
+
+                # Find vehicles that are ALREADY BOOKED during ANY part of the search period
+                booked_vehicle_ids = db.session.query(Booking.vehicle_id)\
+                    .filter(
+                        # Add filter for relevant booking statuses if needed (e.g., 'confirmed', 'upcoming', 'active')
+                        # Booking.status.in_(['confirmed', 'upcoming', 'active']),
+                        Booking.start_date < search_end, # Booking starts before search ends
+                        Booking.end_date > search_start  # Booking ends after search starts
+                    ).distinct().all()
+                booked_ids = [v_id[0] for v_id in booked_vehicle_ids]
+
+                # Combine IDs to exclude
+                exclude_ids = set(unavailable_ids + booked_ids)
+
+                if exclude_ids:
+                    query = query.filter(Vehicle.id.notin_(exclude_ids))
+
+                # Optional: Add filter for vehicles that have *positive* availability set for the period
+                # This depends on whether owners set available periods or just unavailable ones.
+                # available_vehicle_ids = db.session.query(Availability.vehicle_id)\
+                #     .filter(
+                #         Availability.is_available == True,
+                #         Availability.start_date <= search_start,
+                #         Availability.end_date >= search_end
+                #     ).distinct().all()
+                # available_ids = [v_id[0] for v_id in available_vehicle_ids]
+                # query = query.filter(Vehicle.id.in_(available_ids)) # Uncomment if using positive availability
+
+            except ValueError:
+                return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
+
+        vehicles = query.all()
+        current_app.logger.info(f"Returning {len(vehicles)} available vehicles for customer view.")
+
+    # Convert to dictionary using the method defined in the model
+    vehicles_data = [v.to_dict() for v in vehicles]
+    return jsonify({"vehicles": vehicles_data})
 
 # Route for an owner to update a vehicle's status
 @vehicles_bp.route('/<int:vehicle_id>', methods=['PATCH'])
