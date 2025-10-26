@@ -27,6 +27,7 @@ def create_app(config_class=Config):
     from .api.availability.routes import availability_bp
     from .api.settings.routes import settings_bp
     from .api.customer.routes import customer_bp
+    from .api.owner.routes import owner_bp
 
     # Register Blueprints
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
@@ -36,5 +37,6 @@ def create_app(config_class=Config):
     app.register_blueprint(availability_bp, url_prefix='/api/availability')
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
     app.register_blueprint(customer_bp, url_prefix='/api/customer') 
+    app.register_blueprint(owner_bp, url_prefix='/api/owner')
 
     return app

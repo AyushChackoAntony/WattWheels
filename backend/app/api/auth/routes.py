@@ -121,17 +121,7 @@ def get_user_profile(user_id):
         return jsonify({'error': 'User not found'}), 404
 
     # Return the full user profile data needed by the frontend form
-    return jsonify({
-        'id': user.id,
-        'firstName': user.first_name,
-        'lastName': user.last_name,
-        'email': user.email,
-        'phone': user.phone,
-        'address': user.address,
-        'bio': getattr(user, 'bio', ''), 
-        'joinDate': getattr(user, 'join_date', 'N/A'), 
-        'verified': getattr(user, 'verified', True) 
-    }), 200
+    return jsonify(user.get_profile_data()), 200
 
 @auth_bp.route('/user/<int:user_id>', methods=['PUT'])
 #@jwt_required()
@@ -163,17 +153,7 @@ def update_user_profile(user_id):
 
         return jsonify({
             'message': 'Profile updated successfully',
-            'user': { 
-                'id': user.id,
-                'firstName': user.first_name,
-                'lastName': user.last_name,
-                'email': user.email,
-                'phone': user.phone,
-                'address': user.address,
-                'bio': getattr(user, 'bio', ''),
-                'joinDate': getattr(user, 'join_date', 'N/A'),
-                'verified': getattr(user, 'verified', True)
-            }
+            'user': user.get_profile_data()
         }), 200
     except Exception as e:
         db.session.rollback()
