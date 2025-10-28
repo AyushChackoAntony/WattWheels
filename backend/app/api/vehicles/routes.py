@@ -188,3 +188,30 @@ def delete_vehicle(vehicle_id):
         db.session.rollback()
         current_app.logger.error(f"Error deleting vehicle {vehicle_id}: {e}", exc_info=True)
         return jsonify({'error': 'Failed to delete vehicle'}), 500
+    
+@vehicles_bp.route('/<int:vehicle_id>', methods=['GET'])
+def get_single_vehicle(vehicle_id):
+    vehicle = Vehicle.query.get(vehicle_id)
+    if not vehicle:
+        return jsonify({"error": "Vehicle not found"}), 404
+    if vehicle.status != 'active':
+         # Optionally allow viewing inactive for owners, but maybe not for booking
+         current_app.logger.warning(f"Attempt to view non-active vehicle {vehicle_id} details.")
+         # Return not found or a specific status if needed
+         return jsonify({"error": "Vehicle not currently available"}), 404
+
+    try:
+        # Include owner details if needed for display
+        vehicle_data = vehicle.to_dict()
+        if vehicle.owner:
+             vehicle_data['ownerInfo'] = {
+                 'firstName': vehicle.owner.first_name,
+                 'lastName': vehicle.owner.last_name,
+                 'rating': vehicle.owner.owner_rating,
+                 'memberSince': vehicle.owner.created_at.strftime('%B %Y') if vehicle.owner.created_at else None
+                 # Add other owner details if needed
+             }
+        return jsonify(vehicle_data), 200
+    except Exception as e:
+        current_app.logger.error(f"Error fetching details for vehicle {vehicle_id}: {e}", exc_info=True)
+        return jsonify({"error": "Internal server error"}), 500

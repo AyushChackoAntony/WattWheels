@@ -1,0 +1,294 @@
+/* frontend/app/src/styles/vehicle-details.css */
+
+.vehicle-details-main {
+  padding: 32px 24px;
+  background-color: var(--bg-secondary);
+}
+
+.vehicle-details-container {
+  max-width: 1100px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 2fr 1fr; /* Adjust ratio as needed */
+  gap: 32px;
+  background-color: var(--bg-primary);
+  padding: 32px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+}
+
+.vehicle-image-gallery .main-vehicle-image {
+  width: 100%;
+  height: auto;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+}
+
+.vehicle-info-booking h1 {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.vehicle-location {
+  color: var(--text-secondary);
+  font-size: 16px;
+  margin-bottom: 16px;
+}
+.vehicle-location i {
+  margin-right: 6px;
+  color: var(--primary-color);
+}
+
+.vehicle-specs-detailed {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.vehicle-specs-detailed span {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  background-color: var(--bg-secondary);
+  padding: 6px 10px;
+  border-radius: 6px;
+}
+
+.vehicle-specs-detailed span i {
+  color: var(--primary-color);
+  width: 16px; /* Ensure consistent icon alignment */
+  text-align: center;
+}
+
+.vehicle-features-list,
+.vehicle-description,
+.cancellation-policy-details,
+.owner-info-details {
+    margin-bottom: 24px;
+}
+
+.vehicle-features-list h4,
+.vehicle-description h4,
+.cancellation-policy-details h4,
+.owner-info-details h4 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+.vehicle-features-list ul {
+    list-style: none;
+    padding: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+.vehicle-features-list li {
+    background: var(--bg-accent);
+    color: var(--primary-dark);
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+.vehicle-features-list li i {
+    font-size: 10px;
+}
+
+.vehicle-description p,
+.cancellation-policy-details p {
+    font-size: 14px;
+    color: var(--text-secondary);
+    line-height: 1.6;
+}
+
+.booking-summary {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  margin-top: 24px;
+}
+
+.booking-summary h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.booking-summary p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 8px;
+}
+.booking-summary p strong {
+    color: var(--text-primary);
+}
+
+.select-dates-prompt {
+    text-align: center;
+    font-style: italic;
+    color: var(--accent-color);
+}
+.select-dates-prompt a {
+    color: var(--primary-color);
+    text-decoration: underline;
+}
+
+.estimated-price {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--border-color);
+  text-align: center;
+}
+
+.estimated-price span {
+  color: var(--primary-color);
+  font-size: 20px;
+  margin-left: 8px;
+}
+
+.book-now-button {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 14px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.book-now-button:hover:not(:disabled) {
+  background: var(--primary-dark);
+  box-shadow: var(--shadow-md);
+}
+
+.book-now-button:disabled {
+  background-color: var(--text-light);
+  cursor: not-allowed;
+}
+
+.booking-error {
+  color: #ef4444;
+  font-size: 14px;
+  text-align: center;
+  margin-top: 12px;
+  font-weight: 500;
+}
+
+.status-message {
+  text-align: center;
+  padding: 50px;
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+.status-message.error {
+    color: #ef4444;
+}
+
+/* Responsive */
+@media (max-width: 900px) {
+  .vehicle-details-container {
+    grid-template-columns: 1fr;
+    padding: 24px;
+  }
+  .vehicle-info-booking {
+    margin-top: 24px;
+  }
+}
+
+@media (max-width: 600px) {
+  .vehicle-details-main {
+    padding: 24px 16px;
+  }
+  .vehicle-details-container {
+    padding: 16px;
+  }
+   .vehicle-info-booking h1 {
+    font-size: 24px;
+  }
+  .estimated-price {
+    font-size: 14px;
+  }
+  .estimated-price span {
+    font-size: 18px;
+  }
+  .book-now-button {
+    padding: 12px;
+    font-size: 15px;
+  }
+}
+
+/* Styles for Date Inputs in Booking Summary */
+.date-selection-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.date-input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.date-input-group input[type="date"] {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 14px;
+    font-family: inherit;
+    box-sizing: border-box; /* Include padding/border in width */
+}
+
+/* Style prompts */
+.select-dates-prompt.info {
+    text-align: center;
+    font-style: italic;
+    color: var(--text-secondary);
+    font-size: 14px;
+    margin-top: 10px;
+}
+.select-dates-prompt.error {
+    text-align: center;
+    font-style: italic;
+    color: #ef4444; /* Error color */
+    font-size: 14px;
+    margin-top: 10px;
+    font-weight: 500;
+}
+
+
+/* Responsive adjustments for date inputs */
+@media (max-width: 600px) {
+    .date-selection-inputs {
+        grid-template-columns: 1fr; /* Stack dates on small screens */
+        gap: 12px;
+    }
+}
