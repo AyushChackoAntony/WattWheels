@@ -7,7 +7,7 @@ class Availability(db.Model):
     start_date = db.Column(db.DateTime, nullable=False)
     end_date = db.Column(db.DateTime, nullable=False)
     is_available = db.Column(db.Boolean, default=True, nullable=False)
-    reason = db.Column(db.String(100)) # Optional reason for unavailability, e.g., "Maintenance"
+    reason = db.Column(db.String(100))
     created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
 
     vehicle = db.relationship('Vehicle', backref=db.backref('availabilities', lazy=True, cascade="all, delete-orphan"))

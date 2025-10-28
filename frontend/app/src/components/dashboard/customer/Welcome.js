@@ -9,10 +9,10 @@ export default function Welcome({user}){
               <p>Ready for your next eco-friendly adventure?</p>
             </div>
             <div className="quick-actions">
-              <Link href="#" className="quick-action-btn">
+              <Link href="/browse-vehicles" className="quick-action-btn">
                 <i className="fas fa-search"></i> Find EVs
               </Link>
-              <Link href="#" className="quick-action-btn">
+              <Link href="/dashboard/customer/bookings" className="quick-action-btn">
                 <i className="fas fa-calendar"></i> My Bookings
               </Link>
             </div>

@@ -1,0 +1,163 @@
+/* frontend/app/src/styles/browse-vehicles.css */
+
+.browse-main {
+  background: var(--bg-secondary);
+  min-height: calc(100vh - 80px); /* Adjust based on header height */
+  padding: 32px 24px;
+}
+
+.browse-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.browse-header {
+  margin-bottom: 32px;
+  text-align: center;
+}
+
+.browse-header h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.browse-header p {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+.loading-message,
+.error-message,
+.no-vehicles-message {
+  text-align: center;
+  font-size: 18px;
+  color: var(--text-secondary);
+  padding: 40px;
+}
+
+.error-message {
+  color: #ef4444; /* Red for errors */
+}
+
+/* Inherit grid styles from Features.css if applicable */
+/* Or define new grid styles */
+.vehicles-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); /* Adjust minmax as needed */
+  gap: 24px;
+}
+
+.vehicle-card-browse {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
+}
+
+.vehicle-card-browse:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.vehicle-image-browse {
+  height: 180px; /* Fixed height for image area */
+  background: var(--bg-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden; /* Ensure image doesn't overflow */
+}
+
+.vehicle-image-browse img {
+  max-width: 90%;
+  max-height: 90%;
+  height: auto;
+  object-fit: contain; /* Scale image while preserving aspect ratio */
+}
+
+.vehicle-info-browse {
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1; /* Allow info section to grow */
+}
+
+.vehicle-info-browse h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.vehicle-specs-browse {
+  display: flex;
+  flex-wrap: wrap; /* Allow specs to wrap */
+  gap: 12px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.vehicle-specs-browse span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.vehicle-specs-browse i {
+  color: var(--primary-color);
+}
+
+.vehicle-price-browse {
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+  margin-bottom: 16px;
+  margin-top: auto; /* Push price and button to the bottom */
+}
+
+.vehicle-price-browse .price {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.vehicle-price-browse .period {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.book-btn-browse {
+  width: 100%;
+  background: var(--primary-color);
+  color: white;
+  border: none;
+  padding: 12px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+  text-align: center;
+  text-decoration: none; /* For Link component */
+  display: inline-block; /* For Link component */
+}
+
+.book-btn-browse:hover {
+  background: var(--primary-dark);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .browse-header h1 {
+    font-size: 28px;
+  }
+  .vehicles-grid {
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  }
+}
