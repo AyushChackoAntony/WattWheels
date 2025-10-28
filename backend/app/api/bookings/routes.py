@@ -265,3 +265,117 @@ def cancel_booking(booking_id):
         db.session.rollback()
         current_app.logger.error(f"Error committing cancellation for booking {booking_id}: {e}", exc_info=True)
         return jsonify({"error": "An internal error occurred while cancelling the booking."}), 500
+    
+
+@bookings_bp.route('/<int:booking_id>', methods=['PUT', 'PATCH']) # Allow PUT or PATCH
+@jwt_required()
+def update_booking(booking_id):
+    user_id_str = get_jwt_identity()
+    jwt_claims = get_jwt()
+    user_type = jwt_claims.get("user_type")
+
+    try:
+        user_id = int(user_id_str)
+    except (ValueError, TypeError):
+         return jsonify({"error": "Invalid user identity in token"}), 401
+
+    # Only customers should modify their own bookings generally
+    if user_type != 'customer':
+         return jsonify({"error": "Only customers can modify bookings"}), 403 # Or owner logic if needed
+
+    booking = Booking.query.get(booking_id)
+
+    if not booking:
+        return jsonify({"error": "Booking not found"}), 404
+
+    # Authorization: Ensure it's the customer's booking
+    if booking.customer_id != user_id:
+        return jsonify({"error": "Unauthorized to modify this booking"}), 403
+
+    # Check if booking is in a modifiable state (e.g., 'upcoming')
+    if booking.status != 'upcoming':
+        return jsonify({"error": f"Booking cannot be modified in its current status ('{booking.status}')"}), 400
+
+    data = request.get_json()
+    if not data:
+        return jsonify({"error": "Request must be JSON"}), 400
+
+    new_start_date_str = data.get('start_date')
+    new_end_date_str = data.get('end_date')
+    new_destination = data.get('destination') # Optional
+
+    # Validate if dates are provided
+    if not new_start_date_str or not new_end_date_str:
+        return jsonify({"error": "Missing new start_date or end_date"}), 400
+
+    try:
+        # Parse new dates
+        new_start_date = datetime.fromisoformat(new_start_date_str.replace('Z', '+00:00'))
+        new_end_date = datetime.fromisoformat(new_end_date_str.replace('Z', '+00:00'))
+
+        if new_start_date >= new_end_date:
+            return jsonify({"error": "New end date must be after new start date"}), 400
+        if new_start_date < datetime.now(timezone.utc):
+            return jsonify({"error": "New booking start date cannot be in the past"}), 400
+
+        # --- Re-check Availability & Conflicts for NEW Dates ---
+        vehicle_id = booking.vehicle_id
+        # 1. Check Owner Unavailability
+        is_unavailable = Availability.query.filter(
+            Availability.vehicle_id == vehicle_id,
+            Availability.is_available == False,
+            Availability.start_date < new_end_date,
+            Availability.end_date > new_start_date
+        ).first()
+        if is_unavailable:
+            reason = f"due to {is_unavailable.reason}" if is_unavailable.reason else ""
+            return jsonify({"error": f"Vehicle is marked unavailable by the owner {reason} during the newly selected period."}), 409
+
+        # 2. Check Other Bookings (excluding the current one being modified)
+        conflicting_booking = Booking.query.filter(
+            Booking.id != booking_id, # Exclude self
+            Booking.vehicle_id == vehicle_id,
+            Booking.status.in_(['upcoming', 'active', 'confirmed']),
+            Booking.start_date < new_end_date,
+            Booking.end_date > new_start_date
+        ).first()
+        if conflicting_booking:
+            return jsonify({"error": "Vehicle is already booked by someone else during the newly selected period."}), 409
+
+        # --- Recalculate Price ---
+        duration_delta = new_end_date - new_start_date
+        duration_days = duration_delta.total_seconds() / (24 * 60 * 60)
+        if duration_days <= 0:
+            return jsonify({"error": "New booking duration must be positive"}), 400
+        # Ensure vehicle is loaded to get price_per_day
+        if not booking.vehicle:
+             # This shouldn't happen if the booking exists, but good practice
+             vehicle = Vehicle.query.get(vehicle_id)
+             if not vehicle: return jsonify({"error": "Vehicle data missing"}), 500
+        else:
+             vehicle = booking.vehicle
+        new_calculated_price = round(max(duration_days, 1) * vehicle.price_per_day, 2)
+
+        # --- Update Booking ---
+        booking.start_date = new_start_date
+        booking.end_date = new_end_date
+        booking.total_price = new_calculated_price
+        if new_destination is not None: # Update destination if provided
+             booking.destination = new_destination
+        # Optional: Reset status if owner approval is needed for changes?
+        # booking.status = 'pending_modification'
+
+        db.session.commit()
+        current_app.logger.info(f"Booking {booking_id} updated successfully by user {user_id}.")
+        # Placeholder for notification logic (e.g., notify owner of change)
+        # send_booking_modification_notification(booking)
+
+        return jsonify({"message": "Booking updated successfully!", "booking": booking.to_dict()}), 200
+
+    except (ValueError, TypeError) as e:
+        current_app.logger.error(f"Date parsing error during update for booking {booking_id}: {e}", exc_info=True)
+        return jsonify({"error": f"Invalid date format. Ensure dates are in a valid ISO format like YYYY-MM-DDTHH:MM:SS.sssZ"}), 400
+    except Exception as e:
+        db.session.rollback()
+        current_app.logger.error(f"Error updating booking {booking_id}: {e}", exc_info=True)
+        return jsonify({"error": "An internal error occurred while updating the booking."}), 500

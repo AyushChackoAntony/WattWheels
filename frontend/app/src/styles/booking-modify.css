@@ -1,0 +1,105 @@
+/* frontend/app/src/styles/booking-modify.css */
+.modify-booking-container {
+    max-width: 700px;
+    margin: 20px auto;
+    padding: 24px;
+    background-color: var(--bg-primary);
+    border-radius: 12px;
+    box-shadow: var(--shadow-md);
+}
+
+.modify-booking-container h2 {
+    text-align: center;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+.modify-booking-container p {
+    text-align: center;
+    margin-bottom: 24px;
+    color: var(--text-secondary);
+}
+
+.modify-form .form-section {
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.modify-form h3 {
+    font-size: 1.1em;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.date-inputs-modify {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.date-inputs-modify label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 0.9em;
+    font-weight: 500;
+}
+
+.date-inputs-modify input[type="date"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid var(--border-color);
+    border-radius: 6px;
+    font-size: 1em;
+}
+
+.form-actions-modify {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+}
+
+.cancel-btn, .save-btn {
+    padding: 10px 20px;
+    border-radius: 8px;
+    font-size: 1em;
+    font-weight: 500;
+    cursor: pointer;
+    border: none;
+    transition: background-color 0.2s;
+}
+
+.cancel-btn {
+    background-color: var(--bg-secondary);
+    color: var(--text-secondary);
+    border: 1px solid var(--border-color);
+}
+.cancel-btn:hover {
+    background-color: #e2e8f0; /* Slightly darker gray */
+}
+
+.save-btn {
+    background-color: var(--primary-color);
+    color: white;
+}
+.save-btn:hover:not(:disabled) {
+    background-color: var(--primary-dark);
+}
+.save-btn:disabled {
+    background-color: var(--text-light);
+    cursor: not-allowed;
+}
+
+.error-message {
+    color: #ef4444;
+    text-align: center;
+    margin-top: 16px;
+    font-weight: 500;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    .date-inputs-modify {
+        grid-template-columns: 1fr;
+    }
+}
