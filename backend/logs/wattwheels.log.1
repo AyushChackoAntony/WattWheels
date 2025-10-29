@@ -1,115 +1,70 @@
-2025-10-28 21:17:37,314 INFO: WattWheels backend startup [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\__init__.py:89]
-2025-10-28 21:17:38,290 INFO: WattWheels backend startup [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\__init__.py:89]
-2025-10-28 21:17:43,389 ERROR: Error fetching details for vehicle 1: (pymysql.err.OperationalError) (1054, "Unknown column 'user.last_password_change' in 'field list'")
-[SQL: SELECT user.id AS user_id, user.first_name AS user_first_name, user.last_name AS user_last_name, user.email AS user_email, user.phone AS user_phone, user.password_hash AS user_password_hash, user.address AS user_address, user.user_type AS user_user_type, user.owner_rating AS user_owner_rating, user.created_at AS user_created_at, user.bio AS user_bio, user.email_verified AS user_email_verified, user.phone_verified AS user_phone_verified, user.identity_verified AS user_identity_verified, user.last_password_change AS user_last_password_change 
-FROM user 
-WHERE user.id = %(pk_1)s]
-[parameters: {'pk_1': 1}]
-(Background on this error at: https://sqlalche.me/e/20/e3q8) [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\api\vehicles\routes.py:216]
-Traceback (most recent call last):
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
-    self.dialect.do_execute(
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
-    cursor.execute(statement, parameters)
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
-    result = self._query(query)
-             ^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
-    conn.query(q)
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 558, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 822, in _read_query_result
-    result.read()
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 1200, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
-    packet.raise_for_error()
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\protocol.py", line 221, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
-    raise errorclass(errno, errval)
-pymysql.err.OperationalError: (1054, "Unknown column 'user.last_password_change' in 'field list'")
-
-The above exception was the direct cause of the following exception:
-
-Traceback (most recent call last):
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\api\vehicles\routes.py", line 206, in get_single_vehicle
-    if vehicle.owner:
-       ^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 569, in __get__
-    return self.impl.get(state, dict_)  # type: ignore[no-any-return]
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1096, in get
-    value = self._fire_loader_callables(state, key, passive)
-            ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\attributes.py", line 1131, in _fire_loader_callables
-    return self.callable_(state, passive)
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\strategies.py", line 978, in _load_for_state
-    return self._emit_lazyload(
-           ^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\strategies.py", line 1079, in _emit_lazyload
-    return loading.load_on_pk_identity(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\loading.py", line 695, in load_on_pk_identity
-    session.execute(
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2351, in execute
-    return self._execute_internal(
-           ^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\session.py", line 2249, in _execute_internal
-    result: Result[Any] = compile_state_cls.orm_execute_statement(
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\orm\context.py", line 306, in orm_execute_statement
-    result = conn.execute(
-             ^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1419, in execute
-    return meth(
-           ^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\sql\elements.py", line 526, in _execute_on_connection
-    return connection._execute_clauseelement(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1641, in _execute_clauseelement
-    ret = self._execute_context(
-          ^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1846, in _execute_context
-    return self._exec_single_context(
-           ^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1986, in _exec_single_context
-    self._handle_dbapi_exception(
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 2355, in _handle_dbapi_exception
-    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\base.py", line 1967, in _exec_single_context
-    self.dialect.do_execute(
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\sqlalchemy\engine\default.py", line 951, in do_execute
-    cursor.execute(statement, parameters)
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\cursors.py", line 153, in execute
-    result = self._query(query)
-             ^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\cursors.py", line 322, in _query
-    conn.query(q)
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 558, in query
-    self._affected_rows = self._read_query_result(unbuffered=unbuffered)
-                          ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 822, in _read_query_result
-    result.read()
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 1200, in read
-    first_packet = self.connection._read_packet()
-                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\connections.py", line 772, in _read_packet
-    packet.raise_for_error()
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\protocol.py", line 221, in raise_for_error
-    err.raise_mysql_exception(self._data)
-  File "E:\Semester_3_MCA\MinorProject2\WattWheels\backend\venv\Lib\site-packages\pymysql\err.py", line 143, in raise_mysql_exception
-    raise errorclass(errno, errval)
-sqlalchemy.exc.OperationalError: (pymysql.err.OperationalError) (1054, "Unknown column 'user.last_password_change' in 'field list'")
-[SQL: SELECT user.id AS user_id, user.first_name AS user_first_name, user.last_name AS user_last_name, user.email AS user_email, user.phone AS user_phone, user.password_hash AS user_password_hash, user.address AS user_address, user.user_type AS user_user_type, user.owner_rating AS user_owner_rating, user.created_at AS user_created_at, user.bio AS user_bio, user.email_verified AS user_email_verified, user.phone_verified AS user_phone_verified, user.identity_verified AS user_identity_verified, user.last_password_change AS user_last_password_change 
-FROM user 
-WHERE user.id = %(pk_1)s]
-[parameters: {'pk_1': 1}]
-(Background on this error at: https://sqlalche.me/e/20/e3q8)
-2025-10-28 21:17:46,428 INFO: No specific dates provided. Returning all 'active' vehicles. [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\api\vehicles\routes.py:119]
-2025-10-28 21:17:46,432 INFO: Returning 2 available vehicles for customer view. [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\api\vehicles\routes.py:123]
-2025-10-28 21:17:46,443 INFO: No specific dates provided. Returning all 'active' vehicles. [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\api\vehicles\routes.py:119]
-2025-10-28 21:17:46,445 INFO: Returning 2 available vehicles for customer view. [in E:\Semester_3_MCA\MinorProject2\WattWheels\backend\app\api\vehicles\routes.py:123]
+2025-10-27 00:52:37,974 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 00:52:58,993 WARNING: Invalid JWT token received: Subject must be a string [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:33]
+2025-10-27 01:07:36,494 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:08:50,730 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:08:54,020 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:09:19,212 WARNING: Invalid JWT token received: Subject must be a string [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:33]
+2025-10-27 01:09:40,420 WARNING: Invalid JWT token received: Subject must be a string [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:33]
+2025-10-27 01:09:40,449 WARNING: Invalid JWT token received: Subject must be a string [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:33]
+2025-10-27 01:13:14,257 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:13:42,947 WARNING: Invalid JWT token received: Subject must be a string [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:33]
+2025-10-27 01:13:42,978 WARNING: Invalid JWT token received: Subject must be a string [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:33]
+2025-10-27 01:16:30,037 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:20:12,299 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:20:44,327 INFO: Returning 0 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:20:44,398 INFO: Returning 0 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:21:28,708 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 01:23:38,868 INFO: Returning 0 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:23:38,903 INFO: Returning 0 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:23:52,381 INFO: Returning 0 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:23:52,427 INFO: Returning 0 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:24:35,683 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:24:35,724 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:28:23,072 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 01:28:23,134 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:18:36,274 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 13:18:40,249 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-27 13:20:35,343 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:20:35,393 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:21:08,023 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:21:08,077 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:21:20,864 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:21:20,906 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:76]
+2025-10-27 13:22:51,676 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:140]
+2025-10-27 13:22:51,692 INFO: Found 0 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:164]
+2025-10-27 13:22:51,694 INFO: Successfully serialized 0 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:184]
+2025-10-27 13:22:51,722 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:140]
+2025-10-27 13:22:51,734 INFO: Found 0 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:164]
+2025-10-27 13:22:51,737 INFO: Successfully serialized 0 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:184]
+2025-10-27 13:23:34,341 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:140]
+2025-10-27 13:23:34,359 INFO: Found 0 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:164]
+2025-10-27 13:23:34,361 INFO: Successfully serialized 0 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:184]
+2025-10-27 13:23:34,382 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:140]
+2025-10-27 13:23:34,393 INFO: Found 0 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:164]
+2025-10-27 13:23:34,394 INFO: Successfully serialized 0 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:184]
+2025-10-29 10:54:05,424 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 10:54:09,913 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 10:56:25,613 INFO: No specific dates provided. Returning all 'active' vehicles. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:119]
+2025-10-29 10:56:25,674 INFO: Returning 3 available vehicles for customer view. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:123]
+2025-10-29 10:56:25,798 INFO: No specific dates provided. Returning all 'active' vehicles. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:119]
+2025-10-29 10:56:25,813 INFO: Returning 3 available vehicles for customer view. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:123]
+2025-10-29 10:57:10,059 INFO: New booking created (ID: 1) for vehicle 1 by customer 10. Owner 1 should be notified. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:114]
+2025-10-29 10:57:17,444 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-10-29 10:57:17,463 INFO: Found 1 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-10-29 10:57:17,506 INFO: Successfully serialized 1 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-10-29 10:57:17,539 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-10-29 10:57:17,567 INFO: Found 1 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-10-29 10:57:17,611 INFO: Successfully serialized 1 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-10-29 10:57:36,211 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-10-29 10:57:36,219 INFO: Found 1 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-10-29 10:57:36,236 INFO: Successfully serialized 1 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-10-29 10:57:36,249 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-10-29 10:57:36,259 INFO: Found 1 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-10-29 10:57:36,276 INFO: Successfully serialized 1 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-10-29 10:57:53,326 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-10-29 10:57:53,339 INFO: Found 1 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-10-29 10:57:53,356 INFO: Successfully serialized 1 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-10-29 10:57:53,373 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-10-29 10:57:53,378 INFO: Found 1 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-10-29 10:57:53,393 INFO: Successfully serialized 1 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-10-29 10:59:36,252 INFO: Returning 1 vehicles for owner 8 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]

@@ -22,6 +22,15 @@ export default function OwnerProfile() {
   // Add loading state specific to profile data fetching
   const [pageLoading, setPageLoading] = useState(true);
 
+  // *** MOVED showMessage DEFINITION HERE - BEFORE useEffect ***
+  // Function to show messages
+  const showMessage = (msg, type) => {
+    setMessage(msg);
+    setMessageType(type);
+    // Auto-dismiss message after 5 seconds
+    setTimeout(() => setMessage(null), 5000);
+  };
+
    // --- Fetch Profile Data ---
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -31,8 +40,8 @@ export default function OwnerProfile() {
         try {
           const token = localStorage.getItem('wattwheels_token'); // Get token
           // Fetch from the updated backend endpoint
-          const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
-            method: 'GET',
+          const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, { //
+            method: 'GET', //
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${token}` // Include token
@@ -40,11 +49,11 @@ export default function OwnerProfile() {
           });
           if (!res.ok) {
              const errorData = await res.json();
-             throw new Error(errorData.error || 'Failed to fetch profile data');
+             throw new Error(errorData.error || 'Failed to fetch profile data'); //
           }
-          const data = await res.json();
+          const data = await res.json(); //
           // Set fetched data into formData state, using defaults for safety
-          setFormData({
+          setFormData({ //
             firstName: data.firstName || '',
             lastName: data.lastName || '',
             email: data.email || '',
@@ -60,6 +69,7 @@ export default function OwnerProfile() {
           });
         } catch (error) {
           console.error("Error fetching profile:", error);
+          // showMessage is now accessible
           showMessage(`Could not load profile data: ${error.message}`, 'error');
            // Set default structure on error to prevent render crashes
            setFormData({
@@ -80,41 +90,6 @@ export default function OwnerProfile() {
     // Re-run effect if authentication state or user ID changes
   }, [isAuthenticated, user?.id, authLoading]); // Added user?.id dependency
 
-  // Combined loading state: show loading if auth OR profile data is loading OR formData is still null
-  if (authLoading || pageLoading || formData === null) {
-    return (
-      // Added basic header during loading
-      <>
-        {user && <OwnerHeader user={user} />}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 80px)', fontSize: '18px', color: '#6b7280' }}>
-          Loading profile...
-        </div>
-      </>
-    );
-  }
-
-  // Not authenticated state
-  if (!isAuthenticated || !user) {
-    return (
-      // Added basic header for unauthenticated state
-      <>
-       {/* Optionally hide header or show a generic one */}
-       {/* <OwnerHeader user={null} />  */}
-        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#ef4444' }}>
-          Please log in to access your profile
-        </div>
-      </>
-    );
-  }
-
-  // Function to show messages
-  const showMessage = (msg, type) => {
-    setMessage(msg);
-    setMessageType(type);
-    // Auto-dismiss message after 5 seconds
-    setTimeout(() => setMessage(null), 5000);
-  };
-
   // Handle input changes in edit mode
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -122,8 +97,6 @@ export default function OwnerProfile() {
       ...prev,
       [name]: value
     }));
-    // Indicate that changes have been made (optional, could use a separate state)
-    // if (!isEditing) setIsEditing(true); // Or use setHasUnsavedChanges(true) if using SettingsHeader logic
   };
 
   // Handle saving the profile
@@ -134,36 +107,31 @@ export default function OwnerProfile() {
       return;
     }
     try {
-      const token = localStorage.getItem('wattwheels_token');
-      // Send PUT request to the backend with updated data
-      const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
-        method: 'PUT',
+      const token = localStorage.getItem('wattwheels_token'); //
+      const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, { //
+        method: 'PUT', //
         headers: {
             'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` // Include token
+            'Authorization': `Bearer ${token}` //
         },
-        // Send only the fields intended for update via this endpoint
-        body: JSON.stringify({
+        body: JSON.stringify({ //
             firstName: formData.firstName,
             lastName: formData.lastName,
-            email: formData.email, // Backend should handle email change validation/process
+            email: formData.email,
             phone: formData.phone,
             address: formData.address,
             bio: formData.bio
-            // DO NOT send verification statuses here
         })
       });
 
-      const result = await res.json();
+      const result = await res.json(); //
 
       if (!res.ok) {
-        throw new Error(result.error || 'Failed to update profile.');
+        throw new Error(result.error || 'Failed to update profile.'); //
       }
 
-      // Update local state with the confirmed data from backend response
-      const updatedProfileData = result.user; // Contains the full profile data from get_profile_data
-      setFormData({
-          // Update all fields based on the backend response
+      const updatedProfileData = result.user; //
+      setFormData({ //
           firstName: updatedProfileData.firstName,
           lastName: updatedProfileData.lastName,
           email: updatedProfileData.email,
@@ -176,17 +144,15 @@ export default function OwnerProfile() {
           phoneVerified: updatedProfileData.phoneVerified,
           identityVerified: updatedProfileData.identityVerified,
       });
-      // Update the user data in the AuthContext for header/other components
-      updateUser({
-        ...user, // Keep existing user context fields like ID
+      updateUser({ //
+        ...user,
         firstName: updatedProfileData.firstName,
         lastName: updatedProfileData.lastName,
-        email: updatedProfileData.email // Update email in context too if changed
-        // Add other fields to updateUser if needed by AuthContext/Header
+        email: updatedProfileData.email
       });
 
       showMessage('Profile updated successfully!', 'success');
-      setIsEditing(false); // Exit edit mode
+      setIsEditing(false);
 
     } catch (error) {
       console.error("Save profile error:", error);
@@ -198,17 +164,15 @@ export default function OwnerProfile() {
    // Handle cancelling edit mode - refetch original data to discard changes
   const handleCancelEdit = async () => {
      if (isAuthenticated && user?.id) {
-        setPageLoading(true); // Show loading while refetching
+        setPageLoading(true);
         try {
-          const token = localStorage.getItem('wattwheels_token');
-          // Refetch profile data from the backend
-          const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
+          const token = localStorage.getItem('wattwheels_token'); //
+          const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, { //
+              headers: { 'Authorization': `Bearer ${token}` } //
           });
           if (!res.ok) throw new Error('Failed to refetch profile data on cancel');
-          const data = await res.json();
-          // Reset formData to the fetched original data
-           setFormData({
+          const data = await res.json(); //
+           setFormData({ //
             firstName: data.firstName || '', lastName: data.lastName || '',
             email: data.email || '', phone: data.phone || '',
             address: data.address || '', bio: data.bio || '',
@@ -221,66 +185,80 @@ export default function OwnerProfile() {
         } catch (error) {
           console.error("Error refetching profile on cancel:", error);
           showMessage('Could not reset form data.', 'error');
-          // If refetch fails, keep edited data and just exit edit mode
         } finally {
-            setPageLoading(false); // Finish loading
-            setIsEditing(false); // Exit editing mode regardless
+            setPageLoading(false);
+            setIsEditing(false);
         }
       } else {
-           setIsEditing(false); // Just exit editing mode if no user/auth
+           setIsEditing(false);
       }
   };
+
+  // --- Combined Loading State ---
+  if (authLoading || pageLoading || formData === null) {
+    return (
+      <>
+        {user && <OwnerHeader user={user} />}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: 'calc(100vh - 80px)', fontSize: '18px', color: '#6b7280' }}>
+          Loading profile...
+        </div>
+      </>
+    );
+  }
+
+  // Not authenticated
+  if (!isAuthenticated || !user) {
+    return (
+      <>
+        {/* <OwnerHeader user={null} /> */}
+        <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', fontSize: '18px', color: '#ef4444' }}>
+          Please log in to access your profile
+        </div>
+      </>
+    );
+  }
 
   return (
     <>
       <OwnerHeader user={user} />
       <main className="dashboard-main">
         <div className="dashboard-container">
-          {/* Ensure formData is not null before rendering components that use it */}
           {formData && (
             <>
               <ProfileHeader
-                formData={formData} // Pass full formData
+                formData={formData}
                 isEditing={isEditing}
                 setIsEditing={setIsEditing}
                 onSave={handleSaveProfile}
                 onCancel={handleCancelEdit}
               />
-
               <div className="profile-content-section">
                 <div className="profile-content-grid">
                   <PersonalInfo
-                    formData={formData} // Pass full formData
+                    formData={formData}
                     isEditing={isEditing}
                     onChange={handleInputChange}
                   />
-
                   <AboutMe
-                    formData={formData} // Pass full formData
+                    formData={formData}
                     isEditing={isEditing}
                     onChange={handleInputChange}
                   />
-
-                  {/* Pass specific verification props */}
                   <AccountStatus
-                     emailVerified={formData.emailVerified}
-                     phoneVerified={formData.phoneVerified}
-                     identityVerified={formData.identityVerified}
+                     emailVerified={formData.emailVerified} //
+                     phoneVerified={formData.phoneVerified} //
+                     identityVerified={formData.identityVerified} //
                   />
-
-                  {/* Keep RecentActivity static for now or implement its fetching separately */}
                   <RecentActivity />
                 </div>
               </div>
             </>
           )}
-
-          {/* Success/Error Messages */}
           {message && (
             <div className={`auth-message ${messageType}`} style={{
-                position: 'fixed', bottom: '20px', right: '20px', // Position bottom-right
-                zIndex: 1000, minWidth: '300px', maxWidth: '400px', // Width constraints
-                boxShadow: 'var(--shadow-lg)' // Added shadow for better visibility
+                position: 'fixed', bottom: '20px', right: '20px',
+                zIndex: 1000, minWidth: '300px', maxWidth: '400px',
+                boxShadow: 'var(--shadow-lg)'
                }}>
               <i className={`fas fa-${messageType === 'success' ? 'check-circle' : 'exclamation-circle'}`}></i>
               <span>{message}</span>
