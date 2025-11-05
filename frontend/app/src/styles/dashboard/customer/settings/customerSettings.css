@@ -1,4 +1,3 @@
-/* Settings Content Layout */
 .settings-content {
   display: grid;
   grid-template-columns: 280px 1fr;
@@ -6,7 +5,6 @@
   margin-top: 32px;
 }
 
-/* Settings Sidebar */
 .settings-sidebar {
   position: sticky;
   top: 100px;
@@ -75,7 +73,6 @@
   font-weight: 700;
 }
 
-/* Settings Panel */
 .settings-panel {
   background: var(--bg-primary);
   border-radius: 12px;
@@ -84,7 +81,6 @@
   min-height: 500px;
 }
 
-/* Settings Section */
 .settings-section {
   padding: 32px;
 }
@@ -111,7 +107,6 @@
   color: var(--text-secondary);
 }
 
-/* Settings Form */
 .settings-form {
   display: flex;
   flex-direction: column;
@@ -132,7 +127,6 @@
   margin-bottom: 20px;
 }
 
-/* Form Elements */
 .form-group {
   margin-bottom: 20px;
 }
@@ -176,7 +170,6 @@
   gap: 20px;
 }
 
-/* Toggle Switch */
 .setting-item {
   display: flex;
   justify-content: space-between;
@@ -253,7 +246,6 @@ input:checked + .toggle-slider:before {
   transform: translateX(26px);
 }
 
-/* Save Notification */
 .save-notification {
   position: fixed;
   top: 100px;
@@ -293,7 +285,6 @@ input:checked + .toggle-slider:before {
   font-weight: 600;
 }
 
-/* Responsive Design */
 @media (max-width: 1024px) {
   .settings-content {
     grid-template-columns: 1fr;
@@ -355,4 +346,47 @@ input:checked + .toggle-slider:before {
     border-right: none;
     border-bottom: 1px solid var(--border-color);
   }
+}
+
+.settings-nav.owner-nav {
+  background: var(--bg-primary);
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  padding: 8px;
+}
+
+.settings-nav.owner-nav .settings-nav-item {
+  border-bottom: none;
+  border-radius: 8px;
+  border-left: 4px solid transparent;
+  padding: 14px 16px;
+}
+
+.settings-nav.owner-nav .settings-nav-item.active {
+  background: var(--bg-accent);
+  color: var(--primary-color);
+  font-weight: 600;
+  border-left: 4px solid var(--primary-color);
+}
+
+.danger-indicator {
+  margin-left: auto;
+}
+
+.settings-panel-header {
+  padding: 24px 32px;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.settings-panel-header h2 {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.settings-panel-content .settings-section {
+  padding: 32px;
 }

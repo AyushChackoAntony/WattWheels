@@ -21,29 +21,50 @@ export default function MyEarnings() {
 
   // --- Fetch earnings data from the backend ---
   useEffect(() => {
-    if (user && user.id) {
+    // --- UPDATED: Added isAuthenticated check ---
+    if (user && user.id && isAuthenticated) {
       const fetchEarnings = async () => {
         try {
-          const res = await fetch(`http://127.0.0.1:5000/api/earnings/${user.id}`);
+          // --- UPDATED: Get token from localStorage ---
+          const token = localStorage.getItem('wattwheels_token');
+          
+          // --- UPDATED: Check if token exists before fetching ---
+          if (!token) {
+            // This will be caught by the catch block below
+            throw new Error("Authentication token not found. Please log in again.");
+          }
+          // --- END UPDATE ---
+
+          const res = await fetch(`http://127.0.0.1:5000/api/earnings/${user.id}`, {
+            // --- UPDATED: Add Authorization header ---
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+            // --- END UPDATE ---
+          });
           const data = await res.json();
 
           if (res.ok) {
             // Set the fetched data into state
             setEarningsData({
               totalEarnings: data.total_earnings,
-              totalTrips: data.transaction_count,
-              availableBalance: data.total_earnings, // Placeholder
-              thisMonthEarnings: data.total_earnings, // Placeholder
-              // Add other placeholder values until backend provides them
-              pendingPayouts: 0,
-              lastMonthEarnings: 0,
-              thisWeekEarnings: 0,
-              averagePerTrip: data.transaction_count > 0 ? data.total_earnings / data.transaction_count : 0,
-              commissionRate: 15,
-              nextPayoutDate: '2025-01-15',
-              monthlyData: [], 
-              weeklyData: [], 
-              yearlyData: [] 
+              availableBalance: data.availableBalance,
+              thisMonthEarnings: data.thisMonthEarnings,
+              lastMonthEarnings: data.lastMonthEarnings,
+              thisWeekEarnings: data.thisWeekEarnings,
+              pendingPayouts: data.pendingPayouts,
+              totalTrips: data.totalTrips,
+              averagePerTrip: data.averagePerTrip,
+              commissionRate: data.commissionRate,
+              nextPayoutDate: data.nextPayoutDate,
+              monthlyData: data.monthlyData || [],
+              weeklyData: data.weeklyData || [],
+              yearlyData: data.yearlyData || [],
+              // Add placeholders for metrics not yet in backend
+              tripSuccessRate: 'N/A',
+              averageRating: 'N/A',
+              avgResponseTime: 'N/A',
+              vehicleUtilization: 'N/A'
             });
 
             // Map the backend transactions to the format our component expects
@@ -56,7 +77,7 @@ export default function MyEarnings() {
                 status: 'completed',
                 vehicle: t.vehicle_name,
                 customer: `ID: ${t.customer_id}`,
-                commission: t.total_price * 0.15,
+                commission: (t.total_price * (data.commissionRate / 100)),
                 netAmount: t.earning
             }));
             setTransactions(formattedTransactions);
@@ -65,12 +86,12 @@ export default function MyEarnings() {
             console.error("Failed to fetch earnings:", data.error);
           }
         } catch (error) {
-          console.error("Error fetching earnings:", error);
+          console.error("Error fetching earnings:", error.message); // --- UPDATED: Log error.message
         }
       };
       fetchEarnings();
     }
-  }, [user]); // Re-run when the user object is available
+  }, [user, isAuthenticated]); // --- UPDATED: Added isAuthenticated dependency ---
 
   // Loading state for user and earnings data
   if (loading || !earningsData) {
@@ -95,11 +116,23 @@ export default function MyEarnings() {
   });
 
   const getChartData = () => {
-    return earningsData.monthlyData;
+    switch (selectedTimeframe) {
+      case 'week':
+        return earningsData.weeklyData;
+      case 'year':
+        return earningsData.yearlyData;
+      default:
+        return earningsData.monthlyData;
+    }
   };
 
   const handleRequestPayout = (amount) => {
     console.log('Requesting payout:', amount);
+    setEarningsData(prevData => ({
+      ...prevData,
+      availableBalance: prevData.availableBalance - amount,
+      pendingPayouts: prevData.pendingPayouts + amount
+    }));
     setShowPayoutModal(false);
   };
 
@@ -112,10 +145,25 @@ export default function MyEarnings() {
             totalEarnings={earningsData.totalEarnings}
             availableBalance={earningsData.availableBalance}
             thisMonthEarnings={earningsData.thisMonthEarnings}
+            lastMonthEarnings={earningsData.lastMonthEarnings}
+            pendingPayouts={earningsData.pendingPayouts}
+            commissionRate={earningsData.commissionRate}
+            averagePerTrip={earningsData.averagePerTrip}
             onRequestPayout={() => setShowPayoutModal(true)}
           />
           <EarningsOverview
-            data={earningsData}
+            data={{
+              thisMonthEarnings: earningsData.thisMonthEarnings,
+              lastMonthEarnings: earningsData.lastMonthEarnings,
+              thisWeekEarnings: earningsData.thisWeekEarnings,
+              totalTrips: earningsData.totalTrips,
+              averagePerTrip: earningsData.averagePerTrip,
+              commissionRate: earningsData.commissionRate,
+              tripSuccessRate: earningsData.tripSuccessRate,
+              averageRating: earningsData.averageRating,
+              avgResponseTime: earningsData.avgResponseTime,
+              vehicleUtilization: earningsData.vehicleUtilization
+            }}
             selectedTimeframe={selectedTimeframe}
           />
           <div className="earnings-chart-section">

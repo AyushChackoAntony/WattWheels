@@ -9,48 +9,112 @@ import SecuritySettings from '@/components/dashboard/owner/settings/SecuritySett
 import PaymentSettings from '@/components/dashboard/owner/settings/PaymentSettings';
 import VehiclePreferences from '@/components/dashboard/owner/settings/VehiclePreferences';
 import DangerZone from '@/components/dashboard/owner/settings/DangerZone';
+import '@/styles/dashboard/customer/settings/customerSettings.css';
 
 export default function OwnerSettings() {
   const { user, loading, isAuthenticated } = useAuth();
   const [activeTab, setActiveTab] = useState('account');
   const [hasUnsavedChanges, setHasUnsavedChanges] = useState(false);
   const [showSaveNotification, setShowSaveNotification] = useState(false);
-  const [settingsData, setSettingsData] = useState(null); // Initialize as null
+  const [settingsData, setSettingsData] = useState(null);
 
-  // --- Fetch settings data from the backend ---
+  const getDefaultSettings = () => ({
+    account: {
+      firstName: user.firstName, lastName: user.lastName, email: user.email,
+      dateOfBirth: '1990-01-01', phone: '', address: '', city: '',
+      state: '', postalCode: '', country: 'India', language: 'en',
+      timezone: 'Asia/Kolkata', currency: 'INR',
+    },
+    notifications: {
+      emailNotifications: true, smsNotifications: true, pushNotifications: true,
+      bookingConfirmations: true, paymentNotifications: true, maintenanceReminders: true,
+      marketingEmails: false, weeklyReports: true, monthlyStatements: true,
+      securityAlerts: true, newFeatures: true, promotions: false
+    },
+    payment: {
+      bankDetails: { accountHolder: 'N/A', accountNumber: '****', ifscCode: 'N/A', bankName: 'N/A' },
+      defaultPaymentMethod: 'bank_transfer', autoPayouts: false,
+      payoutThreshold: 5000, payoutFrequency: 'weekly',
+      taxId: 'N/A', gstNumber: ''
+    },
+    security: {
+      lastPasswordChange: new Date().toISOString(), twoFactorEnabled: false,
+      sessionTimeout: 30, loginAlerts: true
+    },
+    vehicles: {
+      defaultAvailability: true, allowInstantBooking: true, autoAcceptBookings: false,
+      minimumBookingDuration: 4, maximumBookingDuration: 168, bufferTime: 30,
+      requireSecurityDeposit: true, securityDepositAmount: 2000,
+      cancellationPolicy: 'flexible', cleaningFee: 0
+    }
+  });
+
   useEffect(() => {
     const fetchSettings = async () => {
       if (user && user.id) {
+        const defaultSettings = getDefaultSettings();
         try {
-          const res = await fetch(`http://127.0.0.1:5000/api/settings/${user.id}`);
-          const data = await res.json();
+          const token = localStorage.getItem('wattwheels_token');
+          if (!token) {
+            throw new Error("Authentication token not found.");
+          }
+          
+          const res = await fetch(`http://127.0.0.1:5000/api/settings/${user.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+          
           if (res.ok) {
-            // Combine account info with settings info
+            const data = await res.json();
             const combinedData = {
+              ...defaultSettings,
               account: {
-                ...data.account,
+                ...defaultSettings.account,
+                ...(data.account || {}),
                 firstName: user.firstName,
                 lastName: user.lastName,
                 email: user.email,
               },
-              notifications: data.notifications,
-              payment: data.payment,
-              security: data.security, // Assuming security settings are fetched
-              vehicles: data.vehicles,
+              notifications: {
+                ...defaultSettings.notifications,
+                ...(data.notifications || {}),
+              },
+              payment: {
+                ...defaultSettings.payment,
+                ...(data.payment || {}),
+                bankDetails: {
+                  ...defaultSettings.payment.bankDetails,
+                  ...(data.payment?.bankDetails || {}),
+                },
+              },
+              security: {
+                ...defaultSettings.security,
+                ...(data.security || {}),
+              },
+              vehicles: {
+                ...defaultSettings.vehicles,
+                ...(data.vehicles || {}),
+              },
             };
             setSettingsData(combinedData);
           } else {
-            console.error("Failed to fetch settings:", data.error);
+            console.error("Failed to fetch settings, using defaults.");
+            setSettingsData(defaultSettings);
           }
         } catch (error) {
-          console.error("Error fetching settings:", error);
+          console.error("Error fetching settings:", error.message);
+          setSettingsData(defaultSettings);
         }
       }
     };
+    
     if (isAuthenticated) {
       fetchSettings();
+    } else if (!loading) {
+      setSettingsData(false);
     }
-  }, [user, isAuthenticated]);
+  }, [user, isAuthenticated, loading]);
 
 
   const settingsTabs = [
@@ -61,9 +125,10 @@ export default function OwnerSettings() {
     { id: 'vehicles', label: 'Vehicle Preferences', icon: 'fas fa-car' },
     { id: 'danger', label: 'Account Management', icon: 'fas fa-exclamation-triangle' }
   ];
+  
+  const activeTabInfo = settingsTabs.find(tab => tab.id === activeTab) || settingsTabs[0];
 
-  // Loading state for user and settings data
-  if (loading || !settingsData) {
+  if (loading || settingsData === null) {
     return (
       <div style={{
         display: 'flex',
@@ -76,7 +141,7 @@ export default function OwnerSettings() {
     );
   }
 
-  if (!isAuthenticated || !user) {
+  if (!isAuthenticated || !user || settingsData === false) {
     return (
       <div style={{
         display: 'flex',
@@ -102,9 +167,17 @@ export default function OwnerSettings() {
 
   const saveAllSettings = async () => {
     try {
+      const token = localStorage.getItem('wattwheels_token');
+      if (!token) {
+        throw new Error("Authentication token not found.");
+      }
+
       const res = await fetch(`http://127.0.0.1:5000/api/settings/${user.id}`, {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
         body: JSON.stringify(settingsData)
       });
 
@@ -131,7 +204,6 @@ export default function OwnerSettings() {
       if (!confirmSwitch) {
         return;
       }
-      // Optionally reset changes here if you don't want them to persist across tabs
       setHasUnsavedChanges(false);
     }
     setActiveTab(tabId);
@@ -197,7 +269,7 @@ export default function OwnerSettings() {
           <div className="settings-content">
             
             <div className="settings-sidebar">
-              <div className="settings-nav">
+              <div className="settings-nav owner-nav">
                 {settingsTabs.map((tab) => (
                   <button
                     key={tab.id}
@@ -215,7 +287,12 @@ export default function OwnerSettings() {
             </div>
 
             <div className="settings-panel">
-              {renderTabContent()}
+              <div className="settings-panel-header">
+                <h2>{activeTabInfo.label}</h2>
+              </div>
+              <div className="settings-panel-content">
+                {renderTabContent()}
+              </div>
             </div>
 
           </div>

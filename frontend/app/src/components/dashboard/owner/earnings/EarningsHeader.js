@@ -5,12 +5,25 @@ export default function EarningsHeader({
   totalEarnings, 
   availableBalance, 
   thisMonthEarnings,
+  // --- UPDATED: Add new props for dynamic data ---
+  lastMonthEarnings,
+  pendingPayouts,
+  commissionRate,
+  averagePerTrip,
+  // --- END UPDATE ---
   onRequestPayout 
 }) {
   
-  // Calculate growth percentage (mock calculation)
-  const growthPercentage = 12.5;
-  const isPositiveGrowth = growthPercentage > 0;
+  // --- UPDATED: Calculate growth percentage dynamically ---
+  const growthAmount = thisMonthEarnings - lastMonthEarnings;
+  let growthPercentage = 0;
+  if (lastMonthEarnings > 0) {
+    growthPercentage = (growthAmount / lastMonthEarnings) * 100;
+  } else if (thisMonthEarnings > 0) {
+    growthPercentage = 100; // Show 100% growth if last month was 0
+  }
+  const isPositiveGrowth = growthAmount > 0;
+  // --- END UPDATE ---
 
   return (
     <div className="earnings-header-section">
@@ -23,7 +36,7 @@ export default function EarningsHeader({
           <button 
             className="payout-btn"
             onClick={onRequestPayout}
-            disabled={availableBalance < 500}
+            disabled={availableBalance < 500} // Example minimum payout
           >
             <i className="fas fa-money-bill-wave"></i>
             Request Payout
@@ -53,23 +66,32 @@ export default function EarningsHeader({
               <span className="breakdown-label">This Month</span>
               <div className="breakdown-with-growth">
                 <span className="breakdown-value">₹{thisMonthEarnings.toLocaleString()}</span>
-                <span className={`growth-indicator ${isPositiveGrowth ? 'positive' : 'negative'}`}>
-                  <i className={`fas fa-arrow-${isPositiveGrowth ? 'up' : 'down'}`}></i>
-                  {Math.abs(growthPercentage)}%
-                </span>
+                {/* --- UPDATED: Show dynamic growth --- */}
+                {thisMonthEarnings > 0 || lastMonthEarnings > 0 ? (
+                  <span className={`growth-indicator ${isPositiveGrowth ? 'positive' : 'negative'}`}>
+                    <i className={`fas fa-arrow-${isPositiveGrowth ? 'up' : 'down'}`}></i>
+                    {growthPercentage.toFixed(1)}%
+                  </span>
+                ) : (
+                  <span className="growth-indicator">
+                    -
+                  </span>
+                )}
+                {/* --- END UPDATE --- */}
               </div>
             </div>
           </div>
         </div>
 
-        {/* Quick Stats */}
+        {/* --- UPDATED: Quick Stats Grid --- */}
         <div className="quick-stats-grid">
           <div className="quick-stat-item">
             <div className="stat-icon pending">
               <i className="fas fa-clock"></i>
             </div>
             <div className="stat-info">
-              <h3>₹8,200</h3>
+              {/* Use dynamic prop */}
+              <h3>₹{pendingPayouts.toLocaleString()}</h3>
               <p>Pending Payouts</p>
             </div>
           </div>
@@ -79,7 +101,8 @@ export default function EarningsHeader({
               <i className="fas fa-percentage"></i>
             </div>
             <div className="stat-info">
-              <h3>15%</h3>
+              {/* Use dynamic prop */}
+              <h3>{commissionRate}%</h3>
               <p>Commission Rate</p>
             </div>
           </div>
@@ -89,11 +112,13 @@ export default function EarningsHeader({
               <i className="fas fa-chart-line"></i>
             </div>
             <div className="stat-info">
-              <h3>₹368</h3>
+              {/* Use dynamic prop */}
+              <h3>₹{averagePerTrip.toLocaleString()}</h3>
               <p>Avg per Trip</p>
             </div>
           </div>
         </div>
+        {/* --- END UPDATE --- */}
       </div>
     </div>
   );
