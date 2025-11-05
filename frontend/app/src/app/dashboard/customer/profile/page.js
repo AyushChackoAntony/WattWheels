@@ -1,4 +1,3 @@
-// frontend/app/src/app/dashboard/customer/profile/page.js
 'use client';
 import React, { useState, useEffect } from 'react'; 
 import { useAuth } from '@/context/AuthContext';
@@ -18,58 +17,68 @@ export default function CustomerProfile() {
   const [messageType, setMessageType] = useState('');
   const [pageLoading, setPageLoading] = useState(true); 
 
-  // --- Fetch Profile Data ---
+  const showMessage = (msg, type) => {
+    setMessage(msg);
+    setMessageType(type);
+    setTimeout(() => setMessage(null), 5000);
+  };
+
   useEffect(() => {
     const fetchProfileData = async () => {
       if (isAuthenticated && user?.id) {
         setPageLoading(true); 
         try {
+          const token = localStorage.getItem('wattwheels_token');
+          if (!token) {
+            throw new Error("Authentication token not found.");
+          }
+
           const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
             method: 'GET',
             headers: {
               'Content-Type': 'application/json',
-              // Add Authorization header if using JWT:
-              // 'Authorization': `Bearer ${localStorage.getItem('wattwheels_token')}`
+              'Authorization': `Bearer ${token}`
             },
           });
           if (!res.ok) {
-            throw new Error('Failed to fetch profile data');
+            const errorData = await res.json();
+            throw new Error(errorData.error || 'Failed to fetch profile data');
           }
           const data = await res.json();
-          setFormData({ // Set fetched data into formData
+          setFormData({
             firstName: data.firstName || '',
             lastName: data.lastName || '',
             email: data.email || '',
             phone: data.phone || '',
             address: data.address || '',
-            bio: data.bio || '', // Use fetched bio
-            joinDate: data.joinDate || 'N/A', // Use fetched joinDate
-            verified: data.verified !== undefined ? data.verified : true // Use fetched verified status
+            bio: data.bio || '',
+            joinDate: data.joinDate || 'N/A',
+            verified: data.verified !== undefined ? data.verified : true,
+            emailVerified: data.emailVerified,
+            phoneVerified: data.phoneVerified,
+            identityVerified: data.identityVerified
           });
         } catch (error) {
           console.error("Error fetching profile:", error);
-          showMessage('Could not load profile data.', 'error');
-           // Set default data on error to prevent crashes
+          showMessage(error.message || 'Could not load profile data.', 'error');
            setFormData({
             firstName: user?.firstName || 'John',
             lastName: user?.lastName || 'Doe',
             email: user?.email || 'john.doe@email.com',
-            phone: '', address: '', bio: '', joinDate: 'N/A', verified: true
+            phone: '', address: '', bio: '', joinDate: 'N/A', verified: true,
+            emailVerified: false, phoneVerified: false, identityVerified: false
           });
         } finally {
-          setPageLoading(false); // Finish loading profile data
+          setPageLoading(false);
         }
       } else if (!authLoading && !isAuthenticated) {
-          // If auth finished and user is not authenticated, stop page loading
           setPageLoading(false);
       }
     };
 
     fetchProfileData();
-  }, [isAuthenticated, user?.id, authLoading]); // Rerun when auth state or user ID changes
+  }, [isAuthenticated, user?.id, authLoading]);
 
-  // --- Combined Loading State ---
-   // Show loading if either auth is loading or profile data is loading
   if (authLoading || pageLoading || formData === null) {
     return (
       <div style={{
@@ -81,7 +90,6 @@ export default function CustomerProfile() {
     );
   }
 
-  // Not authenticated
   if (!isAuthenticated || !user) {
     return (
       <div style={{
@@ -92,12 +100,6 @@ export default function CustomerProfile() {
       </div>
     );
   }
-
-  const showMessage = (msg, type) => {
-    setMessage(msg);
-    setMessageType(type);
-    setTimeout(() => setMessage(null), 5000);
-  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -115,11 +117,16 @@ export default function CustomerProfile() {
       return;
     }
     try {
+      const token = localStorage.getItem('wattwheels_token');
+      if (!token) {
+        throw new Error("Authentication token not found.");
+      }
+
       const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
         method: 'PUT',
         headers: {
             'Content-Type': 'application/json',
-            // 'Authorization': `Bearer ${localStorage.getItem('wattwheels_token')}`
+            'Authorization': `Bearer ${token}`
         },
         body: JSON.stringify(formData) 
       });
@@ -139,7 +146,10 @@ export default function CustomerProfile() {
           address: updatedProfileData.address,
           bio: updatedProfileData.bio,
           joinDate: updatedProfileData.joinDate,
-          verified: updatedProfileData.verified
+          verified: updatedProfileData.verified,
+          emailVerified: updatedProfileData.emailVerified,
+          phoneVerified: updatedProfileData.phoneVerified,
+          identityVerified: updatedProfileData.identityVerified
       });
       updateUser({ 
         ...user, 
@@ -162,21 +172,32 @@ export default function CustomerProfile() {
      if (isAuthenticated && user?.id) {
         setPageLoading(true);
         try {
-          const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`);
+          const token = localStorage.getItem('wattwheels_token');
+          if (!token) {
+            throw new Error("Authentication token not found.");
+          }
+          const res = await fetch(`http://127.0.0.1:5000/api/auth/user/${user.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
           if (!res.ok) throw new Error('Failed to refetch profile data');
           const data = await res.json();
           setFormData({
             firstName: data.firstName || '', lastName: data.lastName || '',
             email: data.email || '', phone: data.phone || '',
             address: data.address || '', bio: data.bio || '',
-            joinDate: data.joinDate || 'N/A', verified: data.verified !== undefined ? data.verified : true
+            joinDate: data.joinDate || 'N/A', verified: data.verified !== undefined ? data.verified : true,
+            emailVerified: data.emailVerified,
+            phoneVerified: data.phoneVerified,
+            identityVerified: data.identityVerified
           });
         } catch (error) {
           console.error("Error refetching profile on cancel:", error);
           showMessage('Could not reset form data.', 'error');
         } finally {
             setPageLoading(false);
-            setIsEditing(false); // Exit editing mode regardless of fetch success/fail
+            setIsEditing(false);
         }
       } else {
            setIsEditing(false); 
