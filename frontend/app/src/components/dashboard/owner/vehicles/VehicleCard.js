@@ -104,7 +104,7 @@ export default function VehicleCard({ vehicle, onDelete, onToggleStatus }) {
           <div className="stat-row">
             <div className="stat-item">
               <span className="stat-label">Monthly Earnings</span>
-              <span className="stat-value earning">₹{vehicle.monthlyEarnings.toLocaleString()}</span>
+              <span className="stat-value earning">₹{(vehicle.monthlyEarnings || 0).toLocaleString()}</span>
             </div>
             <div className="stat-item">
               <span className="stat-label">Monthly Bookings</span>

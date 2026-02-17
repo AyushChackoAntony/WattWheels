@@ -1,65 +1,69 @@
-from app import db
+from app import mongo
 from datetime import datetime, timedelta
-from sqlalchemy import func, Text
-from app.models.booking import Booking
+from bson import ObjectId
 
-class Vehicle(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    name = db.Column(db.String(100), nullable=False)
-    type = db.Column(db.String(50), nullable=False)
-    year = db.Column(db.Integer, nullable=False)
-    color = db.Column(db.String(50), nullable=False)
-    license_plate = db.Column(db.String(20), unique=True, nullable=False)
-    battery_range = db.Column(db.String(50), nullable=True)
-    acceleration = db.Column(db.String(50), nullable=True)
-    price_per_day = db.Column(db.Float, nullable=False)
-    location = db.Column(db.String(100), nullable=False)
-    status = db.Column(db.String(50), default='active')
-    image_url = db.Column(db.String(200), nullable=True)
-    features = db.Column(Text, nullable=True)
-    cancellation_policy = db.Column(db.String(50), default='flexible')
+class Vehicle:
+    @staticmethod
+    def find_by_id(vehicle_id):
+        """Retrieve a single vehicle document by its ObjectId."""
+        return mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)})
 
-    owner = db.relationship('User', backref=db.backref('vehicles', lazy=True))
+    @staticmethod
+    def to_dict(vehicle_data):
+        """
+        Transforms MongoDB document into a frontend-friendly dictionary.
+        Includes dynamic calculation of monthly earnings and bookings.
+        """
+        if not vehicle_data:
+            return None
 
-    def to_dict(self):
+        vehicle_id_str = str(vehicle_data.get('_id'))
         now = datetime.utcnow()
         thirty_days_ago = now - timedelta(days=30)
 
-        monthly_stats = db.session.query(
-            func.sum(Booking.total_price * 0.85),
-            func.count(Booking.id)
-        ).filter(
-            Booking.vehicle_id == self.id,
-            Booking.created_at >= thirty_days_ago,
-            Booking.status == 'completed'
-        ).first()
+        # --- MongoDB Aggregation for Monthly Stats ---
+        pipeline = [
+            {
+                "$match": {
+                    "vehicle_id": vehicle_id_str,
+                    "status": "completed",
+                    "created_at": {"$gte": thirty_days_ago}
+                }
+            },
+            {
+                "$group": {
+                    "_id": None,
+                    "total_earnings": {"$sum": {"$multiply": ["$total_price", 0.85]}},
+                    "booking_count": {"$sum": 1}
+                }
+            }
+        ]
+        
+        stats_result = list(mongo.db.bookings.aggregate(pipeline))
+        stats = stats_result[0] if stats_result else {"total_earnings": 0, "booking_count": 0}
 
-        monthly_earnings = monthly_stats[0] if monthly_stats[0] is not None else 0
-        monthly_bookings = monthly_stats[1] if monthly_stats[1] is not None else 0
-
-        features_list = []
-        if self.features:
-             features_list = [f.strip() for f in self.features.split(',') if f.strip()]
+        # Process features string into a list
+        features_raw = vehicle_data.get('features', '')
+        features_list = [f.strip() for f in features_raw.split(',') if f.strip()] if features_raw else []
 
         return {
-            'id': self.id,
-            'ownerId': self.owner_id,
-            'name': self.name,
-            'type': self.type,
-            'year': self.year,
-            'color': self.color,
-            'licensePlate': self.license_plate,
-            'batteryRange': self.battery_range,
-            'acceleration': self.acceleration,
-            'pricePerDay': self.price_per_day,
-            'location': self.location,
-            'status': self.status,
-            'image': self.image_url,
+            'id': vehicle_id_str,
+            'ownerId': vehicle_data.get('owner_id'),
+            'name': vehicle_data.get('name'),
+            'type': vehicle_data.get('type'),
+            'year': vehicle_data.get('year'),
+            'color': vehicle_data.get('color'),
+            'licensePlate': vehicle_data.get('license_plate'),
+            'batteryRange': vehicle_data.get('battery_range'),
+            'acceleration': vehicle_data.get('acceleration'),
+            'pricePerDay': vehicle_data.get('price_per_day'),
+            'location': vehicle_data.get('location'),
+            'status': vehicle_data.get('status', 'active'),
+            'image': vehicle_data.get('image_url'),
             'features': features_list,
-            'cancellationPolicy': self.cancellation_policy,
-            'monthlyEarnings': round(monthly_earnings, 2),
-            'monthlyBookings': monthly_bookings,
-            'rating': 4.5,
-            'availability': 80
+            'cancellationPolicy': vehicle_data.get('cancellation_policy', 'flexible'),
+            'monthlyEarnings': round(stats.get('total_earnings', 0), 2),
+            'monthlyBookings': stats.get('booking_count', 0),
+            'rating': vehicle_data.get('rating', 4.5), # Default if not in DB
+            'availability': vehicle_data.get('availability', 80) # Default if not in DB
         }

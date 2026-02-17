@@ -1,0 +1,86 @@
+2025-10-29 11:49:50,160 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:49:54,540 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:50:21,030 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:50:30,397 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:50:34,242 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:51:14,089 ERROR: Error getting profile for user 4 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py:152]
+Traceback (most recent call last):
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py", line 138, in get_user_profile
+    profile_data = user.get_profile_data()
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\models\user.py", line 43, in get_profile_data
+    'joinDate': getattr(self, 'join_date', self.created_at.strftime('%B %d, %Y') if hasattr(self, 'created_at') else 'N/A'), # Example join date
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strftime'
+2025-10-29 11:52:08,000 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:52:18,271 WARNING: Expired JWT token received. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:28]
+2025-10-29 11:52:54,124 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:53:00,592 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:53:06,998 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:53:10,959 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:53:19,768 ERROR: Error getting profile for user 4 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py:152]
+Traceback (most recent call last):
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py", line 138, in get_user_profile
+    profile_data = user.get_profile_data()
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\models\user.py", line 44, in get_profile_data
+    'joinDate': getattr(self, 'join_date', self.created_at.strftime('%B %d, %Y') if hasattr(self, 'created_at') else 'N/A'), # Example join date
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strftime'
+2025-10-29 11:53:19,832 ERROR: Error getting profile for user 4 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py:152]
+Traceback (most recent call last):
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py", line 138, in get_user_profile
+    profile_data = user.get_profile_data()
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\models\user.py", line 44, in get_profile_data
+    'joinDate': getattr(self, 'join_date', self.created_at.strftime('%B %d, %Y') if hasattr(self, 'created_at') else 'N/A'), # Example join date
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strftime'
+2025-10-29 11:53:30,513 ERROR: Error updating profile for user 4: 'NoneType' object has no attribute 'strftime' [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py:217]
+Traceback (most recent call last):
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py", line 201, in update_user_profile
+    updated_profile_data = user.get_profile_data()
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\models\user.py", line 44, in get_profile_data
+    'joinDate': getattr(self, 'join_date', self.created_at.strftime('%B %d, %Y') if hasattr(self, 'created_at') else 'N/A'), # Example join date
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strftime'
+2025-10-29 11:54:01,164 ERROR: Error updating profile for user 4: 'NoneType' object has no attribute 'strftime' [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py:217]
+Traceback (most recent call last):
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\auth\routes.py", line 201, in update_user_profile
+    updated_profile_data = user.get_profile_data()
+  File "D:\Sem3MCA\MinorProject\WattWheels\backend\app\models\user.py", line 44, in get_profile_data
+    'joinDate': getattr(self, 'join_date', self.created_at.strftime('%B %d, %Y') if hasattr(self, 'created_at') else 'N/A'), # Example join date
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strftime'
+2025-10-29 11:55:50,221 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:55:53,619 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:58:32,078 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 11:58:52,034 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 12:00:20,612 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 12:00:24,567 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-10-29 12:04:45,905 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-10-29 12:04:45,934 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-11-06 00:28:32,922 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-11-06 00:28:37,163 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-11-06 00:53:24,421 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 00:53:24,469 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 01:16:10,554 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-11-06 01:16:12,895 INFO: WattWheels backend startup [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:89]
+2025-11-06 01:16:22,481 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-11-06 01:16:34,374 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 01:16:34,395 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 01:16:36,756 WARNING: Expired JWT token received. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:28]
+2025-11-06 01:16:36,766 WARNING: Expired JWT token received. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:28]
+2025-11-06 01:16:57,705 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-11-06 01:16:57,712 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-11-06 01:17:11,342 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-11-06 01:17:11,353 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]
+2025-11-06 01:21:58,698 INFO: --- Received earnings request for owner_id: 11 --- [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\earnings\routes.py:31]
+2025-11-06 01:21:58,844 INFO: Owner 11 has no vehicles. Returning zero earnings. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\earnings\routes.py:40]
+2025-11-06 01:22:12,579 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 01:22:12,601 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 01:42:09,678 INFO: Returning 0 vehicles for owner 11 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\vehicles\routes.py:71]
+2025-11-06 01:48:39,863 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-11-06 01:48:39,878 INFO: Found 3 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-11-06 01:48:39,900 INFO: Successfully serialized 3 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-11-06 01:48:39,913 INFO: Fetching bookings for customer 10 [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:146]
+2025-11-06 01:48:39,919 INFO: Found 3 booking record(s) for user_id 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:165]
+2025-11-06 01:48:39,938 INFO: Successfully serialized 3 bookings for user 10. [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\api\bookings\routes.py:181]
+2025-11-06 01:49:22,275 WARNING: Unauthorized access attempt (missing token): Missing Authorization Header [in D:\Sem3MCA\MinorProject\WattWheels\backend\app\__init__.py:39]

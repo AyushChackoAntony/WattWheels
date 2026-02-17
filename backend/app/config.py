@@ -5,14 +5,10 @@ from datetime import timedelta
 load_dotenv()
 
 class Config:
-    SQLALCHEMY_DATABASE_URI = (
-        f"mysql+pymysql://{os.getenv('DB_USERNAME')}:{os.getenv('DB_PASSWORD')}"
-        f"@localhost/{os.getenv('DB_NAME')}"
-    )
-    SQLALCHEMY_TRACK_MODIFICATIONS = False
+    # Replace the old SQLALCHEMY_DATABASE_URI with this:
+    MONGO_URI = os.getenv('MONGO_URI', "mongodb://localhost:27017/wattwheels")
     UPLOAD_FOLDER = 'static/uploads'
-    # --- ADD THIS LINE ---
-    JWT_SECRET_KEY = 'your-super-secret-key' # Or use SECRET_KEY = '...'
+    JWT_SECRET_KEY = 'your-super-secret-key'
 
 class TestingConfig(Config):
     TESTING = True

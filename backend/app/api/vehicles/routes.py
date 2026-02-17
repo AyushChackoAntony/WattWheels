@@ -1,17 +1,9 @@
-# backend/app/api/vehicles/routes.py
 from flask import request, jsonify, current_app
 from . import vehicles_bp
-from app.models.vehicle import Vehicle
-from app.models.user import User
-from app.models.availability import Availability
-# Import Booking model for conflict checking
-from app.models.booking import Booking
-from app import db
+from app import mongo
+from bson import ObjectId
 import os
-from werkzeug.utils import secure_filename
 from datetime import datetime
-
-# --- add_vehicle, update_vehicle_status, delete_vehicle routes remain the same ---
 
 @vehicles_bp.route('/', methods=['POST'])
 def add_vehicle():
@@ -29,29 +21,30 @@ def add_vehicle():
         return jsonify({'error': f'Missing required fields: {", ".join(missing)}'}), 422
 
     try:
-        image_url = data.get('image')
+        new_vehicle = {
+            "owner_id": owner_id,
+            "name": data['name'],
+            "type": data['type'],
+            "year": int(data['year']),
+            "color": data['color'],
+            "license_plate": data['licensePlate'],
+            "price_per_day": float(data['pricePerDay']),
+            "location": data['location'],
+            "battery_range": data.get('batteryRange'),
+            "acceleration": data.get('acceleration'),
+            "image_url": data.get('image'),
+            "status": "active",
+            "created_at": datetime.utcnow()
+        }
 
-        new_vehicle = Vehicle(
-            owner_id=owner_id,
-            name=data['name'],
-            type=data['type'],
-            year=int(data['year']),
-            color=data['color'],
-            license_plate=data['licensePlate'],
-            price_per_day=float(data['pricePerDay']),
-            location=data['location'],
-            battery_range=data.get('batteryRange'),
-            acceleration=data.get('acceleration'),
-            image_url=image_url
-        )
-
-        db.session.add(new_vehicle)
-        db.session.commit()
-        return jsonify({'message': 'Vehicle added successfully', 'vehicle': new_vehicle.to_dict()}), 201
+        result = mongo.db.vehicles.insert_one(new_vehicle)
+        new_vehicle['id'] = str(result.inserted_id)
+        new_vehicle.pop('_id')
+        
+        return jsonify({'message': 'Vehicle added successfully', 'vehicle': new_vehicle}), 201
     except ValueError:
         return jsonify({'error': 'Invalid data type for year or price. Please provide numbers.'}), 422
     except Exception as e:
-        db.session.rollback()
         current_app.logger.error(f"Error adding vehicle: {e}", exc_info=True)
         return jsonify({'error': str(e)}), 500
 
@@ -59,159 +52,124 @@ def add_vehicle():
 @vehicles_bp.route('/', methods=['GET'])
 def get_all_vehicles():
     owner_id = request.args.get('ownerId')
-    search_start_date_str = request.args.get('startDate') # Parameter from frontend
-    search_end_date_str = request.args.get('endDate')     # Parameter from frontend
+    search_start_str = request.args.get('startDate')
+    search_end_str = request.args.get('endDate')
 
-    query = Vehicle.query
+    query = {}
 
     if owner_id:
         # --- Owner View ---
-        query = query.filter_by(owner_id=owner_id)
-        vehicles = query.all()
-        current_app.logger.info(f"Returning {len(vehicles)} vehicles for owner {owner_id}")
+        query["owner_id"] = owner_id
+        current_app.logger.info(f"Fetching vehicles for owner {owner_id}")
     else:
-        # --- Customer/Public View ---
-        # Start by filtering only 'active' vehicles
-        query = query.filter_by(status='active')
+        # --- Customer View ---
+        query["status"] = "active"
 
-        # If specific dates are provided, perform availability checks
-        if search_start_date_str and search_end_date_str:
+        if search_start_str and search_end_str:
             try:
-                # Parse dates (ensure frontend sends YYYY-MM-DD format)
-                search_start = datetime.strptime(search_start_date_str, '%Y-%m-%d').date()
-                search_end = datetime.strptime(search_end_date_str, '%Y-%m-%d').date()
+                search_start = datetime.strptime(search_start_str, '%Y-%m-%d')
+                search_end = datetime.strptime(search_end_str, '%Y-%m-%d')
 
-                # Find vehicles explicitly marked as UNAVAILABLE during ANY part of the search period
-                unavailable_vehicle_ids_query = db.session.query(Availability.vehicle_id)\
-                    .filter(
-                        Availability.is_available == False,
-                        # Overlap condition: Availability starts before search ends AND Availability ends after search starts
-                        Availability.start_date.date() < search_end,
-                        Availability.end_date.date() > search_start
-                    ).distinct()
+                # 1. Get IDs of vehicles marked UNAVAILABLE
+                unavailable_ids = mongo.db.availability.distinct("vehicle_id", {
+                    "is_available": False,
+                    "start_date": {"$lt": search_end},
+                    "end_date": {"$gt": search_start}
+                })
 
-                # Find vehicles ALREADY BOOKED during ANY part of the search period
-                booked_vehicle_ids_query = db.session.query(Booking.vehicle_id)\
-                    .filter(
-                        # Filter relevant booking statuses (adjust as needed)
-                        Booking.status.in_(['upcoming', 'active', 'confirmed']),
-                        # Overlap condition: Booking starts before search ends AND Booking ends after search starts
-                        Booking.start_date.date() < search_end,
-                        Booking.end_date.date() > search_start
-                    ).distinct()
+                # 2. Get IDs of vehicles already BOOKED
+                booked_ids = mongo.db.bookings.distinct("vehicle_id", {
+                    "status": {"$in": ['upcoming', 'active', 'confirmed']},
+                    "start_date": {"$lt": search_end},
+                    "end_date": {"$gt": search_start}
+                })
 
-                # Combine the IDs to exclude using UNION
-                exclude_ids_query = unavailable_vehicle_ids_query.union(booked_vehicle_ids_query)
-                exclude_ids = [v_id[0] for v_id in exclude_ids_query.all()]
-
-                # Filter the main query to exclude these vehicles
+                # Combine IDs to exclude
+                exclude_ids = list(set(unavailable_ids + booked_ids))
                 if exclude_ids:
-                    query = query.filter(Vehicle.id.notin_(exclude_ids))
-                    current_app.logger.info(f"Excluding unavailable/booked vehicle IDs: {exclude_ids} for dates {search_start} to {search_end}")
-                else:
-                    current_app.logger.info(f"No unavailable/booked vehicles found for dates {search_start} to {search_end}")
+                    query["_id"] = {"$nin": [ObjectId(vid) for vid in exclude_ids if ObjectId.is_valid(vid)]}
+                    current_app.logger.info(f"Excluding {len(exclude_ids)} unavailable/booked vehicles.")
 
             except ValueError:
-                current_app.logger.warning(f"Invalid date format received: start='{search_start_date_str}', end='{search_end_date_str}'")
                 return jsonify({'error': 'Invalid date format. Use YYYY-MM-DD'}), 400
-        else:
-            # If no dates are provided, just log that we're showing all active vehicles
-             current_app.logger.info("No specific dates provided. Returning all 'active' vehicles.")
+
+    vehicles = list(mongo.db.vehicles.find(query))
+    for v in vehicles:
+        v['id'] = str(v.pop('_id'))
+
+    return jsonify({"vehicles": vehicles})
 
 
-        vehicles = query.all()
-        current_app.logger.info(f"Returning {len(vehicles)} available vehicles for customer view.")
-
-    vehicles_data = [v.to_dict() for v in vehicles]
-    return jsonify({"vehicles": vehicles_data})
-
-
-@vehicles_bp.route('/<int:vehicle_id>', methods=['PATCH'])
+@vehicles_bp.route('/<string:vehicle_id>', methods=['PATCH'])
 def update_vehicle_status(vehicle_id):
     data = request.get_json()
     if not data:
-         return jsonify({'error': 'Request must be JSON'}), 400
-    # Ideally, get owner_id from JWT token for security
+        return jsonify({'error': 'Request must be JSON'}), 400
+        
     owner_id = data.get('owner_id')
-    if not owner_id:
-         return jsonify({'error': 'owner_id is required for verification'}), 400
-
-    vehicle = Vehicle.query.get(vehicle_id)
-    # Verify ownership (convert owner_id from request to int for comparison)
-    if not vehicle or vehicle.owner_id != int(owner_id):
-        return jsonify({'error': 'Vehicle not found or you do not have permission to edit it'}), 404
-
     new_status = data.get('status')
+
     if new_status not in ['active', 'maintenance', 'inactive']:
         return jsonify({'error': 'Invalid status'}), 400
 
-    vehicle.status = new_status
-    try:
-        db.session.commit()
-        return jsonify({'message': 'Vehicle status updated successfully', 'vehicle': vehicle.to_dict()}), 200
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(f"Error updating status for vehicle {vehicle_id}: {e}", exc_info=True)
-        return jsonify({'error': 'Failed to update status'}), 500
+    # Verify ownership and update status
+    result = mongo.db.vehicles.update_one(
+        {"_id": ObjectId(vehicle_id), "owner_id": owner_id},
+        {"$set": {"status": new_status}}
+    )
+
+    if result.matched_count == 0:
+        return jsonify({'error': 'Vehicle not found or you do not have permission to edit it'}), 404
+
+    return jsonify({'message': 'Vehicle status updated successfully'}), 200
 
 
-@vehicles_bp.route('/<int:vehicle_id>', methods=['DELETE'])
+@vehicles_bp.route('/<string:vehicle_id>', methods=['DELETE'])
 def delete_vehicle(vehicle_id):
     data = request.get_json()
-    if not data:
-         return jsonify({'error': 'Request must be JSON'}), 400
-    # Ideally, get owner_id from JWT token for security
     owner_id = data.get('owner_id')
+
     if not owner_id:
-         return jsonify({'error': 'owner_id is required for verification'}), 400
+        return jsonify({'error': 'owner_id is required'}), 400
 
-    vehicle = Vehicle.query.get(vehicle_id)
-    # Verify ownership (convert owner_id from request to int for comparison)
-    if not vehicle or vehicle.owner_id != int(owner_id):
-        return jsonify({'error': 'Vehicle not found or you do not have permission to delete it'}), 404
-
-    # Check for active/upcoming bookings before deleting (important!)
-    active_booking = Booking.query.filter(
-        Booking.vehicle_id == vehicle_id,
-        Booking.status.in_(['upcoming', 'active', 'confirmed'])
-    ).first()
+    # Check for active bookings before deleting
+    active_booking = mongo.db.bookings.find_one({
+        "vehicle_id": vehicle_id,
+        "status": {"$in": ['upcoming', 'active', 'confirmed']}
+    })
 
     if active_booking:
         return jsonify({'error': 'Cannot delete vehicle with active or upcoming bookings'}), 400
 
-    try:
-        # Cascading delete should handle related availabilities if set up correctly
-        db.session.delete(vehicle)
-        db.session.commit()
-        return jsonify({'message': 'Vehicle deleted successfully'}), 200
-    except Exception as e:
-        db.session.rollback()
-        current_app.logger.error(f"Error deleting vehicle {vehicle_id}: {e}", exc_info=True)
-        return jsonify({'error': 'Failed to delete vehicle'}), 500
+    result = mongo.db.vehicles.delete_one({"_id": ObjectId(vehicle_id), "owner_id": owner_id})
     
-@vehicles_bp.route('/<int:vehicle_id>', methods=['GET'])
+    if result.deleted_count == 0:
+        return jsonify({'error': 'Vehicle not found or unauthorized'}), 404
+
+    # Cleanup related availability records
+    mongo.db.availability.delete_many({"vehicle_id": vehicle_id})
+
+    return jsonify({'message': 'Vehicle deleted successfully'}), 200
+    
+@vehicles_bp.route('/<string:vehicle_id>', methods=['GET'])
 def get_single_vehicle(vehicle_id):
-    vehicle = Vehicle.query.get(vehicle_id)
+    vehicle = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)})
     if not vehicle:
         return jsonify({"error": "Vehicle not found"}), 404
-    if vehicle.status != 'active':
-         # Optionally allow viewing inactive for owners, but maybe not for booking
-         current_app.logger.warning(f"Attempt to view non-active vehicle {vehicle_id} details.")
-         # Return not found or a specific status if needed
-         return jsonify({"error": "Vehicle not currently available"}), 404
+        
+    if vehicle.get('status') != 'active':
+        return jsonify({"error": "Vehicle not currently available"}), 404
 
-    try:
-        # Include owner details if needed for display
-        vehicle_data = vehicle.to_dict()
-        if vehicle.owner:
-             vehicle_data['ownerInfo'] = {
-                 'firstName': vehicle.owner.first_name,
-                 'lastName': vehicle.owner.last_name,
-                 'rating': vehicle.owner.owner_rating,
-                 'memberSince': vehicle.owner.created_at.strftime('%B %Y') if vehicle.owner.created_at else None
-                 # Add other owner details if needed
-             }
-        return jsonify(vehicle_data), 200
-    except Exception as e:
-        current_app.logger.error(f"Error fetching details for vehicle {vehicle_id}: {e}", exc_info=True)
-        return jsonify({"error": "Internal server error"}), 500
+    vehicle['id'] = str(vehicle.pop('_id'))
+    
+    # Fetch owner details from users collection
+    owner = mongo.db.users.find_one({"_id": ObjectId(vehicle['owner_id'])})
+    if owner:
+        vehicle['ownerInfo'] = {
+            'firstName': owner.get('first_name'),
+            'lastName': owner.get('last_name'),
+            'rating': owner.get('owner_rating'),
+            'memberSince': owner.get('created_at').strftime('%B %Y') if owner.get('created_at') else None
+        }
+
+    return jsonify(vehicle), 200

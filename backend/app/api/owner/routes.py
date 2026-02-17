@@ -1,79 +1,90 @@
 from flask import jsonify
-from sqlalchemy import func, distinct # Import distinct
 from . import owner_bp
 from app.models.user import User
-from app.models.vehicle import Vehicle
-from app.models.booking import Booking
-from app import db
-from datetime import datetime, timedelta
+from app import mongo # Replace 'db' with 'mongo'
+from datetime import datetime
+from bson import ObjectId
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
-@owner_bp.route('/<int:owner_id>/dashboard', methods=['GET'])
+@owner_bp.route('/<string:owner_id>/dashboard', methods=['GET']) # Changed int to string for MongoDB IDs
 @jwt_required()
 def get_owner_dashboard(owner_id):
-    # get_jwt_identity() now returns the ID (as a string from the token)
-    # We need to convert it back to an integer for comparison if owner_id is an int
+    # JWT identity is already a string in our MongoDB setup
     try:
-        current_user_id_str = get_jwt_identity()
-        current_user_id = int(current_user_id_str)
-    except (ValueError, TypeError):
-         # Handle cases where identity might not be a valid integer string
+        current_user_id = get_jwt_identity()
+        jwt_claims = get_jwt()
+        current_user_type = jwt_claims.get("user_type")
+    except Exception:
          return jsonify({'error': 'Invalid user identity in token'}), 401
 
-    # Get user_type from the additional claims
-    jwt_claims = get_jwt()
-    current_user_type = jwt_claims.get("user_type")
-
-    # Compare the integer ID from the token with the integer owner_id from the URL
-    # Also check the user_type from claims
+    # Authorization Check
     if current_user_id != owner_id or current_user_type != 'owner':
         return jsonify({'error': 'Unauthorized access'}), 403
 
-    owner = User.query.get(owner_id)
+    # Retrieve owner data from MongoDB using helper method
+    owner = User.find_by_id(owner_id)
     if not owner:
         return jsonify({'error': 'Owner not found'}), 404
 
-    vehicles = owner.vehicles # Use the relationship to get vehicles
-    vehicle_ids = [v.id for v in vehicles]
+    # --- Fetch Vehicles ---
+    # Find all vehicles belonging to this owner
+    owner_vehicles = list(mongo.db.vehicles.find({"owner_id": owner_id}))
+    vehicle_ids = [str(v['_id']) for v in owner_vehicles]
 
     # --- Stats Data ---
-    active_vehicles_count = sum(1 for v in vehicles if v.status == 'active')
-    # Use owner_rating from the user model if available, else default
-    avg_rating = owner.owner_rating if owner.owner_rating else 4.5 # Example default
+    active_vehicles_count = sum(1 for v in owner_vehicles if v.get('status') == 'active')
+    avg_rating = owner.get('owner_rating', 4.5)
 
     # Count unique customers who have booked this owner's vehicles
     customer_ids_count = 0
-    if vehicle_ids: # Only query if there are vehicles
-        customer_ids_count = db.session.query(func.count(distinct(Booking.customer_id)))\
-            .filter(Booking.vehicle_id.in_(vehicle_ids))\
-            .scalar() or 0
+    if vehicle_ids:
+        unique_customers = mongo.db.bookings.distinct("customer_id", {"vehicle_id": {"$in": vehicle_ids}})
+        customer_ids_count = len(unique_customers)
 
     # --- Earnings Data (Monthly Summary) ---
     now = datetime.utcnow()
     start_of_month = now.replace(day=1, hour=0, minute=0, second=0, microsecond=0)
-    platform_commission = 0.15 # Assuming 15%
+    platform_commission = 0.15
     this_month_earnings = 0
-    if vehicle_ids: # Only query if there are vehicles
-        monthly_earnings_query = db.session.query(func.sum(Booking.total_price * (1 - platform_commission)))\
-            .filter(
-                Booking.vehicle_id.in_(vehicle_ids),
-                Booking.created_at >= start_of_month,
-                Booking.status == 'completed' # Ensure earnings are from completed bookings
-            ).scalar()
-        this_month_earnings = round(monthly_earnings_query or 0, 2)
+
+    if vehicle_ids:
+        pipeline = [
+            {"$match": {
+                "vehicle_id": {"$in": vehicle_ids},
+                "created_at": {"$gte": start_of_month},
+                "status": "completed"
+            }},
+            {"$group": {
+                "_id": None,
+                "total": {"$sum": "$total_price"}
+            }}
+        ]
+        earnings_result = list(mongo.db.bookings.aggregate(pipeline))
+        if earnings_result:
+            this_month_earnings = round(earnings_result[0]['total'] * (1 - platform_commission), 2)
 
     # --- Current/Upcoming Bookings (Limit for dashboard) ---
     upcoming_bookings = []
-    if vehicle_ids: # Only query if there are vehicles
-        upcoming_bookings = Booking.query.filter(
-            Booking.vehicle_id.in_(vehicle_ids),
-            Booking.status.in_(['upcoming', 'active']), # Fetch both upcoming and active
-            Booking.end_date >= now # Only show bookings that haven't ended yet
-        ).order_by(Booking.start_date.asc()).limit(2).all() # Limit to 2 for dashboard preview
+    if vehicle_ids:
+        # MongoDB query for upcoming/active bookings that haven't ended
+        bookings_cursor = mongo.db.bookings.find({
+            "vehicle_id": {"$in": vehicle_ids},
+            "status": {"$in": ['upcoming', 'active']},
+            "end_date": {"$gte": now}
+        }).sort("start_date", 1).limit(2)
+        
+        for b in bookings_cursor:
+            b['id'] = str(b.pop('_id'))
+            # Format dates for JSON
+            b['start_date'] = b['start_date'].strftime('%Y-%m-%d %H:%M') if 'start_date' in b else None
+            b['end_date'] = b['end_date'].strftime('%Y-%m-%d %H:%M') if 'end_date' in b else None
+            upcoming_bookings.append(b)
 
     # --- Vehicle Management Summary (Limit for dashboard) ---
-    # Use the already fetched 'vehicles' list
-    vehicle_summary = [v.to_dict() for v in vehicles[:2]] # Show first 2 vehicles as preview
+    vehicle_summary = []
+    for v in owner_vehicles[:2]:
+        v['id'] = str(v.pop('_id'))
+        vehicle_summary.append(v)
 
     # --- Prepare Response Data ---
     dashboard_data = {
@@ -83,12 +94,11 @@ def get_owner_dashboard(owner_id):
             'rating': avg_rating,
             'happyCustomers': customer_ids_count
         },
-        'earningsOverview': { # Basic structure for Earning component
+        'earningsOverview': {
              'thisMonth': this_month_earnings,
-             # You might need a more complex query for weekly trends
-             'weeklyTrend': [], # Placeholder - populate if needed
+             'weeklyTrend': [], # Placeholder
         },
-        'currentBookings': [b.to_dict() for b in upcoming_bookings],
+        'currentBookings': upcoming_bookings,
         'vehicleManagement': vehicle_summary
     }
 

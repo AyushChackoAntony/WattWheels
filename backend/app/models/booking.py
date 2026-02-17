@@ -1,74 +1,89 @@
-from app import db
-import datetime
+from app import mongo
+from bson import ObjectId
+from datetime import datetime
 
-class Booking(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    customer_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
-    vehicle_id = db.Column(db.Integer, db.ForeignKey('vehicle.id'), nullable=False)
-    start_date = db.Column(db.DateTime, nullable=False)
-    end_date = db.Column(db.DateTime, nullable=False)
-    total_price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(50), default='upcoming')
-    destination = db.Column(db.String(100), nullable=True)
-    created_at = db.Column(db.DateTime, default=datetime.datetime.utcnow)
+class Booking:
+    @staticmethod
+    def to_dict(booking_data):
+        """
+        Transforms a raw MongoDB booking document into a detailed dictionary.
+        Performs manual lookups for related Vehicle, Owner, and Customer data.
+        """
+        if not booking_data:
+            return None
 
-    customer = db.relationship('User', backref=db.backref('bookings_as_customer', lazy=True))
-    vehicle = db.relationship('Vehicle', backref=db.backref('bookings', lazy=True))
+        # Helper to convert MongoDB fields
+        booking_id_str = str(booking_data.get('_id'))
+        vehicle_id = booking_data.get('vehicle_id')
+        customer_id = booking_data.get('customer_id')
 
-    def to_dict(self):
+        # --- Manual Lookups (Simulating SQL Relationships) ---
+        vehicle_doc = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)}) if vehicle_id else None
+        customer_doc = mongo.db.users.find_one({"_id": ObjectId(customer_id)}) if customer_id else None
+        
         vehicle_data = None
         owner_data = None
         customer_data = None
         features_list = []
         cancellation_policy_text = "Standard Policy"
 
-        if self.vehicle:
+        if vehicle_doc:
             vehicle_data = {
-                'id': self.vehicle.id,
-                'name': self.vehicle.name,
-                'image': self.vehicle.image_url,
-                'location': self.vehicle.location,
-                'licensePlate': self.vehicle.license_plate,
-                'batteryRange': self.vehicle.battery_range,
+                'id': str(vehicle_doc['_id']),
+                'name': vehicle_doc.get('name'),
+                'image': vehicle_doc.get('image_url'),
+                'location': vehicle_doc.get('location'),
+                'licensePlate': vehicle_doc.get('license_plate'),
+                'batteryRange': vehicle_doc.get('battery_range'),
             }
-            if self.vehicle.features:
-                features_list = [f.strip() for f in self.vehicle.features.split(',') if f.strip()]
+            
+            features_raw = vehicle_doc.get('features', '')
+            if features_raw:
+                features_list = [f.strip() for f in features_raw.split(',') if f.strip()]
 
             policy_map = {
                 'flexible': 'Free cancellation up to 24 hours before pickup.',
                 'moderate': 'Free cancellation up to 5 days, then 50% refund.',
                 'strict': 'Free cancellation up to 7 days, then no refund.'
             }
-            cancellation_policy_text = policy_map.get(self.vehicle.cancellation_policy, "Standard Policy")
+            cancellation_policy_text = policy_map.get(vehicle_doc.get('cancellation_policy'), "Standard Policy")
 
-            if self.vehicle.owner:
+            # Look up the Owner (who is also a User)
+            owner_id = vehicle_doc.get('owner_id')
+            owner_doc = mongo.db.users.find_one({"_id": ObjectId(owner_id)}) if owner_id else None
+            if owner_doc:
                 owner_data = {
-                    'name': f"{self.vehicle.owner.first_name} {self.vehicle.owner.last_name}",
-                    'phone': self.vehicle.owner.phone,
-                    'rating': self.vehicle.owner.owner_rating
+                    'name': f"{owner_doc.get('first_name')} {owner_doc.get('last_name')}",
+                    'phone': owner_doc.get('phone'),
+                    'rating': owner_doc.get('owner_rating')
                 }
 
-        if self.customer:
+        if customer_doc:
              customer_data = {
-                 'id': self.customer.id,
-                 'firstName': self.customer.first_name,
-                 'lastName': self.customer.last_name,
-                 'phone': self.customer.phone
+                 'id': str(customer_doc['_id']),
+                 'firstName': customer_doc.get('first_name'),
+                 'lastName': customer_doc.get('last_name'),
+                 'phone': customer_doc.get('phone')
              }
 
+        # Handle Date Formatting
+        start_date = booking_data.get('start_date')
+        end_date = booking_data.get('end_date')
+        created_at = booking_data.get('created_at', datetime.utcnow())
+
         return {
-            'id': self.id,
-            'customerId': self.customer_id,
-            'vehicleId': self.vehicle_id,
-            'pickupDate': self.start_date.strftime('%Y-%m-%d'),
-            'dropoffDate': self.end_date.strftime('%Y-%m-%d'),
-            'pickupTime': self.start_date.strftime('%I:%M %p'),
-            'dropoffTime': self.end_date.strftime('%I:%M %p'),
-            'totalPrice': self.total_price,
-            'status': self.status,
-            'bookingDate': self.created_at.strftime('%Y-%m-%d'),
+            'id': booking_id_str,
+            'customerId': customer_id,
+            'vehicleId': vehicle_id,
+            'pickupDate': start_date.strftime('%Y-%m-%d') if start_date else None,
+            'dropoffDate': end_date.strftime('%Y-%m-%d') if end_date else None,
+            'pickupTime': start_date.strftime('%I:%M %p') if start_date else None,
+            'dropoffTime': end_date.strftime('%I:%M %p') if end_date else None,
+            'totalPrice': booking_data.get('total_price'),
+            'status': booking_data.get('status', 'upcoming'),
+            'bookingDate': created_at.strftime('%Y-%m-%d'),
             'location': vehicle_data.get('location', "Unknown Location") if vehicle_data else "Unknown Location",
-            'destination': self.destination or "Not Specified",
+            'destination': booking_data.get('destination') or "Not Specified",
             'licensePlate': vehicle_data.get('licensePlate', "N/A") if vehicle_data else "N/A",
             'batteryRange': vehicle_data.get('batteryRange', "N/A") if vehicle_data else "N/A",
             'owner': owner_data.get('name', "Unknown Owner") if owner_data else "Unknown Owner",
