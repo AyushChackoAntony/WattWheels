@@ -60,7 +60,8 @@ def create_app(config_class=Config):
     from .api.settings.routes import settings_bp
     from .api.customer.routes import customer_bp
     from .api.owner.routes import owner_bp
-
+    from app.api.payments import payments_bp
+    
     # Register Blueprints (Keep these as they are)
     app.register_blueprint(auth_bp, url_prefix='/api/auth')
     app.register_blueprint(vehicles_bp, url_prefix='/api/vehicles')
@@ -70,6 +71,7 @@ def create_app(config_class=Config):
     app.register_blueprint(settings_bp, url_prefix='/api/settings')
     app.register_blueprint(customer_bp, url_prefix='/api/customer')
     app.register_blueprint(owner_bp, url_prefix='/api/owner')
+    app.register_blueprint(payments_bp, url_prefix='/api/payments')
 
     # Add a basic logger configuration if not in debug mode
     if not app.debug and not app.testing:

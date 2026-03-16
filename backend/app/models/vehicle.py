@@ -13,6 +13,7 @@ class Vehicle:
         """
         Transforms MongoDB document into a frontend-friendly dictionary.
         Includes dynamic calculation of monthly earnings and bookings.
+        Updated for Phase 1: Hourly Rentals & Payments.
         """
         if not vehicle_data:
             return None
@@ -46,9 +47,14 @@ class Vehicle:
         features_raw = vehicle_data.get('features', '')
         features_list = [f.strip() for f in features_raw.split(',') if f.strip()] if features_raw else []
 
+        # --- Phase 1 Additions: Hourly Pricing Logic ---
+        price_per_day = float(vehicle_data.get('price_per_day', 0.0))
+        # Use existing price_per_hour or calculate a default (daily / 24)
+        price_per_hour = float(vehicle_data.get('price_per_hour', round(price_per_day / 24, 2)))
+
         return {
             'id': vehicle_id_str,
-            'ownerId': vehicle_data.get('owner_id'),
+            'ownerId': str(vehicle_data.get('owner_id')), # Ensure string for frontend
             'name': vehicle_data.get('name'),
             'type': vehicle_data.get('type'),
             'year': vehicle_data.get('year'),
@@ -56,7 +62,8 @@ class Vehicle:
             'licensePlate': vehicle_data.get('license_plate'),
             'batteryRange': vehicle_data.get('battery_range'),
             'acceleration': vehicle_data.get('acceleration'),
-            'pricePerDay': vehicle_data.get('price_per_day'),
+            'pricePerDay': price_per_day,
+            'pricePerHour': price_per_hour, # Added for Hourly Rentals
             'location': vehicle_data.get('location'),
             'status': vehicle_data.get('status', 'active'),
             'image': vehicle_data.get('image_url'),
@@ -64,6 +71,6 @@ class Vehicle:
             'cancellationPolicy': vehicle_data.get('cancellation_policy', 'flexible'),
             'monthlyEarnings': round(stats.get('total_earnings', 0), 2),
             'monthlyBookings': stats.get('booking_count', 0),
-            'rating': vehicle_data.get('rating', 4.5), # Default if not in DB
-            'availability': vehicle_data.get('availability', 80) # Default if not in DB
+            'rating': vehicle_data.get('rating', 4.5), 
+            'availability': vehicle_data.get('availability', 80)
         }

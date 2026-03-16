@@ -7,7 +7,7 @@ class Booking:
     def to_dict(booking_data):
         """
         Transforms a raw MongoDB booking document into a detailed dictionary.
-        Performs manual lookups for related Vehicle, Owner, and Customer data.
+        Updated for Phase 1: Support for Hourly Rentals and Payment Tracking.
         """
         if not booking_data:
             return None
@@ -17,7 +17,7 @@ class Booking:
         vehicle_id = booking_data.get('vehicle_id')
         customer_id = booking_data.get('customer_id')
 
-        # --- Manual Lookups (Simulating SQL Relationships) ---
+        # --- Manual Lookups ---
         vehicle_doc = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)}) if vehicle_id else None
         customer_doc = mongo.db.users.find_one({"_id": ObjectId(customer_id)}) if customer_id else None
         
@@ -48,7 +48,7 @@ class Booking:
             }
             cancellation_policy_text = policy_map.get(vehicle_doc.get('cancellation_policy'), "Standard Policy")
 
-            # Look up the Owner (who is also a User)
+            # Look up the Owner
             owner_id = vehicle_doc.get('owner_id')
             owner_doc = mongo.db.users.find_one({"_id": ObjectId(owner_id)}) if owner_id else None
             if owner_doc:
@@ -77,11 +77,17 @@ class Booking:
             'vehicleId': vehicle_id,
             'pickupDate': start_date.strftime('%Y-%m-%d') if start_date else None,
             'dropoffDate': end_date.strftime('%Y-%m-%d') if end_date else None,
-            'pickupTime': start_date.strftime('%I:%M %p') if start_date else None,
-            'dropoffTime': end_date.strftime('%I:%M %p') if end_date else None,
+            # Phase 1 Update: Using 24-hour format for easier time-based calculations/inputs
+            'pickupTime': start_date.strftime('%H:%M') if start_date else None,
+            'dropoffTime': end_date.strftime('%H:%M') if end_date else None,
             'totalPrice': booking_data.get('total_price'),
             'status': booking_data.get('status', 'upcoming'),
             'bookingDate': created_at.strftime('%Y-%m-%d'),
+            
+            # Phase 1 Update: New Payment Fields
+            'paymentStatus': booking_data.get('payment_status', 'pending'),
+            'transactionId': booking_data.get('transaction_id', None),
+            
             'location': vehicle_data.get('location', "Unknown Location") if vehicle_data else "Unknown Location",
             'destination': booking_data.get('destination') or "Not Specified",
             'licensePlate': vehicle_data.get('licensePlate', "N/A") if vehicle_data else "N/A",

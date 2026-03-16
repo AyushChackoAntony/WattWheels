@@ -6,12 +6,13 @@ from app.models.vehicle import Vehicle
 from app import mongo
 from bson import ObjectId
 from datetime import datetime, timezone
+import math  # For ceiling calculation of hours
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
 
 @bookings_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_booking():
-    user_id = get_jwt_identity() # MongoDB IDs are strings
+    user_id = get_jwt_identity() 
     jwt_claims = get_jwt()
     user_type = jwt_claims.get("user_type")
 
@@ -23,7 +24,8 @@ def create_booking():
         return jsonify({"error": "Request must be JSON"}), 400
 
     vehicle_id = data.get('vehicle_id')
-    start_date_str = data.get('start_date')
+    # Frontend should now send datetime-local strings (YYYY-MM-DDTHH:MM)
+    start_date_str = data.get('start_date') 
     end_date_str = data.get('end_date')
     destination = data.get('destination')
 
@@ -31,18 +33,18 @@ def create_booking():
         return jsonify({"error": "Missing required fields"}), 400
 
     try:
+        # Parse exact date and time
         start_date = datetime.fromisoformat(start_date_str.replace('Z', '+00:00'))
         end_date = datetime.fromisoformat(end_date_str.replace('Z', '+00:00'))
 
         if start_date >= end_date:
-            return jsonify({"error": "End date must be after start date"}), 400
+            return jsonify({"error": "End time must be after start time"}), 400
         if start_date < datetime.now(timezone.utc):
-            return jsonify({"error": "Booking start date cannot be in the past"}), 400
+            return jsonify({"error": "Booking start time cannot be in the past"}), 400
     except (ValueError, TypeError):
-        return jsonify({"error": "Invalid date format"}), 400
+        return jsonify({"error": "Invalid date/time format"}), 400
 
     # --- Conflict Checks ---
-    # Fetch vehicle data from MongoDB
     vehicle = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)})
     if not vehicle:
         return jsonify({"error": "Vehicle not found"}), 404
@@ -69,11 +71,17 @@ def create_booking():
     if conflicting_booking:
         return jsonify({"error": "Vehicle is already booked"}), 409
 
-    # --- Price Calculation ---
-    duration_days = (end_date - start_date).total_seconds() / (24 * 60 * 60)
-    calculated_price = round(max(duration_days, 1) * vehicle.get('price_per_day', 0), 2)
+    # --- Phase 1: Price Calculation (Hourly) ---
+    # Calculate duration in hours
+    duration_seconds = (end_date - start_date).total_seconds()
+    duration_hours = math.ceil(duration_seconds / 3600)
+    
+    # Use hourly rate if it exists, otherwise fallback to daily/24
+    daily_rate = vehicle.get('price_per_day', 0)
+    hourly_rate = vehicle.get('price_per_hour', round(daily_rate / 24, 2))
+    calculated_price = round(duration_hours * hourly_rate, 2)
 
-    # --- Create Booking ---
+    # --- Phase 1: Create Booking with Payment Fields ---
     try:
         new_booking_doc = {
             "customer_id": user_id,
@@ -81,15 +89,19 @@ def create_booking():
             "start_date": start_date,
             "end_date": end_date,
             "total_price": calculated_price,
-            "status": 'upcoming',
+            "status": 'pending_payment', # Changed from 'upcoming' to reflect payment flow
+            "payment_status": 'pending',  # NEW
             "destination": destination,
             "created_at": datetime.now(timezone.utc)
         }
         result = mongo.db.bookings.insert_one(new_booking_doc)
         
-        # Prepare for response
-        new_booking_doc['id'] = str(result.inserted_id)
-        return jsonify({"message": "Booking created successfully!", "booking_id": new_booking_doc['id']}), 201
+        booking_id = str(result.inserted_id)
+        return jsonify({
+            "message": "Booking initiated. Please complete payment.", 
+            "booking_id": booking_id,
+            "total_price": calculated_price
+        }), 201
 
     except Exception as e:
         current_app.logger.error(f"Error saving booking: {e}")
