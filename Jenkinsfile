@@ -33,7 +33,7 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDS, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     
                     powershell """
-                        (Get-Content k8s/backend/backend-deployment.yaml) -replace 'image: vxpyr/wattwheels-backend:.*', 'image: vxpyr/wattwheels-backend:${IMAGE_TAG}' | Set-Content k8s/backend/backend-deployment.yaml
+                        (Get-Content k8s/backend/backend-deployment.yaml) -replace 'image: AyushChackoAntony/wattwheels-backend:.*', 'image: vxpyr/wattwheels-backend:${IMAGE_TAG}' | Set-Content k8s/backend/backend-deployment.yaml
                     """
                     
                     bat """
@@ -41,7 +41,7 @@ pipeline {
                         git config user.name "Jenkins Auto Deploy"
                         git add k8s/backend/backend-deployment.yaml
                         git commit -m "ArgoCD Update: Backend image changed to %IMAGE_TAG% [skip ci]"
-                        git push https://%GIT_USER%:%GIT_PASS%@github.com/vxpyr/WattWheels.git HEAD:test
+                        git push https://%GIT_USER%:%GIT_PASS%@github.com/AyushChackoAntony/WattWheels.git HEAD:test
                     """
                 }
             }
