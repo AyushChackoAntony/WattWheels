@@ -40,7 +40,7 @@ pipeline {
                         git config user.email "jenkins@automation.com"
                         git config user.name "Jenkins Auto Deploy"
                         git add k8s/backend/backend-deployment.yaml
-                        git commit -m "ArgoCD Update: Backend image changed to %IMAGE_TAG% [skip ci]"
+                        git commit -m "ArgoCD Update: Backend image changed to %IMAGE_TAG%"
                         git push https://%GIT_USER%:%GIT_PASS%@github.com/AyushChackoAntony/WattWheels.git HEAD:test
                     """
                 }
