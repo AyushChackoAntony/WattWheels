@@ -49,7 +49,7 @@ def create_app(config_class=Config):
     # <<< END: Add JWT Error Handlers >>>
 
     # Allow requests from your frontend development server
-    CORS(app, resources={r"/api/*": {"origins": "*"}})
+    CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     # Import Blueprints (Keep these as they are)
     from .api.auth.routes import auth_bp
