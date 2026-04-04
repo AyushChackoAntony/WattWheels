@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: backend
-        image: vxpyr/wattwheels-backend:v1.0.9
+        image: vxpyr/wattwheels-backend:v1.0.10
         imagePullPolicy: Always
         ports:
         - containerPort: 5000
