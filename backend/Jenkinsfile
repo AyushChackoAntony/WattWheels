@@ -1,7 +1,6 @@
 pipeline {
     agent any
     
-    // Yahan hum naya version automatically generate kar rahe hain build number se
     environment {
         IMAGE_NAME = 'vxpyr/wattwheels-backend'
         IMAGE_TAG = "v1.0.${env.BUILD_ID}" 
@@ -29,18 +28,18 @@ pipeline {
         
         stage('Update K8s Manifest & GitOps Push') {
             steps {
-                // YAML file ko naye version se update karna aur GitHub pe bhejna
                 withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDS, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     
                     powershell """
-                        (Get-Content k8s/backend/backend-deployment.yaml) -replace 'image: AyushChackoAntony/wattwheels-backend:.*', 'image: vxpyr/wattwheels-backend:${IMAGE_TAG}' | Set-Content k8s/backend/backend-deployment.yaml
+                        \$path = "k8s/backend/backend-deployment.yaml"
+                        (Get-Content \$path) -replace 'image: vxpyr/wattwheels-backend:.*', "image: vxpyr/wattwheels-backend:${env.IMAGE_TAG}" | Set-Content \$path
                     """
-                    
+                
                     bat """
                         git config user.email "jenkins@automation.com"
                         git config user.name "Jenkins Auto Deploy"
                         git add k8s/backend/backend-deployment.yaml
-                        git commit -m "ArgoCD Update: Backend image changed to %IMAGE_TAG%"
+                        git commit -m "ArgoCD Update: Backend image changed to %IMAGE_TAG% [skip ci]"
                         git push https://%GIT_USER%:%GIT_PASS%@github.com/AyushChackoAntony/WattWheels.git HEAD:test
                     """
                 }
