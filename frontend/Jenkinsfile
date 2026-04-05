@@ -31,7 +31,8 @@ pipeline {
                 withCredentials([usernamePassword(credentialsId: env.GITHUB_CREDS, passwordVariable: 'GIT_PASS', usernameVariable: 'GIT_USER')]) {
                     
                     powershell """
-                        (Get-Content k8s/frontend/frontend-deployment.yaml) -replace 'image: vxpyr/wattwheels-frontend:.*', 'image: vxpyr/wattwheels-frontend:${IMAGE_TAG}' | Set-Content k8s/frontend/frontend-deployment.yaml
+                        \$path = "k8s/backend/backend-deployment.yaml"
+                        (Get-Content \$path) -replace 'image: vxpyr/wattwheels-frontend:.*', "image: vxpyr/wattwheels-frontend:${env.IMAGE_TAG}" | Set-Content \$path
                     """
                     
                     bat """
