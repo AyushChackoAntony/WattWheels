@@ -8,7 +8,9 @@ export async function POST(request) {
     // return NextResponse.json( { message: "Data received successfully", receivedData: data }, { status: 200 } );
 
     // Send data to Flask backend
-    const flaskRes = await fetch("http://localhost:5000/ownerLogin", {
+    // const flaskRes = await fetch("http://localhost:5000/ownerLogin", {
+    const flaskRes = await fetch("http://backend-service:5000/ownerLogin", {
+
       method: "POST",
       headers: {
         "Content-Type": "application/json",

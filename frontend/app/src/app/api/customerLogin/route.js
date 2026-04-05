@@ -10,7 +10,8 @@ export async function POST(request) {
     // console.log("Received from frontend:", data);
 
      // Send data to Flask backend
-    const flaskRes = await fetch("http://127.0.0.1:5000/api/auth/login/customer", {
+    // const flaskRes = await fetch("http://127.0.0.1:5000/api/auth/login/customer", {
+    const flaskRes = await fetch("http://backend-service:5000/api/auth/login/customer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
