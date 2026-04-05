@@ -8,7 +8,7 @@ export default function Navbar() {
             <div className="logo">
               <i className="fas fa-bolt"></i>
               {/* <span>WattWheels</span> */}
-              <span><Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>WattWheels Test2</Link></span>
+              <span><Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>WattWheels</Link></span>
             </div>
             <ul className="nav-links">
               <li><a href="#about">About</a></li>
