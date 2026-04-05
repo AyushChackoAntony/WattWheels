@@ -6,9 +6,10 @@ import Link from 'next/link';
 import { useAuth } from '@/context/AuthContext';
 import CustomerHeader from '@/components/dashboard/customer/CustomerHeader';
 import Navbar from '@/components/Navbar';
+import { Suspense } from 'react';
 import '@/styles/browse-vehicles.css';
 
-export default function BrowseVehicles() {
+function BrowseVehicles() {
   const { user, isAuthenticated } = useAuth();
   const searchParams = useSearchParams();
   const [vehicles, setVehicles] = useState([]);
@@ -139,5 +140,13 @@ export default function BrowseVehicles() {
         </div>
       </main>
     </>
+  );
+}
+
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="loading-message">Loading page...</div>}>
+      <BrowseVehicles />
+    </Suspense>
   );
 }
