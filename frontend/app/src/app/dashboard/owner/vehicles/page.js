@@ -54,8 +54,8 @@ export default function MyVehicles() {
                          vehicle.type === filterValue.slice(0, -1);
 
     const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = vehicle.name.toLowerCase().includes(searchLower) ||
-                         (vehicle.license_plate && vehicle.license_plate.toLowerCase().includes(searchLower));
+    const matchesSearch = (vehicle?.name || "").toLowerCase().includes(searchLower) || 
+                      (vehicle?.license_plate || "").toLowerCase().includes(searchLower);
 
     return matchesFilter && matchesSearch;
   });

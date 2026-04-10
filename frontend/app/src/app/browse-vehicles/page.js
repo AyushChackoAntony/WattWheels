@@ -116,7 +116,7 @@ export default function BrowseVehicles() {
                       {vehicle.type && <span><i className={vehicle.type === 'car' ? "fas fa-car" : "fas fa-motorcycle"}></i> {vehicle.type.charAt(0).toUpperCase() + vehicle.type.slice(1)}</span>}
                     </div>
                     <div className="vehicle-price-browse">
-                      <span className="price">₹{vehicle.pricePerDay.toLocaleString()}</span>
+                      <span className="price">₹{(vehicle?.price_per_day || 0).toLocaleString()}</span>
                       <span className="period">/day</span>
                     </div>
                     <Link

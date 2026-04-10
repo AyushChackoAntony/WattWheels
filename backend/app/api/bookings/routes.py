@@ -1,185 +1,132 @@
 from flask import request, jsonify, current_app
 from . import bookings_bp
-from app.models.booking import Booking
-from app.models.user import User
-from app.models.vehicle import Vehicle
 from app import mongo
 from bson import ObjectId
-from datetime import datetime, timezone
-import math  # For ceiling calculation of hours
+from datetime import datetime, timezone, timedelta
 from flask_jwt_extended import jwt_required, get_jwt_identity, get_jwt
+
+from app.utils.pricing import calculate_dynamic_price
+from app.utils.stats import update_aggregate_rating
 
 @bookings_bp.route('/', methods=['POST'])
 @jwt_required()
 def create_booking():
-    user_id = get_jwt_identity() 
-    jwt_claims = get_jwt()
-    user_type = jwt_claims.get("user_type")
-
-    if user_type != 'customer':
-        return jsonify({"error": "Only customers can create bookings"}), 403
-
+    user_id = get_jwt_identity()
     data = request.get_json()
-    if not data:
-        return jsonify({"error": "Request must be JSON"}), 400
+    if not data: return jsonify({"error": "No data"}), 400
 
     vehicle_id = data.get('vehicle_id')
-    # Frontend should now send datetime-local strings (YYYY-MM-DDTHH:MM)
-    start_date_str = data.get('start_date') 
-    end_date_str = data.get('end_date')
-    destination = data.get('destination')
-
-    if not all([vehicle_id, start_date_str, end_date_str]):
-        return jsonify({"error": "Missing required fields"}), 400
-
     try:
-        # Parse exact date and time
-        start_date = datetime.fromisoformat(start_date_str.replace('Z', '+00:00'))
-        end_date = datetime.fromisoformat(end_date_str.replace('Z', '+00:00'))
+        start_date = datetime.fromisoformat(data['start_date'].replace('Z', '+00:00'))
+        end_date = datetime.fromisoformat(data['end_date'].replace('Z', '+00:00'))
+    except: return jsonify({"error": "Invalid dates"}), 400
 
-        if start_date >= end_date:
-            return jsonify({"error": "End time must be after start time"}), 400
-        if start_date < datetime.now(timezone.utc):
-            return jsonify({"error": "Booking start time cannot be in the past"}), 400
-    except (ValueError, TypeError):
-        return jsonify({"error": "Invalid date/time format"}), 400
-
-    # --- Conflict Checks ---
+    # Conflict & Ownership Checks
     vehicle = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)})
-    if not vehicle:
-        return jsonify({"error": "Vehicle not found"}), 404
-    if vehicle.get('status') != 'active':
-        return jsonify({"error": "Vehicle is not active"}), 400
+    if not vehicle or vehicle.get('status') != 'active':
+        return jsonify({"error": "Vehicle unavailable"}), 400
 
-    # 1. Check Owner Unavailability
-    is_unavailable = mongo.db.availability.find_one({
+    conflicting = mongo.db.bookings.find_one({
         "vehicle_id": vehicle_id,
-        "is_available": False,
+        "status": {"$in": ['upcoming', 'active', 'confirmed', 'pending_approval', 'pending_payment']},
         "start_date": {"$lt": end_date},
         "end_date": {"$gt": start_date}
     })
-    if is_unavailable:
-        return jsonify({"error": "Vehicle is unavailable during this period"}), 409
+    if conflicting: return jsonify({"error": "Conflict detected"}), 409
 
-    # 2. Check Existing Bookings
-    conflicting_booking = mongo.db.bookings.find_one({
+    # Pricing & Status logic
+    calculated_price = calculate_dynamic_price(vehicle, start_date, end_date, mongo)
+    is_instant = vehicle.get('is_instant_bookable', True)
+    initial_status = 'pending_payment' if is_instant else 'pending_approval'
+
+    new_booking = {
+        "customer_id": user_id,
         "vehicle_id": vehicle_id,
-        "status": {"$in": ['upcoming', 'active', 'confirmed']},
-        "start_date": {"$lt": end_date},
-        "end_date": {"$gt": start_date}
-    })
-    if conflicting_booking:
-        return jsonify({"error": "Vehicle is already booked"}), 409
-
-    # --- Phase 1: Price Calculation (Hourly) ---
-    # Calculate duration in hours
-    duration_seconds = (end_date - start_date).total_seconds()
-    duration_hours = math.ceil(duration_seconds / 3600)
+        "start_date": start_date,
+        "end_date": end_date,
+        "total_price": calculated_price,
+        "status": initial_status,
+        "payment_status": 'pending',
+        "created_at": datetime.now(timezone.utc)
+    }
+    result = mongo.db.bookings.insert_one(new_booking)
     
-    # Use hourly rate if it exists, otherwise fallback to daily/24
-    daily_rate = vehicle.get('price_per_day', 0)
-    hourly_rate = vehicle.get('price_per_hour', round(daily_rate / 24, 2))
-    calculated_price = round(duration_hours * hourly_rate, 2)
+    return jsonify({
+        "booking_id": str(result.inserted_id),
+        "requires_approval": not is_instant,
+        "total_price": calculated_price
+    }), 201
 
-    # --- Phase 1: Create Booking with Payment Fields ---
-    try:
-        new_booking_doc = {
-            "customer_id": user_id,
-            "vehicle_id": vehicle_id,
-            "start_date": start_date,
-            "end_date": end_date,
-            "total_price": calculated_price,
-            "status": 'pending_payment', # Changed from 'upcoming' to reflect payment flow
-            "payment_status": 'pending',  # NEW
-            "destination": destination,
-            "created_at": datetime.now(timezone.utc)
-        }
-        result = mongo.db.bookings.insert_one(new_booking_doc)
-        
-        booking_id = str(result.inserted_id)
-        return jsonify({
-            "message": "Booking initiated. Please complete payment.", 
-            "booking_id": booking_id,
-            "total_price": calculated_price
-        }), 201
-
-    except Exception as e:
-        current_app.logger.error(f"Error saving booking: {e}")
-        return jsonify({"error": "Internal error"}), 500
-
-@bookings_bp.route('/', methods=['GET'])
+@bookings_bp.route('/<string:booking_id>/review', methods=['POST'])
 @jwt_required()
-def get_bookings():
+def add_review(booking_id):
     user_id = get_jwt_identity()
-    jwt_claims = get_jwt()
-    user_type = jwt_claims.get("user_type")
-
-    if user_type == 'customer':
-        query = {"customer_id": user_id}
-    elif user_type == 'owner':
-        # Find vehicles owned by this user
-        owner_vehicles = list(mongo.db.vehicles.find({"owner_id": user_id}, {"_id": 1}))
-        vehicle_ids = [str(v['_id']) for v in owner_vehicles]
-        if not vehicle_ids:
-            return jsonify({"bookings": []}), 200
-        query = {"vehicle_id": {"$in": vehicle_ids}}
-    else:
-        return jsonify({"error": "Unauthorized user type"}), 403
-
-    bookings = list(mongo.db.bookings.find(query).sort("created_at", -1))
+    data = request.get_json()
     
-    # Simple serialization loop
-    for b in bookings:
-        b['id'] = str(b.pop('_id'))
-        b['start_date'] = b['start_date'].isoformat()
-        b['end_date'] = b['end_date'].isoformat()
-
-    return jsonify({"bookings": bookings}), 200
-
-@bookings_bp.route('/<string:booking_id>', methods=['GET'])
-@jwt_required()
-def get_single_booking(booking_id):
-    user_id = get_jwt_identity()
-    user_type = get_jwt().get("user_type")
-
     booking = mongo.db.bookings.find_one({"_id": ObjectId(booking_id)})
-    if not booking:
-        return jsonify({"error": "Booking not found"}), 404
+    if not booking or booking['status'] != 'completed':
+        return jsonify({"error": "Invalid trip for review"}), 400
 
-    # Authorization Check
-    authorized = False
-    if booking['customer_id'] == user_id:
-        authorized = True
-    elif user_type == 'owner':
-        vehicle = mongo.db.vehicles.find_one({"_id": ObjectId(booking['vehicle_id'])})
-        if vehicle and vehicle['owner_id'] == user_id:
-            authorized = True
+    new_review = {
+        "booking_id": booking_id,
+        "reviewer_id": user_id,
+        "target_id": data['target_id'],
+        "target_type": data['target_type'], 
+        "rating": int(data['rating']),
+        "comment": data['comment'],
+        "created_at": datetime.now(timezone.utc)
+    }
+    mongo.db.reviews.insert_one(new_review)
+    update_aggregate_rating(data['target_id'], data['target_type'])
+    return jsonify({"message": "Review added"}), 201
 
-    if not authorized:
-        return jsonify({"error": "Unauthorized"}), 403
-
-    booking['id'] = str(booking.pop('_id'))
-    return jsonify(booking), 200
+@bookings_bp.route('/cleanup-expired', methods=['POST'])
+def cleanup_expired():
+    threshold = datetime.now(timezone.utc) - timedelta(minutes=30)
+    res = mongo.db.bookings.update_many(
+        {"status": "pending_payment", "created_at": {"$lt": threshold}},
+        {"$set": {"status": "expired", "expired_at": datetime.now(timezone.utc)}}
+    )
+    return jsonify({"expired_count": res.modified_count}), 200
 
 @bookings_bp.route('/<string:booking_id>', methods=['DELETE'])
 @jwt_required()
 def cancel_booking(booking_id):
     user_id = get_jwt_identity()
-    
     booking = mongo.db.bookings.find_one({"_id": ObjectId(booking_id)})
-    if not booking:
-        return jsonify({"error": "Booking not found"}), 404
-
-    if booking['customer_id'] != user_id:
-        # Optionally allow owner to cancel too
+    if not booking or str(booking['customer_id']) != user_id:
         return jsonify({"error": "Unauthorized"}), 403
 
-    if booking['status'] not in ['upcoming', 'confirmed']:
-        return jsonify({"error": "Booking cannot be cancelled"}), 400
+    now = datetime.now(timezone.utc)
+    refund = booking['total_price']
+    if (booking['start_date'] - now) < timedelta(hours=24):
+        refund *= 0.8 # 20% penalty
 
     mongo.db.bookings.update_one(
         {"_id": ObjectId(booking_id)},
-        {"$set": {"status": "cancelled", "cancelled_at": datetime.now(timezone.utc)}}
+        {"$set": {"status": "cancelled", "refund_amount": refund, "cancelled_at": now}}
     )
+    return jsonify({"message": "Cancelled", "refund": refund}), 200
 
-    return jsonify({"message": "Booking cancelled successfully"}), 200
+@bookings_bp.route('/<string:booking_id>/refund-preview', methods=['GET'])
+@jwt_required()
+def get_refund_preview(booking_id):
+    booking = mongo.db.bookings.find_one({"_id": ObjectId(booking_id)})
+    if not booking: return jsonify({"error": "Not found"}), 404
+
+    now = datetime.now(timezone.utc)
+    time_to_pickup = booking['start_date'].replace(tzinfo=timezone.utc) - now
+    
+    total = booking['total_price']
+    penalty = 0
+    
+    # Logic: 20% penalty if less than 24h notice
+    if time_to_pickup < timedelta(hours=24):
+        penalty = total * 0.2
+    
+    return jsonify({
+        "total_paid": total,
+        "penalty_amount": round(penalty, 2),
+        "refund_amount": round(total - penalty, 2),
+        "is_last_minute": time_to_pickup < timedelta(hours=24)
+    }), 200
