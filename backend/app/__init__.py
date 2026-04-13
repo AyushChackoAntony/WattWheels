@@ -3,52 +3,45 @@ from flask_pymongo import PyMongo
 from flask_cors import CORS
 from .config import Config
 from flask_jwt_extended import JWTManager
-# Optional: Import logging if using the basic logger setup below
 import logging
 from logging.handlers import RotatingFileHandler
 import os
 
 
 mongo = PyMongo()
-jwt = JWTManager() # Your existing JWTManager instance
+jwt = JWTManager() 
 
 def create_app(config_class=Config):
     app = Flask(__name__)
     app.config.from_object(config_class)
 
     mongo.init_app(app)
-    jwt.init_app(app) # Initialize JWT
-
-    # <<< START: Add JWT Error Handlers >>>
+    jwt.init_app(app) 
     @jwt.expired_token_loader
     def expired_token_callback(jwt_header, jwt_payload):
-        app.logger.warning("Expired JWT token received.") # Log specific error
-        return jsonify(error="Token has expired"), 401 # Use 401 for expired
+        app.logger.warning("Expired JWT token received.") 
+        return jsonify(error="Token has expired"), 401 
 
     @jwt.invalid_token_loader
     def invalid_token_callback(error_string):
-        app.logger.warning(f"Invalid JWT token received: {error_string}") # Log specific error
-        # Common invalid reasons include signature verification failure
-        return jsonify(error=f"Invalid token: {error_string}"), 422 # Keep 422 for invalid
+        app.logger.warning(f"Invalid JWT token received: {error_string}") 
+        return jsonify(error=f"Invalid token: {error_string}"), 422 
 
     @jwt.unauthorized_loader
     def missing_token_callback(error_string):
-        app.logger.warning(f"Unauthorized access attempt (missing token): {error_string}") # Log specific error
-        # Usually means missing Authorization header
-        return jsonify(error=f"Missing Authorization Header"), 401 # Use 401 for missing
+        app.logger.warning(f"Unauthorized access attempt (missing token): {error_string}") 
+        return jsonify(error=f"Missing Authorization Header"), 401 
 
     @jwt.needs_fresh_token_loader
     def token_not_fresh_callback(jwt_header, jwt_payload):
-        app.logger.warning("Non-fresh JWT token received when fresh required.") # Log specific error
+        app.logger.warning("Non-fresh JWT token received when fresh required.") 
         return jsonify(error="Fresh token required"), 401
 
     @jwt.revoked_token_loader
     def revoked_token_callback(jwt_header, jwt_payload):
-        app.logger.warning("Revoked JWT token received.") # Log specific error
+        app.logger.warning("Revoked JWT token received.") 
         return jsonify(error="Token has been revoked"), 401
-    # <<< END: Add JWT Error Handlers >>>
-
-    # Allow requests from your frontend development server
+   
     CORS(app, resources={r"/api/*": {"origins": "*"}}, supports_credentials=True)
 
     # Import Blueprints (Keep these as they are)
