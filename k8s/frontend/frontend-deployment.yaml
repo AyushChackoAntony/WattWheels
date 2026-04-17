@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: frontend
-        image: vxpyr/wattwheels-frontend:v1.0.23
+        image: vxpyr/wattwheels-frontend:v1.0.24
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
