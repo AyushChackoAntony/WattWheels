@@ -13,7 +13,7 @@ class Vehicle:
         """
         Transforms MongoDB document into a frontend-friendly dictionary.
         Includes dynamic calculation of monthly earnings and bookings.
-        Updated for Phase 1: Hourly Rentals & Payments.
+        Updated for Phase 1 (Hourly Rentals) and Phase 2 (Instant Booking).
         """
         if not vehicle_data:
             return None
@@ -64,6 +64,11 @@ class Vehicle:
             'acceleration': vehicle_data.get('acceleration'),
             'pricePerDay': price_per_day,
             'pricePerHour': price_per_hour, # Added for Hourly Rentals
+            
+            # --- Phase 2 Addition: Instant Booking Flag ---
+            # Default to True if not present to avoid breaking existing listings
+            'isInstantBookable': vehicle_data.get('is_instant_bookable', True), 
+            
             'location': vehicle_data.get('location'),
             'status': vehicle_data.get('status', 'active'),
             'image': vehicle_data.get('image_url'),

@@ -46,7 +46,7 @@ export default function VehicleDetailsPage() {
         fetchVehicleDetails();
     }, [vehicleId]);
 
-    // Phase 1 Update: Logic to trigger Stripe Checkout
+    // Phase 1, 2 & 4 Update: Logic to trigger Booking and Bypass Stripe for Testing
     const handleBookNow = async () => {
         if (!isAuthenticated) {
             router.push('/login/customer');
@@ -72,7 +72,7 @@ export default function VehicleDetailsPage() {
                 },
                 body: JSON.stringify({
                     vehicle_id: vehicleId,
-                    start_date: selectedPickup, // backend now parses this ISO string
+                    start_date: selectedPickup, 
                     end_date: selectedDropoff,
                 }),
             });
@@ -80,7 +80,20 @@ export default function VehicleDetailsPage() {
             const bookingData = await bookingRes.json();
             if (!bookingRes.ok) throw new Error(bookingData.error || "Booking failed");
 
-            // 2. Create Stripe Checkout Session using the new booking ID
+            // --- Phase 2: Check if Owner Approval is required ---
+            if (bookingData.requires_approval) {
+                alert("Request sent! The owner must approve this trip before you can pay.");
+                router.push('/dashboard/customer/bookings');
+                return; 
+            }
+
+            // --- PHASE 4 TESTING BYPASS: Skip Stripe and go straight to dashboard ---
+            alert("Booking created! (Stripe payment bypassed for testing)");
+            router.push('/dashboard/customer/bookings');
+            return;
+
+            /* --- STRIPE CODE COMMENTED OUT FOR TESTING ---
+            // 2. Create Stripe Checkout Session using the new booking ID (Instant Booking)
             const paymentRes = await fetch('http://127.0.0.1:5000/api/payments/create-checkout-session', {
                 method: 'POST',
                 headers: {
@@ -95,6 +108,7 @@ export default function VehicleDetailsPage() {
 
             // 3. Redirect user to Stripe secure payment page
             window.location.href = paymentData.url;
+            */
 
         } catch (err) {
             setBookingError(err.message);
@@ -102,17 +116,31 @@ export default function VehicleDetailsPage() {
         }
     };
 
-    // Phase 1 Update: Calculation based on exact hours
+    // Phase 4 Update: Calculation based on exact hours AND Weekend Surge Pricing
     let hours = 0;
     let estimatedPrice = 0;
+    let isWeekend = false;
+
     if (selectedPickup && selectedDropoff && vehicle) {
         const start = new Date(selectedPickup);
         const end = new Date(selectedDropoff);
+        
         if (end > start) {
             hours = Math.ceil((end - start) / (1000 * 60 * 60));
-            // Use pricePerHour if available, otherwise day/24
-            const rate = vehicle.pricePerHour || (vehicle.pricePerDay / 24);
-            estimatedPrice = hours * rate;
+            
+            // 1. Get the base rate using the correct snake_case variables from MongoDB
+            const rate = vehicle.price_per_hour || ((vehicle.price_per_day || 0) / 24);
+            let baseTotal = hours * rate;
+
+            // 2. Apply Dynamic Pricing (Weekend Surge)
+            const pickupDay = start.getDay(); // 0 is Sunday, 6 is Saturday
+            isWeekend = (pickupDay === 0 || pickupDay === 6);
+
+            if (isWeekend) {
+                estimatedPrice = baseTotal * 2; // Apply the 2.0x multiplier
+            } else {
+                estimatedPrice = baseTotal;
+            }
         }
     }
 
@@ -129,7 +157,7 @@ export default function VehicleDetailsPage() {
                     <div className="vehicle-image-gallery">
                         <Image 
                             src={vehicle.image || "/images/ev-cars/default.svg"} 
-                            alt={vehicle.name} 
+                            alt={vehicle.name || "Vehicle"} 
                             width={600} height={400} 
                             className="main-vehicle-image"
                         />
@@ -138,6 +166,13 @@ export default function VehicleDetailsPage() {
                     <div className="vehicle-info-booking">
                         <h1>{vehicle.name}</h1>
                         <p className="vehicle-location">{vehicle.location}</p>
+                        
+                        {/* Phase 2: Show a badge if Instant Booking is available */}
+                        {vehicle.isInstantBookable && (
+                            <div className="badge instant-book-badge">
+                                ⚡ Instant Book
+                            </div>
+                        )}
 
                         <div className="booking-summary">
                             <h3>Select Time & Book</h3>
@@ -166,6 +201,14 @@ export default function VehicleDetailsPage() {
                             {hours > 0 && (
                                 <div className="price-details">
                                     <p><strong>Duration:</strong> {hours} Hour{hours > 1 ? 's' : ''}</p>
+                                    
+                                    {/* Show a UI badge if the weekend surge is active */}
+                                    {isWeekend && (
+                                        <p style={{ color: '#e74c3c', fontSize: '0.9rem', margin: '5px 0' }}>
+                                            🔥 High Demand: Weekend Pricing Applied
+                                        </p>
+                                    )}
+
                                     <div className="estimated-price">
                                         Total: <span>₹{Math.round(estimatedPrice).toLocaleString()}</span>
                                     </div>
@@ -177,9 +220,13 @@ export default function VehicleDetailsPage() {
                             <button
                                 className="book-now-button"
                                 onClick={handleBookNow}
-                                disabled={hours <= 0 || isBooking}
+                                disabled={hours <= 0 || isBooking || estimatedPrice === 0}
                             >
-                                {isBooking ? 'Processing...' : isAuthenticated ? 'Pay & Confirm' : 'Login to Book'}
+                                {isBooking ? 'Processing...' : 
+                                  isAuthenticated ? 
+                                    (vehicle.isInstantBookable ? 'Pay & Confirm' : 'Request to Book') 
+                                    : 'Login to Book'
+                                }
                             </button>
                         </div>
                     </div>

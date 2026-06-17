@@ -153,7 +153,7 @@ def delete_vehicle(vehicle_id):
     
 @vehicles_bp.route('/<string:vehicle_id>', methods=['GET'])
 def get_single_vehicle(vehicle_id):
-    vehicle = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id)})
+    vehicle = mongo.db.vehicles.find_one({"_id": ObjectId(vehicle_id), "status": "active"})
     if not vehicle:
         return jsonify({"error": "Vehicle not found"}), 404
         

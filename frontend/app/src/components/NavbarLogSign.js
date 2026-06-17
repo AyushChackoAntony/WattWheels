@@ -8,7 +8,7 @@ export default function NavbarLogSign() {
             <div className="logo">
               <i className="fas fa-bolt"></i>
               {/* <span>WattWheels</span> */}
-              <span><Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>WattWheels</Link></span>
+              <span><Link href="/" style={{ textDecoration: 'none', color: 'inherit' }}>WattWheels2</Link></span>
             </div>
           </div>
           <div className="nav-right">
